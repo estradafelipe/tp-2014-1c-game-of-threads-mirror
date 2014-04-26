@@ -1,0 +1,7 @@
+#!/home/utnso/workspace/programa/Debug/programa
+begin
+#primero declaro las variables
+variables a,b
+a=20
+print a
+end

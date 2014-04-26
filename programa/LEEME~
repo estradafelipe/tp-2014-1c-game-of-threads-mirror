@@ -1,0 +1,9 @@
+//***Cosas a tener en cuenta
+
+*Esta como shared library la commons
+*La de sockets, como no es la definitiva no.
+*Para probar tienen que armar una variable de entorno que se llame ANSISOP_CONFIG. Esta variable debe contener la ruta donde este el archivo de configuracion. El comando es: export ANSISOP_CONFIG=/home/utnso/workspace/programa/archivo.conf
+*Se puede ejecutar -solo el programa pasandole como parametro el script ./programa miscript 
+                   -ejecutando el script ./miscript
+
+tienen que tener un servidor que escuche en la ip local (127.0.0.1) en el puerto 5000 o bien pueden abrir otra terminal y escribir nc -l 5000 (que queda escuchando en ese puerto)
