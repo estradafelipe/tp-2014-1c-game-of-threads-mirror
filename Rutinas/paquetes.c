@@ -15,7 +15,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include "paquetes.h"
-
+#include <string.h>
 
 
 package *crear_paquete(t_paquete type, char *payload, uint16_t payloadLength) {
@@ -120,19 +120,20 @@ package *recibir_paquete(uint32_t server_descriptor) {
 	package *paquete = malloc(sizeof(package));
 	int32_t bytes_recibidos;
 	bytes_recibidos= recibir(server_descriptor, paquete);
-	if(bytes_recibidos==0){
+	if(bytes_recibidos<=0){
 		paquete->payloadLength=0;
 	}
 	return paquete;
 	}
 
+
 int32_t recibir(uint32_t descriptor, package* paquete) {
+
 	int32_t bytes_recibidos;
 	package *paquete_recibido = paquete;
 	char stream[1024];
 
-	bytes_recibidos = recv(descriptor, stream, 1024, 0);
-
+	bytes_recibidos = recv(descriptor, stream, sizeof(stream), 0);
 
 	if (bytes_recibidos < 0) {
 		perror("Error en recv()");
