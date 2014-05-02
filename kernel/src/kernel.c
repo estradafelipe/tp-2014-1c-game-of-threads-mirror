@@ -64,32 +64,12 @@ int main(int argc, char**argv) {
 	printf("QUANTUM:%d\n",kernel->quantum);
 	printf("RETARDO:%d\n",kernel->retardo);
 	printf("MULTIPROGRAMACION:%d\n",kernel->multiprogramacion);
-	/*
-	struct stat stat_file;
-	stat(path, &stat_file);
-	char* buffer = calloc(1, stat_file.st_size + 1);
-	FILE* file = NULL;
-	file = fopen(path,"r");
-	if (file==NULL)
-		printf("no se puede abrir el archivo\n");
-
-	else {
-		fread(buffer, stat_file.st_size, 1, file); // levanto el archivo en buffer
-	}
-
-	t_medatada_program *programa = metadatada_desde_literal(buffer);
-	printf("Cantidad de Etiquetas:%d\n",programa->cantidad_de_etiquetas);
-	printf("Cantidad de Funciones:%d\n",programa->cantidad_de_funciones);
-	printf("Cantidad de Instrucciones:%d\n",programa->instrucciones_size);
-	*/
-
 
 	int thr;
 	pthread_t * plpthr = malloc(sizeof(pthread_t)); // hilo plp
 	//pthread_t * pcpthr = malloc(sizeof(pthread_t)); // hilo pcp
 
 	thr = pthread_create( plpthr, NULL, (void*)hiloPLP, NULL);
-	//thr = pthread_create(plpthr,NULL,(void*)hiloPLP,NULL);
 
 	if (thr== 0)
 		printf("Se creo el hilo lo mas bien\n");//se pudo crear el hilo
