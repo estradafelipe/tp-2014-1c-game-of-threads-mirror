@@ -14,6 +14,9 @@
 #include <commons/string.h>
 #include <commons/config.h>
 #include "socket/cliente.h"
+#include <unistd.h>
+#include "paquetes.h"
+#include <string.h>
 
 t_config* config;
 char * path_config;
@@ -61,13 +64,21 @@ int main(int argc, char **argv) {
 
 		int *descriptor = malloc(sizeof(int));
 		*descriptor = cliente.socket.descriptor;
+
+		package *paquete = crear_paquete(handshake,buffer,strlen(buffer));
+
+		int resu = enviar_paquete(paquete,cliente.socket.descriptor);
+
 		//Enviar msj al server
-		int resu  = socket_enviar(cliente.socket.descriptor,buffer);
+		//int resu  = socket_enviar(cliente.socket.descriptor,buffer);
 		if (resu ==-1)
 			printf("No se pudo enviar el archivo\n");
 		char *msj2 =  socket_recibir(cliente.socket.descriptor);
 		printf("Nos dijeron: %s\n",msj2);
+		sleep(30);
 		free(buffer);
+		close(cliente.socket.descriptor);
+
 		fclose(file);
 	}
 	return EXIT_SUCCESS;

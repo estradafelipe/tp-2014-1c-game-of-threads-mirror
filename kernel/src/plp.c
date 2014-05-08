@@ -16,34 +16,31 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "paquetes.h"
-
+#include <commons/collections/dictionary.h>
 #include "sockets.h"
+#include <semaphore.h>
+#include <pthread.h>
 
+t_dictionary *programas;
 extern t_kernel *kernel;
-//extern pthread_mutex_t mutex_fin;
 extern int ultimoid;
-extern t_list *cola_exec;
 extern t_list *cola_ready;
+extern t_list *cola_exit;
 t_list *cola_new;
-
+extern sem_t *sem_exit;
+sem_t *sem_multiprogramacion;
+sem_t *sem_new;
 bool solicitarSegmentosUMV(t_medatada_program *programa){
 	return true;
 }
 
-bool cumplemultiprogramacion(){
-	int cntexec = list_size(cola_exec);
-	int cntready = list_size(cola_ready);
-	int cnttotal = cntexec + cntready;
-	return (cnttotal<kernel->multiprogramacion);
-}
 
-
-
-
-void encolar(t_list *cola, void *element){
+void encolar(t_list *cola, t_PCB *element){
+	printf("funcion encolar\n");
 	list_add(cola,element);
 }
 void pasarAReady(t_PCB *element){
+
 	//hacer SJN
 	int i;
 	int cntready = list_size(cola_ready);
@@ -63,10 +60,12 @@ void pasarAReady(t_PCB *element){
 }
 
 void siguienteSJN(t_list *cola_new){
+	printf("funcion siguienteSJN");
 	int i,menori;
 	int cntnew = list_size(cola_new);
 	t_PCB *element;
 	t_PCB *menorElement=list_get(cola_new,0);
+	printf("menor elemento:%d, peso:%d\n",menorElement->id,menorElement->peso);
 	menori = 0;
 	for (i=1;i<cntnew;i++){
 		element = list_get(cola_new,i);
@@ -75,24 +74,40 @@ void siguienteSJN(t_list *cola_new){
 			menorElement = element;
 		}
 	}
+
 	pasarAReady(menorElement);
+	printf("hasta aca llego2");
 	list_remove(cola_new,menori);
+	printf("hasta aca llego3");
 	//buscar el menor de la cola de new
 	//pasarAReady(element);
 	//list_remove()
 }
 
-void *desencolar(t_list *cola){
+t_PCB *desencolar(t_list *cola){
 	t_PCB *element =list_get(cola,0);
-	pasarAReady(element);
 	list_remove(cola,0);
 	return element;
 }
 
+void enviarMsgPrograma(int id,char * msg){
+	char * key = string_from_format("%d",id);
+	int * item = dictionary_get(programas,key);
+	int fd = *item;
+	int nbytes;
+	if (send(fd, msg, nbytes, 0) == -1) {
+		perror("send");
+	}
+}
 
-void rechazarPrograma(){
+void rechazarPrograma(int fd){
+	char * msg = "No hay recursos suficientes para procesar el programa";
+	if (send(fd, msg, strlen(msg), 0) == -1) {
+		perror("send");
+	}
 
 }
+
 t_medatada_program* preprocesar(char *buffer){
 	t_medatada_program *programa = metadatada_desde_literal(buffer);
 	printf("Cantidad de Etiquetas:%d\n",programa->cantidad_de_etiquetas);
@@ -117,7 +132,7 @@ t_PCB *crearPCB(t_medatada_program *element){
 }
 void loggeo(){
 
-	t_PCB *parm=malloc(sizeof(t_PCB));
+	t_PCB *parm;
 	printf("***IMPRIMO LA COLA DE NEW***\n");
 		int i = 0;
 		printf("ID  |  Peso\n");
@@ -141,33 +156,69 @@ void loggeo(){
 			i++;
 		}
 		printf("************\n");
-		free(parm);
+
 }
-void gestionarDatos(char *buffer){
+void liberarRecursosUMV(t_PCB *programa){
+
+}
+
+/*
+ * Hilo que se encarga de liberar los segmentos de memoria reservados
+ * por los programas a la UMV
+ * */
+void hiloSacaExit(){
+	printf("Hilo exit");
+	while(1){
+		sem_wait(sem_exit);
+		printf("Hilo Exit, se libero el semaforo");
+		t_PCB *programa = desencolar(cola_exit);
+		liberarRecursosUMV(programa);
+		sem_post(sem_multiprogramacion);
+		sem_post(sem_exit);
+	}
+
+}
+void hiloMultiprogramacion(){
+	printf("hilo multiprogramacion");
+	while(1){
+		sem_wait(sem_multiprogramacion);
+		printf("pase el sem de multiprogramacion\n");
+		sem_wait(sem_new);
+		printf("hilo multiprogramacion entre!, saco de new!\n");
+		siguienteSJN(cola_new);
+		// informar NEW -> Programa X -> READY
+
+		loggeo();
+	}
+}
+void gestionarDatos(int fd, char *buffer){
 	t_medatada_program *programa = preprocesar(buffer);
 	if (solicitarSegmentosUMV(programa)) {
 		t_PCB *PCB = crearPCB(programa);
+		char * key = string_from_format("%d",PCB->id);
+		int *item = malloc(sizeof(int));
+		*item = fd;
+		dictionary_put(programas,key,item);
 		encolar(cola_new,PCB);
+		sem_post(sem_new);
 		// loguear: informar Programa X -> NEW
+
 		loggeo();
-		if (cumplemultiprogramacion()){
-			siguienteSJN(cola_new);
-			// informar NEW -> Programa X -> READY
-			loggeo();
-		}
+
 	}
 	else
-		rechazarPrograma(); // informa por pantalla
+		rechazarPrograma(fd); // informa por pantalla
 
 }
 void recibirProgramas(void){
-	int i,newfd,nbytes;
+	int newfd,nbytes;
+	int32_t i;
 	fd_set master;  // conjunto maestro de descriptores de fichero
 	fd_set read_fds;// conjunto temporal de descriptores de fichero para select()
 	FD_ZERO(&master); // borra los conjuntos maestro y temporal
 	FD_ZERO(&read_fds);
 	struct sockaddr_in remoteaddr; // dirección del cliente
-	printf("HILO PLP\n");
+	printf("HILO recibirProgramas\n");
 
 	int listensocket = abrir_socket();
 	vincular_socket(listensocket,kernel->puertoprog);
@@ -205,11 +256,14 @@ void recibirProgramas(void){
 	                // gestionar datos de un cliente
 					paquete = recibir_paquete(i);
 					nbytes = paquete->payloadLength;
+
 					if (nbytes == 0) {
 						// conexión cerrada por el cliente
 						printf("selectserver: socket %d hung up\n", i);
 						close(i);
 						FD_CLR(i, &master); // eliminar del conjunto maestro
+						// eliminar del dictionary
+
 					}
 					else {
 
@@ -217,7 +271,7 @@ void recibirProgramas(void){
 							printf("Handshake del socket %d, tamanio:%d,mensaje:%s\n",i,paquete->payloadLength,paquete->payload);
 						else
 							printf("Mensaje del socket %d, tamanio:%d,mensaje:%s\n",i,paquete->payloadLength,paquete->payload);
-							gestionarDatos(paquete->payload);
+						gestionarDatos(i,paquete->payload);
 						// tenemos datos del cliente i
 
 						if (send(i, "Lo recibi noma", nbytes, 0) == -1) {
@@ -233,7 +287,12 @@ void recibirProgramas(void){
 void hiloPLP(){
 
 	cola_new = list_create();
-	// todo esto va a estar en un while(1)
+	programas = dictionary_create(); // contendra los fd de los programas con el id del PCB
+	sem_multiprogramacion = malloc(sizeof(sem_t));
+	sem_new = malloc(sizeof(sem_t));
+	sem_init(sem_multiprogramacion,0,4);
+	sem_init(sem_new,0,1);
+	sem_wait(sem_new);
 
 	/*
 	- para el plp llega el programa
@@ -255,32 +314,27 @@ void hiloPLP(){
 
 	 */
 
-	recibirProgramas();
-/*
-	struct stat stat_file;
-	stat(path, &stat_file);
-	char* buffer = calloc(1, stat_file.st_size + 1);
-	FILE* file = NULL;
-	file = fopen(path,"r");
-	if (file==NULL)
-		printf("no se puede abrir el archivo\n");
+	// un hilo que controle el grado de multiprogramacion
+	// un hilo que controle la cola de exit
+	// un hilo que recibe programas.
+	int thr;
+	pthread_t * progthr = malloc(sizeof(pthread_t)); // hilo q recibe programas
+	thr = pthread_create( progthr, NULL, (void*)recibirProgramas, NULL);
+	if (thr== 0)
+		printf("Se creo el hilo q recibe programas lo mas bien\n");//se pudo crear el hilo
+	else printf("no se pudo crear el hilo\n");//no se pudo crear el hilo
 
-	else {
-		fread(buffer, stat_file.st_size, 1, file); // levanto el archivo en buffer
-	}
+	pthread_t * multithr = malloc(sizeof(pthread_t)); // hilo q recibe programas
+	thr = pthread_create( multithr, NULL, (void*)hiloMultiprogramacion, NULL);
+	if (thr== 0)
+		printf("Se creo el hilo q controla multiprogramacion lo mas bien\n");
+	else printf("no se pudo crear el hilo\n");
+
+	pthread_t * exitthr = malloc(sizeof(pthread_t)); // hilo q recibe programas
+	thr = pthread_create( exitthr, NULL, (void*)hiloSacaExit, NULL);
+	if (thr== 0)
+		printf("Se creo el hilo q saca de exit lo mas bien\n");//se pudo crear el hilo
+	else printf("no se pudo crear el hilo\n");//no se pudo crear el hilo
 
 
-	t_medatada_program *programa = preprocesar(buffer);
-	if (solicitarSegmentosUMV(programa)) {
-		t_PCB *PCB = crearPCB(programa);
-		encolar(cola_new,PCB);
-		// loguear: informar Programa X -> NEW
-		if (cumplemultiprogramacion()){
-			siguienteSJN(cola_new);
-			// informar NEW -> Programa X -> READY
-		}
-	}
-	else
-		rechazarPrograma(); // informa por pantalla
-*/
 }

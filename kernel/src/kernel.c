@@ -11,18 +11,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <semaphore.h>
 #include <parser/metadata_program.h>
 #include <commons/collections/list.h>
+#include <commons/collections/dictionary.h>
 #include <commons/config.h>
 #include "plp.h"
+
 //#include "pcp.h"
 
 
 t_kernel *kernel;
-pthread_mutex_t mutex_fin = PTHREAD_MUTEX_INITIALIZER;
+sem_t *semaforo_fin;
+sem_t *sem_exit;
 int ultimoid;
-t_list *cola_exec;
 t_list *cola_ready;
+t_list *cola_exit;
 char *pathconfig;
 
 void leerconfiguracion(char *path_config){
@@ -52,9 +56,12 @@ void leerconfiguracion(char *path_config){
 int main(int argc, char**argv) {
 	ultimoid = 0;
 	kernel = malloc(sizeof(t_kernel));
-
+	semaforo_fin = malloc(sizeof(sem_t));
 	cola_ready = list_create();
-	cola_exec = list_create();
+	cola_exit = list_create();
+	sem_exit = malloc(sizeof(sem_t));
+	sem_init(sem_exit,0,1);
+	sem_wait(sem_exit);
 	char * path = argv[1]; // path del script ansisop / del archivo de configuracion
 	leerconfiguracion(path);
 	// codigo debug para ver que levanto el archivo de config
@@ -83,9 +90,10 @@ int main(int argc, char**argv) {
 		hasta que se termine todo.
 	*/
 
-	pthread_mutex_lock(&mutex_fin);
+
+	sem_wait(semaforo_fin);
 	printf("Esperando a que se termine todo\n");
-	pthread_mutex_lock(&mutex_fin);
+
 
 	return EXIT_SUCCESS;
 }

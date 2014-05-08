@@ -26,8 +26,8 @@ endif
 all: kernel
 
 dependents:
-	-cd /home/utnso/workspace/parser/Debug && $(MAKE) clean all
-	-cd /home/utnso/workspace/commons/Debug && $(MAKE) clean all
+	-cd /home/utnso/workspace/parser/Debug && $(MAKE) all
+	-cd /home/utnso/workspace/commons/Debug && $(MAKE) all
 
 # Tool invocations
 kernel: $(OBJS) $(USER_OBJS) /home/utnso/workspace/parser/Debug/libparser.so /home/utnso/workspace/commons/Debug/libcommons.so
