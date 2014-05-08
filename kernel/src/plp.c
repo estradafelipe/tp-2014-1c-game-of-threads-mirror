@@ -290,7 +290,7 @@ void hiloPLP(){
 	programas = dictionary_create(); // contendra los fd de los programas con el id del PCB
 	sem_multiprogramacion = malloc(sizeof(sem_t));
 	sem_new = malloc(sizeof(sem_t));
-	sem_init(sem_multiprogramacion,0,4);
+	sem_init(sem_multiprogramacion,0,kernel->multiprogramacion);
 	sem_init(sem_new,0,1);
 	sem_wait(sem_new);
 
