@@ -12,10 +12,12 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <semaphore.h>
+#include <unistd.h>
 #include <parser/metadata_program.h>
 #include <commons/collections/list.h>
 #include <commons/collections/dictionary.h>
 #include <commons/config.h>
+#include "kernel.h"
 #include "plp.h"
 
 //#include "pcp.h"
@@ -28,13 +30,14 @@ int ultimoid;
 t_list *cola_ready;
 t_list *cola_exit;
 char *pathconfig;
+t_dictionary *semaforos;
+t_dictionary *entradasalida;
 
 void leerconfiguracion(char *path_config){
 	t_config *config = config_create(path_config);
 	char *key;
+
 	key = "PUERTO_PROG";
-
-
 	if (config_has_property(config, key))
 		kernel->puertoprog = config_get_int_value(config,key);
 	key = "PUERTO_CPU";
@@ -49,9 +52,78 @@ void leerconfiguracion(char *path_config){
 	key = "MULTIPROGRAMACION";
 	if (config_has_property(config, key))
 		kernel->multiprogramacion = config_get_int_value(config, key);
+	key = "SEMAFOROS";
+	if (config_has_property(config,key))
+		kernel->semaforosid = config_get_array_value(config,key);
+	key = "VALOR_SEMAFORO";
+	if (config_has_property(config,key))
+		kernel->semaforosvalor =config_get_array_value(config,key);
+	key = "ID_HIO";
+	if (config_has_property(config,key))
+		kernel->entradasalidaid =	config_get_array_value(config,key);
+	key = "HIO";
+	if (config_has_property(config,key))
+		kernel->entradasalidaret =	config_get_array_value(config,key);
 
-	// FALTAN LOS ID DE LOS SEMAFOROS DEL SISTEMA
   }
+/* Crea las tablas de semaforos y de I/O */
+void crea_tablasSitema(){
+	int i;
+	semaforos = malloc(sizeof(t_dictionary));
+	entradasalida = malloc(sizeof(t_dictionary));
+	semaforos = dictionary_create();
+	entradasalida = dictionary_create();
+
+	// Crea tabla de semaforos
+	i = 0;
+	while (1) {
+		if (kernel->semaforosid[i]!='\0'){
+			dictionary_put(semaforos,kernel->semaforosid[i],atoi(kernel->semaforosvalor[i]));
+			i++;
+		}else break;
+
+	}
+
+	// Crea tabla de IO
+	i = 0;
+	while (1) {
+		if (kernel->entradasalidaid[i]!='\0'){
+
+			t_entradasalida *IO = malloc(sizeof(t_entradasalida));
+			IO->id = kernel->entradasalidaid[i];
+			IO->retardo = atoi(kernel->entradasalidaret[i]);
+			IO->semaforo_IO = malloc(sizeof(sem_t));
+			sem_init(IO->semaforo_IO,0,0); //inicializo semaforo del hilo en 0
+			dictionary_put(entradasalida,IO->id,IO);
+			i++;
+		}else break;
+	}
+
+}
+
+void hiloIO(t_entradasalida *IO){
+	// hilo de entrada salida
+
+	while(1){
+		sem_wait(IO->semaforo_IO); // cuando deba ejecutar este hilo, darle signal
+		usleep(IO->retardo);
+	}
+}
+
+void crea_hilosIO(char* key, t_entradasalida *IO){
+	int thr;
+	pthread_t * IOthr = malloc(sizeof(pthread_t));
+	thr = pthread_create( IOthr, NULL, (void*)hiloIO, IO);
+
+	if (thr== 0)
+		printf("Se creo el hilo de IO %s\n",IO->id);
+	else printf("no se pudo crear el hilo IO %s\n",IO->id);
+
+}
+
+void imprimepantalla(char * key, t_entradasalida *IO){
+	printf("%s: %d\n",key,IO->retardo);
+}
 
 int main(int argc, char**argv) {
 	ultimoid = 0;
@@ -60,19 +132,29 @@ int main(int argc, char**argv) {
 	cola_ready = list_create();
 	cola_exit = list_create();
 	sem_exit = malloc(sizeof(sem_t));
-	sem_init(sem_exit,0,1);
-	sem_wait(sem_exit);
-	char * path = argv[1]; // path del script ansisop / del archivo de configuracion
+	sem_init(sem_exit,0,0);
+
+	char * path = argv[1]; // path del archivo de configuracion
 	leerconfiguracion(path);
-	// codigo debug para ver que levanto el archivo de config
+	crea_tablasSitema();
+
+	// ** codigo debug para ver que levanto el archivo de config
 	printf("**MOSTRANDO CONFIGURACION**\n");
 	printf("PUERTO_PROG:%d\n",kernel->puertoprog);
 	printf("PUERTO_CPU:%d\n",kernel->puertocpu);
 	printf("QUANTUM:%d\n",kernel->quantum);
 	printf("RETARDO:%d\n",kernel->retardo);
 	printf("MULTIPROGRAMACION:%d\n",kernel->multiprogramacion);
+	printf("SEMAFOROS:\n");
+	//dictionary_iterator(semaforos,(void*)imprimepantalla);
+	printf("\nENTRADA Y SALIDA:\n");
+	dictionary_iterator(entradasalida,(void*)imprimepantalla);
+	// **
 
+	// Crea hilos I/O
+	dictionary_iterator(entradasalida,(void*)crea_hilosIO);
 	int thr;
+
 	pthread_t * plpthr = malloc(sizeof(pthread_t)); // hilo plp
 	//pthread_t * pcpthr = malloc(sizeof(pthread_t)); // hilo pcp
 
@@ -89,8 +171,6 @@ int main(int argc, char**argv) {
 		En vez de hacer el join de los threads me bloqueo con un semaforo
 		hasta que se termine todo.
 	*/
-
-
 	sem_wait(semaforo_fin);
 	printf("Esperando a que se termine todo\n");
 
