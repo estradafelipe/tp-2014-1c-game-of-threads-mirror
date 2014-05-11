@@ -32,6 +32,7 @@ t_list *cola_exit;
 char *pathconfig;
 t_dictionary *semaforos;
 t_dictionary *entradasalida;
+pthread_mutex_t mutex_ready = PTHREAD_MUTEX_INITIALIZER;
 
 void leerconfiguracion(char *path_config){
 	t_config *config = config_create(path_config);
@@ -52,6 +53,9 @@ void leerconfiguracion(char *path_config){
 	key = "MULTIPROGRAMACION";
 	if (config_has_property(config, key))
 		kernel->multiprogramacion = config_get_int_value(config, key);
+	key = "SIZE_STACK";
+	if (config_has_property(config, key))
+		kernel->sizeStack = config_get_int_value(config, key);
 	key = "SEMAFOROS";
 	if (config_has_property(config,key))
 		kernel->semaforosid = config_get_array_value(config,key);

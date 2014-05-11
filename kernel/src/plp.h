@@ -8,31 +8,29 @@
 #ifndef PLP_H_
 #define PLP_H_
 
-typedef struct
-{
-	int puertoprog;
-	int puertocpu;
-	int quantum;
-	int retardo;
-	int multiprogramacion;
-}t_kernel;
+
 
 typedef struct
 {
-	//segun lo que me diga Felipe.
-}t_dirUMV;
+	int id; // el mismo que el del pcb
+	int peso;
+	int fd; // file descriptor para socket.
+}t_programa;
+
 
 typedef struct
 {
 	int id;
-	t_dirUMV segmentoCodigo;
-	t_dirUMV segmentoStack;
-	t_dirUMV cursorStack;
-	//(tipo?)indiceCodigo;
-	//(tipo?)indiceEtiquetas;
+	// **direcciones del primer byte en la umv
+	int segmentoCodigo;
+	int segmentoStack;
+	int cursorStack;
+	int indiceCodigo;
+	int indiceEtiquetas;
+	// **
 	int programcounter;
 	int sizeContext;
-	int peso;
+	int sizeIndexLabel;
 }t_PCB;
 
 void hiloPLP();

@@ -20,6 +20,7 @@ typedef struct
 	char** entradasalidaret;
 	char** semaforosid;
 	char** semaforosvalor;
+	int sizeStack; // en bytes
 }t_kernel;
 
 typedef struct

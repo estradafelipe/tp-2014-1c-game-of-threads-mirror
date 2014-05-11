@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include "plp.h"
+#include "kernel.h"
 #include <stdlib.h>
 #include <parser/metadata_program.h>
 #include <sys/types.h>
@@ -21,6 +22,7 @@
 #include <semaphore.h>
 #include <pthread.h>
 
+
 t_dictionary *programas;
 extern t_kernel *kernel;
 extern int ultimoid;
@@ -30,7 +32,15 @@ t_list *cola_new;
 extern sem_t *sem_exit;
 sem_t *sem_multiprogramacion;
 sem_t *sem_new;
-bool solicitarSegmentosUMV(t_medatada_program *programa){
+pthread_mutex_t mutex_new = PTHREAD_MUTEX_INITIALIZER;
+extern pthread_mutex_t mutex_ready;
+bool solicitarSegmentosUMV(char *codigo,t_medatada_program *programa){
+	//solicito segmento de codigo = strlen(buffer)
+	// indice de codigo=
+	// indice de etiquetas=
+	// stack = kernel->sizeStack
+	//programa->etiquetas_size
+	//programa->instrucciones_size
 	return true;
 }
 
@@ -39,9 +49,12 @@ void encolar(t_list *cola, t_PCB *element){
 	printf("funcion encolar\n");
 	list_add(cola,element);
 }
-void pasarAReady(t_PCB *element){
 
-	//hacer SJN
+void pasarAReady(t_PCB *element){
+	pthread_mutex_lock(&mutex_ready);
+	list_add(cola_ready,element);
+	pthread_mutex_unlock(&mutex_ready);
+	/*
 	int i;
 	int cntready = list_size(cola_ready);
 	bool entro=false;
@@ -57,31 +70,34 @@ void pasarAReady(t_PCB *element){
 	}
 
 	if (!entro) encolar(cola_ready,element);
+	*/
 }
 
 void siguienteSJN(t_list *cola_new){
 	printf("funcion siguienteSJN");
-	int i,menori;
-	int cntnew = list_size(cola_new);
+	int i,menori,cntnew;
 	t_PCB *element;
+	t_programa *menorPrograma;
+	t_programa *programa;
+	pthread_mutex_lock(&mutex_new);
+
+	cntnew = list_size(cola_new);
 	t_PCB *menorElement=list_get(cola_new,0);
-	printf("menor elemento:%d, peso:%d\n",menorElement->id,menorElement->peso);
+	menorPrograma = dictionary_get(programas,string_from_format("%d",menorElement->id));
 	menori = 0;
 	for (i=1;i<cntnew;i++){
 		element = list_get(cola_new,i);
-		if (element->peso<menorElement->peso){
+		programa = dictionary_get(programas,string_from_format("%d",element->id));
+		if (programa->peso<menorPrograma->peso){
 			menori = i;
 			menorElement = element;
+			menorPrograma = programa;
 		}
 	}
-
+	pthread_mutex_unlock(&mutex_new);
+	printf("menor elemento:%d, peso:%d\n",menorPrograma->id,menorPrograma->peso);
 	pasarAReady(menorElement);
-	printf("hasta aca llego2");
 	list_remove(cola_new,menori);
-	printf("hasta aca llego3");
-	//buscar el menor de la cola de new
-	//pasarAReady(element);
-	//list_remove()
 }
 
 t_PCB *desencolar(t_list *cola){
@@ -120,19 +136,30 @@ int tamanioJob(int etiquetas, int funciones, int lineasCodigo){
 	return ((5*etiquetas)+(3*funciones) + lineasCodigo);
 }
 
-t_PCB *crearPCB(t_medatada_program *element){
-	t_PCB *pcb =  malloc(sizeof(t_PCB));
-	ultimoid++;
 
+
+t_PCB *crearPCB(int fd, t_medatada_program *element){
+	t_PCB *pcb =  malloc(sizeof(t_PCB));
+	t_programa *programa = malloc(sizeof(t_programa));
+
+	ultimoid++;
 	pcb->id = ultimoid;
-	pcb->peso = tamanioJob(element->cantidad_de_etiquetas,element->cantidad_de_funciones,element->instrucciones_size);
-	pcb->programcounter = 0;
+	pcb->programcounter = element->instruccion_inicio;
 	// faltan campos
+
+	// crea programa
+	programa->fd = fd;
+	programa->id = pcb->id;
+	programa->peso = tamanioJob(element->cantidad_de_etiquetas,element->cantidad_de_funciones,element->instrucciones_size);
+	char * key = string_from_format("%d",pcb->id);
+	dictionary_put(programas,key, programa);
 	return pcb;
 }
+
 void loggeo(){
 
 	t_PCB *parm;
+	t_programa *prog;
 	printf("***IMPRIMO LA COLA DE NEW***\n");
 		int i = 0;
 		printf("ID  |  Peso\n");
@@ -140,7 +167,8 @@ void loggeo(){
 
 		while(i < list_size(cola_new)){
 			parm = list_get(cola_new,i);
-			printf("%d   |   %d\n",parm->id, parm->peso);
+			prog = dictionary_get(programas, string_from_format("%d",parm->id));
+			printf("%d   |   %d\n",parm->id, prog->peso);
 			i++;
 		}
 		printf("************\n");
@@ -152,7 +180,8 @@ void loggeo(){
 
 		while(i < list_size(cola_ready)){
 			parm = list_get(cola_ready,i);
-			printf("%d   |   %d\n",parm->id, parm->peso);
+			prog = dictionary_get(programas, string_from_format("%d",parm->id));
+			printf("%d   |   %d\n",parm->id, prog->peso);
 			i++;
 		}
 		printf("************\n");
@@ -174,7 +203,7 @@ void hiloSacaExit(){
 		t_PCB *programa = desencolar(cola_exit);
 		liberarRecursosUMV(programa);
 		sem_post(sem_multiprogramacion);
-		sem_post(sem_exit);
+
 	}
 
 }
@@ -182,24 +211,20 @@ void hiloMultiprogramacion(){
 	printf("hilo multiprogramacion");
 	while(1){
 		sem_wait(sem_multiprogramacion);
-		printf("pase el sem de multiprogramacion\n");
 		sem_wait(sem_new);
-		printf("hilo multiprogramacion entre!, saco de new!\n");
+		sleep(10);
 		siguienteSJN(cola_new);
 		// informar NEW -> Programa X -> READY
-
 		loggeo();
 	}
 }
 void gestionarDatos(int fd, char *buffer){
 	t_medatada_program *programa = preprocesar(buffer);
-	if (solicitarSegmentosUMV(programa)) {
-		t_PCB *PCB = crearPCB(programa);
-		char * key = string_from_format("%d",PCB->id);
-		int *item = malloc(sizeof(int));
-		*item = fd;
-		dictionary_put(programas,key,item);
+	if (solicitarSegmentosUMV(buffer,programa)) {
+		t_PCB *PCB = crearPCB(fd,programa);
+		pthread_mutex_lock(&mutex_new);
 		encolar(cola_new,PCB);
+		pthread_mutex_unlock(&mutex_new);
 		sem_post(sem_new);
 		// loguear: informar Programa X -> NEW
 
@@ -291,8 +316,7 @@ void hiloPLP(){
 	sem_multiprogramacion = malloc(sizeof(sem_t));
 	sem_new = malloc(sizeof(sem_t));
 	sem_init(sem_multiprogramacion,0,kernel->multiprogramacion);
-	sem_init(sem_new,0,1);
-	sem_wait(sem_new);
+	sem_init(sem_new,0,0);
 
 	/*
 	- para el plp llega el programa
@@ -317,6 +341,7 @@ void hiloPLP(){
 	// un hilo que controle el grado de multiprogramacion
 	// un hilo que controle la cola de exit
 	// un hilo que recibe programas.
+
 	int thr;
 	pthread_t * progthr = malloc(sizeof(pthread_t)); // hilo q recibe programas
 	thr = pthread_create( progthr, NULL, (void*)recibirProgramas, NULL);
