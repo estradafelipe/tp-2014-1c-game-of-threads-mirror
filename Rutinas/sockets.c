@@ -91,28 +91,4 @@ struct sockaddr_in obtener_datos_socket (int descriptor){
 	return suAddr;
 }
 
-int identificarme(int descriptor,void* estructura ,int whoisthat){
-	package* paquete;
-
-	switch(whoisthat){
-		case SOY_NIVEL: {
-				t_presentacionNivel* nivel;
-				nivel = malloc(sizeof(t_presentacionNivel));
-				nivel = (t_presentacionNivel*) estructura;
-				char* nivelSerializado = serializarPresNivel(nivel);
-				printf("Recibi paquete\n");
-				paquete= crear_paquete(presentacionNivel,nivelSerializado,sizeof(nivelSerializado));
-				enviar_paquete(paquete,descriptor);
-				}
-		case SOY_PERSONAJE: {
-				t_presentacionPersonaje* pj;
-				pj = malloc(sizeof(t_presentacionPersonaje));
-				pj = (t_presentacionPersonaje*)estructura;
-				char* personajeSerializado = serializarPresentacionPersonaje(pj);
-				paquete = crear_paquete(presentacionPersonaje,personajeSerializado,sizeof(personajeSerializado));
-				enviar_paquete(paquete,descriptor);
-				}
-	}
-return 0;
-}
 

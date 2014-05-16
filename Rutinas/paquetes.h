@@ -11,32 +11,17 @@
 #include <stdint.h>
 
 // Cabecera paquetes
+
 typedef enum nipc_type{
-	handshake,								//00
-	handshakePresentacionPersonaje,			//01
-	respuestaHandshakePersonaje,			//02
-	respuestaHandshakePersonajeSinNivel,	//03
-	handshakeNivel,							//04
-	respuestaHandshakeNivel,				//05
-	presentacionPersonaje,					//06
-	presentacionNivel,						//07
-	recursosLiberados,						//08
-	recursosRestantes,						//09
-
-	movimientoPermitido,					//10
-	movimiento_simple,						//11
-	movimiento_bloqueadoPorRecurso,			//12
-	movimiento_objetivoEncontrado,			//13
-	movimiento_finNivel,					//14
-	movimientoPersonaje,					//15
-	posicionRecurso,						//16
-	instanciaRecurso,						//17
-	solicitudMovimiento,					//18
-	notificacion_interbloqueo,				//19
-	fin_personaje,							//20
-	personajeEliminado,
+	handshakeKernelUmv,						//00
+	handshakeCpuUmv,						//01
+	creacionSegmentos,						//02 - solicitar creacion de segmentos a la UMV
+	destruccionSegmentos,					//03 - solicitar destruccion de segmentos a la UMV
+	lectura,								//04 - solicitud de lectura a la UMV
+	escritura,								//05 - solicitud de escritura a la UMV
+	cambioProcesoActivo,					//06 - cambio de proceso activo
+	respuestaUmv,							//07 - respuesta de la UMV a una solicitud
 }t_paquete;
-
 // Tipo paquete
 typedef struct paquete{
 		t_paquete type;

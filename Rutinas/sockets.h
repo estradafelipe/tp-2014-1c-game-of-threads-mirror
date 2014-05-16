@@ -31,7 +31,6 @@ int vincular_socket(int descriptor, int port);
 int escuchar_socket(int descriptor);
 int aceptar_conexion(int descriptorEscucha);
 int conectar_socket(int descriptor, char* ip, int port);
-int identificarme(int descriptor,void* estructura ,int whoisthat);
-int identificar(int descriptor, char* buffer);
+
 struct sockaddr_in obtener_datos_socket (int descriptor);
 #endif /* SOCKETS_H_ */
