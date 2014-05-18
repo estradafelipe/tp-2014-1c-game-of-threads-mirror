@@ -3,27 +3,30 @@ CC=gcc
 
 C_SRCS=$(shell find . -iname "*.c" | tr '\n' ' ')
 H_SRCS=$(shell find . -iname "*.h" | tr '\n' ' ')
-OBJS:= obtener_config.o sockets.o serializadores.o paquetes.o
+OBJS:= build/obtener_config.o build/sockets.o build/serializadores.o build/paquetes.o
 HDRS:= obtener_config.h sockets.h serializadores.h paquetes.h
 # Clean and compile .so
-all: libRutinas.so
+all: build/libRutinas.so
 
-libRutinas.so:$(OBJS) 
-	$(CC) -shared -o "libRutinas.so" $(OBJS)
+create-dirs:
+	mkdir -p build
 
-obtener_config.o: obtener_config.c obtener_config.h
+build/libRutinas.so: create-dirs $(OBJS) 
+	$(CC) -shared -o "build/libRutinas.so" $(OBJS)
+
+build/obtener_config.o: obtener_config.c obtener_config.h
 	$(CC) -c -fmessage-length=0 -fPIC -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 
-sockets.o: sockets.c sockets.h
+build/sockets.o: sockets.c sockets.h
 	$(CC) -c -fmessage-length=0 -fPIC -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 
-serializadores.o: serializadores.c serializadores.h
+build/serializadores.o: serializadores.c serializadores.h
 	$(CC) -c -fmessage-length=0 -fPIC -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 
-paquetes.o: paquetes.c paquetes.h
+build/paquetes.o: paquetes.c paquetes.h
 	$(CC) -c -fmessage-length=0 -fPIC -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 
-/colas.o: colas.c colas.h
+build/colas.o: colas.c colas.h
 	$(CC) -c -fmessage-length=0 -fPIC -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 
 # Add debug parameters and compile
@@ -32,10 +35,10 @@ debug: all
 
 # Clean build files
 clean:
-	$(RM) libRutinas.so
+	$(RM) build
 
-install: all
-	cp -u libRutinas.so /usr/lib
+install:all
+	cp -u build/libRutinas.so /usr/lib
 	cp --parents -u $(HDRS) /usr/include
 
 uninstall:

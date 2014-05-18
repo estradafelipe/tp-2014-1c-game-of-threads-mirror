@@ -20,7 +20,7 @@ typedef enum nipc_type{
 	lectura,								//04 - solicitud de lectura a la UMV
 	escritura,								//05 - solicitud de escritura a la UMV
 	cambioProcesoActivo,					//06 - cambio de proceso activo
-	respuestaUmv,							//07 - respuesta de la UMV a una solicitud
+	respuestaUmv							//07 - respuesta de la UMV a una solicitud
 }t_paquete;
 // Tipo paquete
 typedef struct paquete{
