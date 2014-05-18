@@ -16,6 +16,7 @@
 #include <commons/config.h>
 #include <sockets.h>
 #include <string.h>
+#include <paquetes.h>
 
 int retardo; // retardo en milisegundos que hay que esperar entre solicitudes
 int algoritmo; //algoritmo para ubicar los segmentos
@@ -49,6 +50,7 @@ int base_buscada;
 void* atenderNuevaConexion();
 void* atenderConsola();
 
+int _menor_id_programa(t_segmento *seg, t_segmento *segMayor);
 int _mayor_tamanio(t_segmento *seg, t_segmento *segMayor);
 int _es_el_buscado(t_segmento* seg);
 int _esta_vacio(t_segmento* seg);
@@ -62,6 +64,8 @@ int escribir(int id_programa,int base,int offset,int tamanio,char* buffer);
 int crear_segmentos(int id_programa);
 int destruir_segmentos(int id_programa);
 
-void compactar();
-void imprimir_estado();
+int compactar();
+int imprimir_estructuras(int id_programa);
+int imprimir_segmentos_memoria();
+int imprimir_contenido(int offset, int tamanio);
 #endif /* ATENCION_H_ */

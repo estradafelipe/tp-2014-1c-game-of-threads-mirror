@@ -1,5 +1,6 @@
 
 #include "atencion.h"
+#include <paquetes.h>
 
 #define BUFFERSIZE 128
 #define WORSTFIT 0
@@ -7,6 +8,21 @@
 
 void* atenderNuevaConexion(void* parametro){
 	int socketCliente = (int) parametro;
+	printf("Esperando handshake...\n");
+	package* paquete = recibir_paquete(socketCliente);
+	int bytesRecibidos = paquete->payloadLength;
+	t_paquete tipo = paquete->type;
+	if(bytesRecibidos>0){
+		printf("Se recibio algo\n");
+		switch(tipo){
+			case handshakeKernelUmv:
+				printf("Hola kernel\n");
+				break;
+			default:
+				printf("No anda el tipo de paquete :(\n");
+				break;
+		}
+	}
 	//TODO Hacer handshake
 	//Ver que tipo de paquete se usara en el handshake
 }
@@ -51,7 +67,7 @@ void* atenderConsola(){
 				printf("Escribiendo %d bytes en el segmento del programa %d con base %d\n",tamanio,id_programa,base);
 				printf("El buffer es %s\n",buffer);
 				int estado = escribir(id_programa,base,offset,tamanio,buffer);
-				if(estado>=0){
+				if(estado >= 0){
 					printf("La operacion de escritura termino correctamente\n");
 				} else {
 					printf("Violación de segmento!!!\n");
@@ -63,33 +79,59 @@ void* atenderConsola(){
 			} else if (strcmp(palabras[1],"destruir_seg")==0){
 				// es un pedido de destruccion de segmentos
 				destruir_segmentos(id_programa);
+			} else {
+				printf("Comando no reconocido, intente de nuevo\n");
 			}
+
 		} else if (strcmp(palabras[0],"retardo")==0){
 			// modificar el retardo (en milisegundos)
 			retardo = atoi(palabras[1]);
+
 		} else if (strcmp(palabras[0],"algoritmo")==0){
 			// modificar el algoritmo de ubicacion de segmentos
 			// worst-fit o first-fit
-			if (strcmp(palabras[1],"worst-fit\n")==0){
+			if (strcmp(palabras[1],"WORSTFIT\n")==0){
 				algoritmo = WORSTFIT;
 				printf("Se modifico el algortimo correctamente. El algoritmo actual es Worst-Fit\n");
-			} else if (strcmp(palabras[1],"first-fit\n")==0){
+			} else if (strcmp(palabras[1],"FIRSTFIT\n")==0){
 				algoritmo = FIRSTFIT;
 				printf("Se modifico el algortimo correctamente. El algoritmo actual es First-Fit\n");
+			} else {
+				printf("Comando no reconocido, intente de nuevo\n");
 			}
+
 		} else if (strcmp(palabras[0],"compactacion\n")==0){
 			// hacer compactacion
 			printf("Compactando...\n");
 			compactar();
 			printf("Compactación terminada\n");
-		} else if (strcmp(palabras[0],"dump\n")==0){
-			// imprimir reporte de estado actual
-			printf("Se imprimio el informe\n");
-			imprimir_estado();
+
+		} else if (strcmp(palabras[0],"dump")==0){
+			// imprimir reporte
+			if (strcmp(palabras[1],"estructuras")==0){
+			// imprimir tabla de segmentos por proceso en memoria
+				id_programa = atoi(palabras[2]);
+				imprimir_estructuras(id_programa);
+			} else if (strcmp(palabras[1],"memoria\n")==0){
+			// imprimir segmentos de la memoria incluyendo espacios libres
+				imprimir_segmentos_memoria();
+			} else if (strcmp(palabras[1],"contenido")==0){
+			// imprimir contenido dado un offset y una cantidad de bytes
+				offset = atoi(palabras[2]);
+				tamanio = atoi(palabras[3]);
+				imprimir_contenido(offset,tamanio);
+			} else {
+				printf("Comando no reconocido, intente de nuevo\n");
+			}
+
 		} else {
 			printf("Comando no reconocido, intente de nuevo\n");
 		}
 	}
+}
+
+int _menor_id_programa(t_segmento *seg, t_segmento *segMayor) {
+	return seg->id_programa < segMayor->id_programa;
 }
 
 int _mayor_tamanio(t_segmento *seg, t_segmento *segMayor) {
@@ -170,9 +212,11 @@ int escribir(int id_programa,int base,int offset,int tamanio,char* buffer){
 	}
 }
 
+
 int crear_segmentos(int id_programa){
 return -1;
 }
+
 /* Destruye todos los segmentos de un programa
  * En caso de que no exista ningun segmento de ese programa devuelve -1
  * Caso contrario devuelve 1
@@ -200,12 +244,71 @@ int destruir_segmentos(int id_programa){
 	}
 }
 
-void compactar(){
-
+int compactar(){
+	return -1;
 }
 
-void imprimir_estado(){
+/* Imprime la tabla de segmentos del programa que se le pase por parametro
+ * o de todos los programas si se le pasa -1
+ */
+int imprimir_estructuras(int id_programa){
+	int i;
+	t_segmento* aux;
+	int cant_seg=list_size(segmentos);
+	if(id_programa < 0){ //todos los procesos
+		t_list* listaOrdenada = segmentos; // lista ordenada por id_programa
+		list_sort(listaOrdenada,(void*)_menor_id_programa);
+		for(i=0;i<cant_seg;i++){
+			aux = list_get(listaOrdenada,i);
+			if(!_esta_vacio(aux)){
+				printf("***********************************\n");
+				printf("Id_programa: %d\n",aux->id_programa);
+				printf("Base logica: %d\n", aux->base_logica);
+				printf("Base real: %p\n",aux->base);
+				printf("Tamaño: %d\n",aux->tamanio);
+			}
+		}
+	} else if (id_programa >= 0) { //de un proceso en particular
+		for(i=0;i<cant_seg;i++){
+			aux = list_get(segmentos,i);
+			if(aux->id_programa == id_programa){
+				printf("***********************************\n");
+				printf("Id_programa: %d\n",aux->id_programa);
+				printf("Base logica: %d\n", aux->base_logica);
+				printf("Base real: %p\n",aux->base);
+				printf("Tamaño: %d\n",aux->tamanio);
+			}
+		}
+	}
+	return 0;
+}
 
+/* Imprime la tabla de todos los segmentos en memoria (incluidos los vacios) */
+int imprimir_segmentos_memoria(){
+	int i;
+	t_segmento* aux;
+	int cant_seg=list_size(segmentos);
+	for(i=0;i<cant_seg;i++){
+		aux = list_get(segmentos,i);
+		printf("***********************************\n");
+		if(aux->id_programa != -1){
+			printf("Id_programa: %d\n",aux->id_programa);
+		} else {
+			printf("Id_programa: %d (VACÍO)\n",aux->id_programa);
+		}
+		printf("Base logica: %d\n", aux->base_logica);
+		printf("Base real: %p\n",aux->base);
+		printf("Tamaño: %d\n",aux->tamanio);
+	}
+	return 0;
+}
+
+/* Imprime el contenido de la memoria a partir de un offset y tamanio */
+int imprimir_contenido(int offset, int tamanio){
+	char* datos = malloc(tamanio);
+	memcpy(datos,bloqueDeMemoria+offset,tamanio);
+	printf("El contenido a partir de la posicion %d y tamaño %d es: %s\n", offset, tamanio, datos);
+	return 0;
 }
 
 /* Crea un nuevo segmento con el algoritmo FIRST-FIT
