@@ -1,4 +1,4 @@
--Requerimientos:
+- Requerimientos:
   - Tener instaladas las commons
   - Tener instalada ultima version de Rutinas
 
