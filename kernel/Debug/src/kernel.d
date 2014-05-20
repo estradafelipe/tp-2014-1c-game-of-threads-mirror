@@ -9,7 +9,9 @@ src/kernel.d: ../src/kernel.c \
  /home/utnso/workspace/commons/commons/collections/list.h \
  /home/utnso/workspace/commons/commons/config.h \
  /home/utnso/workspace/commons/commons/collections/dictionary.h \
- ../src/plp.h
+ ../src/kernel.h ../src/plp.h ../src/colas.h \
+ /home/utnso/workspace/commons/commons/collections/queue.h \
+ /home/utnso/workspace/commons/commons/collections/list.h
 
 /home/utnso/workspace/parser/parser/metadata_program.h:
 
@@ -31,4 +33,12 @@ src/kernel.d: ../src/kernel.c \
 
 /home/utnso/workspace/commons/commons/collections/dictionary.h:
 
+../src/kernel.h:
+
 ../src/plp.h:
+
+../src/colas.h:
+
+/home/utnso/workspace/commons/commons/collections/queue.h:
+
+/home/utnso/workspace/commons/commons/collections/list.h:

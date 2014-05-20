@@ -19,6 +19,7 @@
 #include <commons/config.h>
 #include "kernel.h"
 #include "plp.h"
+#include "colas.h"
 
 //#include "pcp.h"
 
@@ -27,8 +28,8 @@ t_kernel *kernel;
 sem_t *semaforo_fin;
 sem_t *sem_exit;
 int ultimoid;
-t_list *cola_ready;
-t_list *cola_exit;
+t_cola *cola_ready;
+t_cola *cola_exit;
 char *pathconfig;
 t_dictionary *semaforos;
 t_dictionary *entradasalida;
@@ -44,6 +45,12 @@ void leerconfiguracion(char *path_config){
 	key = "PUERTO_CPU";
 	if (config_has_property(config,key ))
 		kernel->puertocpu = config_get_int_value(config, key);
+	key = "PUERTO_UMV";
+	if (config_has_property(config,key ))
+		kernel->puertoumv = config_get_int_value(config, key);
+	key = "IP_UMV";
+	if (config_has_property(config,key ))
+		kernel->ip_umv = config_get_string_value(config, key);
 	key = "QUANTUM";
 	if (config_has_property(config, key))
 		kernel->quantum = config_get_int_value(config, key);
@@ -133,8 +140,8 @@ int main(int argc, char**argv) {
 	ultimoid = 0;
 	kernel = malloc(sizeof(t_kernel));
 	semaforo_fin = malloc(sizeof(sem_t));
-	cola_ready = list_create();
-	cola_exit = list_create();
+	cola_ready = cola_create();
+	cola_exit = cola_create();
 	sem_exit = malloc(sizeof(sem_t));
 	sem_init(sem_exit,0,0);
 

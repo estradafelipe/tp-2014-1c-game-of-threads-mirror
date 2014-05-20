@@ -33,6 +33,10 @@ typedef struct
 	int sizeIndexLabel;
 }t_PCB;
 
+typedef struct
+{
+	int fd_UMV;
+}t_PLP;
 void hiloPLP();
 
 #endif /* PLP_H_ */

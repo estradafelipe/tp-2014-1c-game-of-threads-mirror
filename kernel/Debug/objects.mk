@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -lcommons -lparser -lpthread
+LIBS := -lparser -lRutinas -lcommons -lpthread
 

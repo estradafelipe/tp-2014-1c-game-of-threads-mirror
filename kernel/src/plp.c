@@ -16,9 +16,11 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include "paquetes.h"
+//#include "paquetes.h"
 #include <commons/collections/dictionary.h>
-#include "sockets.h"
+//#include "sockets.h"
+#include <sockets.h>
+#include <colas.h>
 #include <semaphore.h>
 #include <pthread.h>
 
@@ -26,51 +28,54 @@
 t_dictionary *programas;
 extern t_kernel *kernel;
 extern int ultimoid;
-extern t_list *cola_ready;
-extern t_list *cola_exit;
+extern t_cola *cola_ready;
+extern t_cola *cola_exit;
 t_list *cola_new;
 extern sem_t *sem_exit;
 sem_t *sem_multiprogramacion;
 sem_t *sem_new;
+t_PLP * PLP;
 pthread_mutex_t mutex_new = PTHREAD_MUTEX_INITIALIZER;
-extern pthread_mutex_t mutex_ready;
+
 bool solicitarSegmentosUMV(char *codigo,t_medatada_program *programa){
+
 	//solicito segmento de codigo = strlen(buffer)
 	// indice de codigo=
 	// indice de etiquetas=
 	// stack = kernel->sizeStack
 	//programa->etiquetas_size
 	//programa->instrucciones_size
+	//t_solicitudSegmentosPCB * solicitudSegmentosPCB = malloc(sizeof(t_solicitudSegmentosPCB));
+
+	//solicitudSegmentosPCB->cursorStack = kernel->sizeStack;
+	//solicitudSegmentosPCB->segmentoCodigo = strlen(codigo);
+	//solicitudSegmentosPCB->indiceEtiquetas = programa->etiquetas_size;
+
+	//char * payload = serializarSolicitudSegmentosPCB(solicitudSegmentosPCB);
+	//package *paquete = crear_paquete(creacionSegmentos,payload,strlen(payload));
 	return true;
 }
+int conectarConUMV(){
+	int descriptor;
+	char * payload = "HolaUMV";
+	descriptor = abrir_socket();
+	conectar_socket(descriptor,kernel->ip_umv,kernel->puertoumv);
+	package *paquete = crear_paquete(handshakeKernelUmv,payload,strlen(payload));
+	int resu = enviar_paquete(paquete,descriptor);
+	if (resu ==-1)
+		printf("No se pudo conectar con UMV\n");
+	PLP->fd_UMV = descriptor;
+	return resu;
+}
 
-
-void encolar(t_list *cola, t_PCB *element){
-	printf("funcion encolar\n");
-	list_add(cola,element);
+void agregarProgramaNuevo(t_list *cola_new, t_PCB *element){
+	pthread_mutex_lock(&mutex_new);
+	list_add(cola_new,element);
+	pthread_mutex_unlock(&mutex_new);
 }
 
 void pasarAReady(t_PCB *element){
-	pthread_mutex_lock(&mutex_ready);
-	list_add(cola_ready,element);
-	pthread_mutex_unlock(&mutex_ready);
-	/*
-	int i;
-	int cntready = list_size(cola_ready);
-	bool entro=false;
-	if(!list_is_empty(cola_ready)){
-		for (i=0; i<cntready; i++) {
-			t_PCB *p = list_get(cola_ready,i);
-			if (p->peso > element->peso){
-				list_add_in_index(cola_ready, i, element);
-				entro = true;
-				break;
-			}
-		}
-	}
-
-	if (!entro) encolar(cola_ready,element);
-	*/
+	cola_push(cola_ready,element);
 }
 
 void siguienteSJN(t_list *cola_new){
@@ -94,18 +99,14 @@ void siguienteSJN(t_list *cola_new){
 			menorPrograma = programa;
 		}
 	}
-	pthread_mutex_unlock(&mutex_new);
-	printf("menor elemento:%d, peso:%d\n",menorPrograma->id,menorPrograma->peso);
+
 	pasarAReady(menorElement);
 	list_remove(cola_new,menori);
+	pthread_mutex_unlock(&mutex_new);
 }
 
-t_PCB *desencolar(t_list *cola){
-	t_PCB *element =list_get(cola,0);
-	list_remove(cola,0);
-	return element;
-}
 
+/*
 void enviarMsgPrograma(int id,char * msg){
 	char * key = string_from_format("%d",id);
 	int * item = dictionary_get(programas,key);
@@ -115,8 +116,10 @@ void enviarMsgPrograma(int id,char * msg){
 		perror("send");
 	}
 }
+*/
 
 void rechazarPrograma(int fd){
+	// Cambiar para que envie un paquete
 	char * msg = "No hay recursos suficientes para procesar el programa";
 	if (send(fd, msg, strlen(msg), 0) == -1) {
 		perror("send");
@@ -156,6 +159,11 @@ t_PCB *crearPCB(int fd, t_medatada_program *element){
 	return pcb;
 }
 
+void elementosCola(t_PCB *pcb ){
+	t_programa *prog = dictionary_get(programas, string_from_format("%d",pcb->id));
+	printf("%d   |   %d\n",pcb->id, prog->peso);
+}
+
 void loggeo(){
 
 	t_PCB *parm;
@@ -174,19 +182,13 @@ void loggeo(){
 		printf("************\n");
 
 		printf("***IMPRIMO LA COLA DE READY***\n");
-		i = 0;
 		printf("ID  |  Peso\n");
 		printf("************\n");
-
-		while(i < list_size(cola_ready)){
-			parm = list_get(cola_ready,i);
-			prog = dictionary_get(programas, string_from_format("%d",parm->id));
-			printf("%d   |   %d\n",parm->id, prog->peso);
-			i++;
-		}
+		//armar una simil en la libreria de colas.
+		list_iterate(cola_ready->queue->elements,(void*)elementosCola);
 		printf("************\n");
-
 }
+
 void liberarRecursosUMV(t_PCB *programa){
 
 }
@@ -196,19 +198,18 @@ void liberarRecursosUMV(t_PCB *programa){
  * por los programas a la UMV
  * */
 void hiloSacaExit(){
-	printf("Hilo exit");
+
 	while(1){
 		sem_wait(sem_exit);
 		printf("Hilo Exit, se libero el semaforo");
-		t_PCB *programa = desencolar(cola_exit);
+		t_PCB *programa = cola_pop(cola_exit);
 		liberarRecursosUMV(programa);
 		sem_post(sem_multiprogramacion);
-
 	}
-
 }
+
 void hiloMultiprogramacion(){
-	printf("hilo multiprogramacion");
+
 	while(1){
 		sem_wait(sem_multiprogramacion);
 		sem_wait(sem_new);
@@ -218,23 +219,43 @@ void hiloMultiprogramacion(){
 		loggeo();
 	}
 }
-void gestionarDatos(int fd, char *buffer){
-	t_medatada_program *programa = preprocesar(buffer);
-	if (solicitarSegmentosUMV(buffer,programa)) {
-		t_PCB *PCB = crearPCB(fd,programa);
-		pthread_mutex_lock(&mutex_new);
-		encolar(cola_new,PCB);
-		pthread_mutex_unlock(&mutex_new);
-		sem_post(sem_new);
-		// loguear: informar Programa X -> NEW
-
-		loggeo();
-
-	}
-	else
-		rechazarPrograma(fd); // informa por pantalla
-
+void saludarPrograma(int fd){
+	char * payload = "Hola Programa";
+	package *paquete = crear_paquete(handshakeProgKernel,payload,strlen(payload));
+	enviar_paquete(paquete,fd);
 }
+
+void gestionarDatos(int fd, package *paquete){
+	char * buffer = paquete->payload;
+
+	if (paquete->type == handshakeProgKernel){
+		printf("Recibi handshake del progrmaa\n");
+		saludarPrograma(fd);
+	}
+
+	if (paquete->type == handshakeKernelUmv){
+			printf("Recibi handshake de la UMV\n");
+			//saludarUmv(fd);
+	}
+
+	if (paquete->type == programaNuevo){
+		t_medatada_program *programa = preprocesar(buffer);
+		if (solicitarSegmentosUMV(buffer,programa)) {
+			t_PCB *PCB = crearPCB(fd,programa);
+
+			agregarProgramaNuevo(cola_new,PCB);
+			pthread_mutex_unlock(&mutex_new);
+			sem_post(sem_new);
+			// loguear: informar Programa X -> NEW
+
+			loggeo();
+
+		}
+		else
+			rechazarPrograma(fd); // informa por pantalla
+	}
+}
+/*  Hilo que recibe los programas (select) */
 void recibirProgramas(void){
 	int newfd,nbytes;
 	int32_t i;
@@ -251,7 +272,7 @@ void recibirProgramas(void){
 	FD_SET(listensocket, &master); // añadir listenningSocket al conjunto maestro
 	int fdmax = listensocket; //seguir la pista del descriptor de fichero mayor,por ahora es éste
 
-	printf("Listening Socket:%d",listensocket);
+	printf("Listening Socket:%d\n",listensocket);
 
 	package *paquete;
 	// bucle principal
@@ -292,16 +313,11 @@ void recibirProgramas(void){
 					}
 					else {
 
-						if (paquete->type == handshake)
-							printf("Handshake del socket %d, tamanio:%d,mensaje:%s\n",i,paquete->payloadLength,paquete->payload);
+						if (paquete->type == handshakeProgKernel)
+							printf("Handshake del socket %d, tamanio:%d",i,paquete->payloadLength);
 						else
-							printf("Mensaje del socket %d, tamanio:%d,mensaje:%s\n",i,paquete->payloadLength,paquete->payload);
-						gestionarDatos(i,paquete->payload);
-						// tenemos datos del cliente i
-
-						if (send(i, "Lo recibi noma", nbytes, 0) == -1) {
-							perror("send");
-						}
+							printf("Mensaje del socket %d, tamanio:%d\n",i,paquete->payloadLength);
+						gestionarDatos(i,paquete);
 					}
 				}
 			}
@@ -317,7 +333,7 @@ void hiloPLP(){
 	sem_new = malloc(sizeof(sem_t));
 	sem_init(sem_multiprogramacion,0,kernel->multiprogramacion);
 	sem_init(sem_new,0,0);
-
+	PLP = malloc(sizeof(t_PLP));
 	/*
 	- para el plp llega el programa
 	- pasa el programa por el preprocesador
@@ -338,10 +354,10 @@ void hiloPLP(){
 
 	 */
 
-	// un hilo que controle el grado de multiprogramacion
-	// un hilo que controle la cola de exit
-	// un hilo que recibe programas.
 
+	// Conectarse a la UMV
+	//conectarConUMV();
+	// controlar el error
 	int thr;
 	pthread_t * progthr = malloc(sizeof(pthread_t)); // hilo q recibe programas
 	thr = pthread_create( progthr, NULL, (void*)recibirProgramas, NULL);
