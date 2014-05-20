@@ -13,9 +13,8 @@
 #include <sys/stat.h>
 #include <commons/string.h>
 #include <commons/config.h>
-#include "socket/cliente.h"
+#include <sockets.h>
 #include <unistd.h>
-#include "paquetes.h"
 #include <string.h>
 
 t_config* config;
@@ -37,6 +36,7 @@ int main(int argc, char **argv) {
 	leerconfiguracion();
 
 	//** este pedazo de codigo es de debug
+	printf("ip:%s,puerto:%d",ip,puerto);
 	int index;
 	for (index=0; index<argc;index++){
 		printf(" Parametro %d: %s\n", index, argv[index]);
@@ -53,31 +53,43 @@ int main(int argc, char **argv) {
 		printf("no se puede abrir el archivo\n");
 
 	else {
-		char* buffer = calloc(1, stat_file.st_size + 1);
-		fread(buffer, stat_file.st_size, 1, file); // levanto el archivo en buffer
-		printf("%s",buffer);
-		printf("tamanio:%d\n",(int)stat_file.st_size);
 
+		char * buffer = "HolaKernel";
+		package *paquete_nuevo = malloc(sizeof(paquete_nuevo));
 		//** Prueba basica envio por socket
-		t_cliente cliente;
-		cliente = cliente_iniciar_conexion(cliente,nueva_ip(ip,puerto));
-
-		int *descriptor = malloc(sizeof(int));
-		*descriptor = cliente.socket.descriptor;
-
-		package *paquete = crear_paquete(handshake,buffer,strlen(buffer));
-
-		int resu = enviar_paquete(paquete,cliente.socket.descriptor);
-
+		int descriptor;
+		descriptor = abrir_socket();
+		conectar_socket(descriptor,ip,puerto);
+		printf("me conecte, voy a enviar el saludo..\n");
+		package *paquete = crear_paquete(handshakeProgKernel,buffer,strlen(buffer));
+		int resu = enviar_paquete(paquete,descriptor);
+		printf("mande el handshake\n");
 		//Enviar msj al server
-		//int resu  = socket_enviar(cliente.socket.descriptor,buffer);
 		if (resu ==-1)
-			printf("No se pudo enviar el archivo\n");
-		char *msj2 =  socket_recibir(cliente.socket.descriptor);
-		printf("Nos dijeron: %s\n",msj2);
-		sleep(30);
+			printf("No se pudo enviar el mensaje\n");
+
+		package * paquete_recibido = recibir_paquete(descriptor);
+		if(paquete_recibido->type==handshakeProgKernel) {
+			printf("Me dio el ok el Kernel\n");
+			buffer = calloc(1, stat_file.st_size + 1);
+			fread(buffer, stat_file.st_size, 1, file); // levanto el archivo en buffer
+			//printf("%s",buffer);
+			printf("tamanio:%d\n",(int)stat_file.st_size);
+			package *paquete = crear_paquete(programaNuevo,buffer,strlen(buffer));
+			int resu = enviar_paquete(paquete,descriptor);
+			if (resu ==-1)
+				printf("No se pudo enviar el mensaje\n");
+
+			printf("Envie el programa\n");
+			paquete_nuevo = recibir_paquete(descriptor);
+			// Analizar Respuestas del Kernel
+
+		}
+		else
+			printf("recibi el tipo de paquete:%d",paquete_recibido->type);
+
 		free(buffer);
-		close(cliente.socket.descriptor);
+		//close(descriptor);
 
 		fclose(file);
 	}
