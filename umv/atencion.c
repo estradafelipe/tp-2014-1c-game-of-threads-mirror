@@ -17,7 +17,14 @@ void* atenderNuevaConexion(void* parametro){
 		switch(tipo){
 			case handshakeKernelUmv:
 				printf("Hola kernel\n");
+				atenderKernel(socketCliente);
 				break;
+			
+			case handshakeCpuUmv:
+				printf("Hola cpu\n");
+				atenderCpu(socketCliente);
+				break;
+			
 			default:
 				printf("No anda el tipo de paquete :(\n");
 				break;
@@ -25,6 +32,53 @@ void* atenderNuevaConexion(void* parametro){
 	}
 	//TODO Hacer handshake
 	//Ver que tipo de paquete se usara en el handshake
+}
+
+// TODO Ver si combiene o no hacer dos funciones separadas
+/* Atiende solicitudes del kernel */
+/* quedarse esperando solicitudes de creacion  o eliminacion de segmentos de programas */
+int atenderKernel(int socket){
+	printf("Atendiendo al Kernel\n");
+	package* paquete = recibir_paquete(socket);
+	int bytesRecibidos = paquete->payloadLength;
+	t_paquete tipo = paquete->type;
+	if(bytesRecibidos>0){
+		printf("Se recibio algo\n");
+		switch(tipo){
+			default:
+				printf("Tipo de mensaje invalido\n");
+		}
+	}
+	return 0;
+}
+
+/* Atiende solicitudes de la cpu */
+/* primero debo saber que programa esta activo
+ * luego esperar solicitudes de escritura y lectura en los segmentos de dicho programa,
+ * o el cambio del programa activo
+ */
+int atenderCpu(int socket){
+	printf("Atendiendo a una Cpu\n");	
+	package* paquete = recibir_paquete(socket);
+	int bytesRecibidos = paquete->payloadLength;
+	t_paquete tipo = paquete->type;
+	if(bytesRecibidos>0){
+		printf("Se recibio algo\n");
+		switch(tipo){
+			case cambioProcesoActivo:
+				//hacer algo
+				break;
+			case lectura:
+				//hacer algo
+				break;
+			case escritura:
+				//hacer algo
+				break;
+			default:
+				printf("Tipo de mensaje invalido\n");
+		}	
+	}
+	return 0;
 }
 
 void* atenderConsola(){
