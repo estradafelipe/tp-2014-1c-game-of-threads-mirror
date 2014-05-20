@@ -39,14 +39,25 @@ void* atenderNuevaConexion(void* parametro){
 /* quedarse esperando solicitudes de creacion  o eliminacion de segmentos de programas */
 int atenderKernel(int socket){
 	printf("Atendiendo al Kernel\n");
-	package* paquete = recibir_paquete(socket);
-	int bytesRecibidos = paquete->payloadLength;
-	t_paquete tipo = paquete->type;
-	if(bytesRecibidos>0){
-		printf("Se recibio algo\n");
-		switch(tipo){
-			default:
-				printf("Tipo de mensaje invalido\n");
+	package* paquete;
+	int bytesRecibidos;
+	t_paquete tipo;
+	while(1){
+		paquete = recibir_paquete(socket);
+		bytesRecibidos = paquete->payloadLength;
+		tipo = paquete->type;
+		if(bytesRecibidos>0){
+			printf("Se recibio algo\n");
+			switch(tipo){
+				case creacionSegmentos:
+					//hacer algo
+					break;
+				case destruccionSegmentos:
+					//hacer algo
+					break;
+				default:
+					printf("Tipo de mensaje invalido\n");
+			}
 		}
 	}
 	return 0;
@@ -59,25 +70,30 @@ int atenderKernel(int socket){
  */
 int atenderCpu(int socket){
 	printf("Atendiendo a una Cpu\n");	
-	package* paquete = recibir_paquete(socket);
-	int bytesRecibidos = paquete->payloadLength;
-	t_paquete tipo = paquete->type;
-	if(bytesRecibidos>0){
-		printf("Se recibio algo\n");
-		switch(tipo){
-			case cambioProcesoActivo:
-				//hacer algo
-				break;
-			case lectura:
-				//hacer algo
-				break;
-			case escritura:
-				//hacer algo
-				break;
-			default:
-				printf("Tipo de mensaje invalido\n");
-		}	
-	}
+	package* paquete;
+	int bytesRecibidos;
+	t_paquete tipo;
+	while(1){
+		paquete = recibir_paquete(socket);
+		bytesRecibidos = paquete->payloadLength;
+		tipo = paquete->type;
+		if(bytesRecibidos>0){
+			printf("Se recibio algo\n");
+			switch(tipo){
+				case cambioProcesoActivo:
+					//hacer algo
+					break;
+				case lectura:
+					//hacer algo
+					break;
+				case escritura:
+					//hacer algo
+					break;
+				default:
+					printf("Tipo de mensaje invalido\n");
+			}	
+		}
+	}	
 	return 0;
 }
 
@@ -97,7 +113,7 @@ void* atenderConsola(){
 		 * en cuenta el \n si es la ultima palabra */
 
 		if(strcmp(palabras[0],"operacion")==0){
-			// validar  que operacion es operacion
+			// validar  que operacion es
 			id_programa = atoi(palabras[2]);
 			if (strcmp(palabras[1],"lectura")==0){
 				// es un pedido de lectura
