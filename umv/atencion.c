@@ -50,10 +50,12 @@ int atenderKernel(int socket){
 			printf("Se recibio algo\n");
 			switch(tipo){
 				case creacionSegmentos:
-					//hacer algo
+					//desserializar estructura con id_programa,tamaño de los segmentos y datos a escribir
 					break;
 				case destruccionSegmentos:
-					//hacer algo
+					//desserializar para obtener id_programa
+					//destruir_segmentos(id_programa);
+					//validar si hay segmentation fault por no existir segmentos del programa
 					break;
 				default:
 					printf("Tipo de mensaje invalido\n");
@@ -74,6 +76,7 @@ int atenderCpu(int socket){
 	package* paquete;
 	int bytesRecibidos;
 	t_paquete tipo;
+	int procesoActivo;
 	while(1){
 		paquete = recibir_paquete(socket);
 		bytesRecibidos = paquete->payloadLength;
@@ -82,13 +85,18 @@ int atenderCpu(int socket){
 			printf("Se recibio algo\n");
 			switch(tipo){
 				case cambioProcesoActivo:
-					//hacer algo
+					//deserializar para obtener el id_programa
+					//procesoActivo = id_programa;
 					break;
 				case lectura:
-					//hacer algo
+					//desserializar estructura con la base,offset y tamaño
+					//leer(procesoActivo,base,offset,tamanio);
+					//validar si hay segmentation fault
 					break;
 				case escritura:
-					//hacer algo
+					//desserializar estructura con la base,offset,tamaño y buffer
+					//escritura(procesoActivo,base,offset,tamanio,buffer);
+					//validar si hay segmentation fault
 					break;
 				default:
 					printf("Tipo de mensaje invalido\n");
