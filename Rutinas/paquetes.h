@@ -21,6 +21,8 @@ typedef enum nipc_type{
 	escritura,								//05 - solicitud de escritura a la UMV
 	cambioProcesoActivo,					//06 - cambio de proceso activo
 	respuestaUmv,							//07 - respuesta de la UMV a una solicitud
+	handshakeProgKernel,					//08
+	programaNuevo,							//09
 }t_paquete;
 // Tipo paquete
 typedef struct paquete{
