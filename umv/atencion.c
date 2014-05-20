@@ -57,6 +57,7 @@ int atenderKernel(int socket){
 					break;
 				default:
 					printf("Tipo de mensaje invalido\n");
+					//notificar al kernel que el mensaje es invalido
 			}
 		}
 	}
@@ -91,6 +92,7 @@ int atenderCpu(int socket){
 					break;
 				default:
 					printf("Tipo de mensaje invalido\n");
+					//notificar a la cpu que el mensaje es invalido
 			}	
 		}
 	}	
