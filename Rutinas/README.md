@@ -11,3 +11,8 @@ Instalación:
   - Ir a propiedades del proyecto/ C/C++ Build /Settings 
   - pestaña Tool Settings/GCC C Linker/Libraries
   - agregar Rutinas en Libraries(-l) 
+
+- Verificar si esta instalada:
+  - Ejecutar: ls -al /usr/lib | grep Rutinas*
+    - Si no devuelve nada es porque no esta instalada
+  - Para las commons: ls -al /usr/lib | grep commons*
