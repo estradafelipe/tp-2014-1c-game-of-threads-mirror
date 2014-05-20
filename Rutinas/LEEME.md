@@ -1,5 +1,7 @@
 Instalación:
-Ubicados en la carpeta Rutinas ejecutar sudo make install
+Ubicados en la carpeta Rutinas:
+ejecutar make
+ejecutar sudo make install
 
 Desinstalación:
 Ubicados en la carpeta Rutinas ejecutar sudo make uninstall
