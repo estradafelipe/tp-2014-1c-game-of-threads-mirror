@@ -3,8 +3,8 @@ CC=gcc
 
 C_SRCS=$(shell find . -iname "*.c" | tr '\n' ' ')
 H_SRCS=$(shell find . -iname "*.h" | tr '\n' ' ')
-OBJS:= build/obtener_config.o build/sockets.o build/serializadores.o build/paquetes.o
-HDRS:= obtener_config.h sockets.h serializadores.h paquetes.h
+OBJS:= build/obtener_config.o build/sockets.o build/serializadores.o build/paquetes.o build/colas.o
+HDRS:= obtener_config.h sockets.h serializadores.h paquetes.h colas.h
 # Clean and compile .so
 all: build/libRutinas.so
 
