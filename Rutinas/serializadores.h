@@ -13,6 +13,18 @@
 #include "colas.h"
 
 typedef struct{
+	int base;
+	int offset;
+	int size;
+	char* buffer;
+}__attribute__((packed)) t_envioBytesUMV;
+
+typedef struct{
+	int programid;
+	int size;
+}__attribute__((packed)) t_crearSegmentoUMV;
+
+typedef struct{
 	char* nomNivel;
 	char* nomPersonaje;
 	char* simbolo;
@@ -38,7 +50,8 @@ typedef struct{
 
 
 
-
+char* serializarSolicitudSegmento(t_crearSegmentoUMV *segmento);
+char* serializarEnvioBytes(t_envioBytesUMV *envioBytes);
 char* serializarPresentacionPersonaje(t_presentacionPersonaje * pers);
 t_presentacionPersonaje * desserializarPresentPersonaje (char* pers);
 
@@ -51,6 +64,6 @@ t_nivelConRecursos * desserializarNivelConRecursos(char* pres);
 char* serializarNivelConCulpables(t_nivelConCulpables * pres);
 t_nivelConCulpables * desserializarNivelConCulpables(char* pres);
 
-
+//char* serializarSolicitudSegmentosPCB(t_solicitudSegmentosPCB * solicitudSegmentosPCB);
 
 #endif /* SERIALIZADORES_H_ */

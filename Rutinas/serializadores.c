@@ -8,6 +8,34 @@
 #include "serializadores.h"
 #include <string.h>
 
+char* serializarSolicitudSegmento(t_crearSegmentoUMV *segmento){
+	char *stream = malloc(sizeof(t_crearSegmentoUMV));
+	int size =0, offset =0;
+	size = sizeof(int);
+	memcpy(stream+offset,&segmento->programid,size);
+	offset +=size;
+	size = sizeof(int);
+	memcpy(stream+offset,&segmento->size,size);
+
+	return stream;
+}
+char* serializarEnvioBytes(t_envioBytesUMV *envioBytes){
+	char *stream = malloc(sizeof(t_envioBytesUMV));
+	int size =0, offset =0;
+	size = sizeof(int);
+	memcpy(stream + offset, &envioBytes->base, size);
+	offset +=size;
+	size = sizeof(int);
+	memcpy(stream + offset, &envioBytes->offset, size);
+	offset +=size;
+	size = sizeof(int);
+	memcpy(stream + offset, &envioBytes->size, size);
+	offset +=size;
+	size = strlen(envioBytes->buffer) +1;
+	memcpy(stream+offset,envioBytes->buffer,size);
+	return stream;
+}
+
 char* serializarPresentacionPersonaje(t_presentacionPersonaje * pers){
 	char *stream = malloc(strlen(pers->nomNivel)+1 + strlen(pers->nomPersonaje)+1);
 	int size=0, offset=0;

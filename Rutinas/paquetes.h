@@ -20,7 +20,6 @@ typedef enum nipc_type{
 	lectura,								//04 - solicitud de lectura a la UMV
 	escritura,								//05 - solicitud de escritura a la UMV
 	cambioProcesoActivo,					//06 - cambio de proceso activo
-<<<<<<< HEAD
 	respuestaUmv,							//07 - respuesta de la UMV a una solicitud
 	handshakeProgKernel,					//08
 	programaNuevo,							//09
