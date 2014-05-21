@@ -22,28 +22,35 @@ typedef struct{
 
 
 typedef struct{
-	t_puntero* base;
-	t_puntero* offset;
-	t_puntero* tamanio;
+	t_puntero base;
+	t_puntero offset;
+	t_puntero tamanio;
 }__attribute__((packed)) t_solicitudLectura;
 
 typedef struct{
-	t_puntero* base;
-	t_puntero* offset;
-	t_puntero* tamanio;
+	t_puntero base;
+	t_puntero offset;
+	t_puntero tamanio;
 	char* buffer;
 }__attribute__((packed)) t_solicitudEscritura;
 
 typedef struct{
-		uint32_t *id;
-		uint32_t *segmentoCodigo;
-		uint32_t *segmentoStack;
-		uint32_t *cursorStack;
-		uint32_t *indiceCodigo;
-		uint32_t *indiceEtiquetas;
-		uint32_t *programcounter;
-		uint32_t *sizeContext;
-		uint32_t *sizeIndexLabel;
+	t_puntero base;
+	t_puntero offset;
+	t_puntero tamanio;
+	char* buffer;
+}__attribute__((packed)) t_solicitudEscritura;
+
+typedef struct{
+		uint32_t id;
+		uint32_t segmentoCodigo;
+		uint32_t segmentoStack;
+		uint32_t cursorStack;
+		uint32_t indiceCodigo;
+		uint32_t indiceEtiquetas;
+		uint32_t programcounter;
+		uint32_t sizeContext;
+		uint32_t sizeIndexLabel;
 	}__attribute__((packed)) t_PCB;
 
 
@@ -59,5 +66,6 @@ char* serializarSolicitudEscritura(t_solicitudEscritura* solicitud);
 t_solicitudEscritura* desserializarSolicitudEscritura(char* solicitud);
 
 char* serializarSolicitudSegmento(t_crearSegmentoUMV *segmento);
+t_crearSegmentoUMV *deserializarSolicitudSegmento(char *solicitud);
 
 #endif /* SERIALIZADORES_H_ */
