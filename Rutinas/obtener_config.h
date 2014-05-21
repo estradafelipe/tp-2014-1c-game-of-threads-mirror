@@ -57,7 +57,7 @@ int obtenerVidas(t_config* config);
 t_ip* obtenerOrquestador(t_config* config);
 t_queue* obtenerObjetivos(t_config* config, char* level);
 t_list* obtenerPlanNiveles(t_config* config);
-
+char* obtenerIP(t_config* config);
 t_ip* obtenerPlataforma(t_config* config);
 t_list* obtenerCajas(t_config* config);
 char* obtenerNombreNivel(t_config* config);
