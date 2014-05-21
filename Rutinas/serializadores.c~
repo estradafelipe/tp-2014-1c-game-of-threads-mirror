@@ -8,7 +8,7 @@
 #include "serializadores.h"
 #include <string.h>
 
-
+<<<<<<< HEAD
 char* serializarSolicitudSegmento(t_crearSegmentoUMV *segmento){
 	char *stream = malloc(sizeof(t_crearSegmentoUMV));
 	int size =0, offset =0;
@@ -36,7 +36,7 @@ char* serializarEnvioBytes(t_envioBytesUMV *envioBytes){
 	memcpy(stream+offset,envioBytes->buffer,size);
 	return stream;
 }
-
+=======
 char* serializarSolicitudLectura(t_solicitudLectura* solicitud){
 	char *stream = malloc(sizeof(t_puntero)*3);
 	int size=0, offset=0;
@@ -112,6 +112,7 @@ t_solicitudEscritura* desserializarSolicitudEscritura(char* solicitud){
 	return solic;
 }
 
+>>>>>>> 1f319c6174c663567e11bf7f13305ebd24a71f95
 
 char* serializarPresentacionPersonaje(t_presentacionPersonaje * pers){
 	char *stream = malloc(strlen(pers->nomNivel)+1 + strlen(pers->nomPersonaje)+1);

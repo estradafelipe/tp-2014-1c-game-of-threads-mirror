@@ -12,6 +12,8 @@
 #include <commons/collections/list.h>
 #include "colas.h"
 
+typedef u_int32_t t_puntero;
+
 typedef struct{
 	int base;
 	int offset;
@@ -47,8 +49,25 @@ typedef struct{
 	char *personajes;
 }__attribute__((packed)) t_nivelConCulpables;
 
+typedef struct{
+	t_puntero* base;
+	t_puntero* offset;
+	t_puntero* tamanio;
+}__attribute__((packed)) t_solicitudLectura;
+
+typedef struct{
+	t_puntero* base;
+	t_puntero* offset;
+	t_puntero* tamanio;
+	char* buffer;
+}__attribute__((packed)) t_solicitudEscritura;
 
 
+char* serializarSolicitudLectura(t_solicitudLectura* solicitud);
+t_solicitudLectura* desserializarSolicitudLectura(char* solicitud);
+
+char* serializarSolicitudEscritura(t_solicitudEscritura* solicitud);
+t_solicitudEscritura* desserializarSolicitudEscritura(char* solicitud);
 
 char* serializarSolicitudSegmento(t_crearSegmentoUMV *segmento);
 char* serializarEnvioBytes(t_envioBytesUMV *envioBytes);

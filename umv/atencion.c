@@ -17,7 +17,14 @@ void* atenderNuevaConexion(void* parametro){
 		switch(tipo){
 			case handshakeKernelUmv:
 				printf("Hola kernel\n");
+				atenderKernel(socketCliente);
 				break;
+			
+			case handshakeCpuUmv:
+				printf("Hola cpu\n");
+				atenderCpu(socketCliente);
+				break;
+			
 			default:
 				printf("No anda el tipo de paquete :(\n");
 				break;
@@ -25,6 +32,79 @@ void* atenderNuevaConexion(void* parametro){
 	}
 	//TODO Hacer handshake
 	//Ver que tipo de paquete se usara en el handshake
+}
+
+// TODO Ver si combiene o no hacer dos funciones separadas
+/* Atiende solicitudes del kernel */
+/* quedarse esperando solicitudes de creacion  o eliminacion de segmentos de programas */
+int atenderKernel(int socket){
+	printf("Atendiendo al Kernel\n");
+	package* paquete;
+	int bytesRecibidos;
+	t_paquete tipo;
+	while(1){
+		paquete = recibir_paquete(socket);
+		bytesRecibidos = paquete->payloadLength;
+		tipo = paquete->type;
+		if(bytesRecibidos>0){
+			printf("Se recibio algo\n");
+			switch(tipo){
+				case creacionSegmentos:
+					//desserializar estructura con id_programa,tamaño de los segmentos y datos a escribir
+					break;
+				case destruccionSegmentos:
+					//desserializar para obtener id_programa
+					//destruir_segmentos(id_programa);
+					//validar si hay segmentation fault por no existir segmentos del programa
+					break;
+				default:
+					printf("Tipo de mensaje invalido\n");
+					//notificar al kernel que el mensaje es invalido
+			}
+		}
+	}
+	return 0;
+}
+
+/* Atiende solicitudes de la cpu */
+/* primero debo saber que programa esta activo
+ * luego esperar solicitudes de escritura y lectura en los segmentos de dicho programa,
+ * o el cambio del programa activo
+ */
+int atenderCpu(int socket){
+	printf("Atendiendo a una Cpu\n");	
+	package* paquete;
+	int bytesRecibidos;
+	t_paquete tipo;
+	int procesoActivo;
+	while(1){
+		paquete = recibir_paquete(socket);
+		bytesRecibidos = paquete->payloadLength;
+		tipo = paquete->type;
+		if(bytesRecibidos>0){
+			printf("Se recibio algo\n");
+			switch(tipo){
+				case cambioProcesoActivo:
+					//deserializar para obtener el id_programa
+					//procesoActivo = id_programa;
+					break;
+				case lectura:
+					//desserializar estructura con la base,offset y tamaño
+					//leer(procesoActivo,base,offset,tamanio);
+					//validar si hay segmentation fault
+					break;
+				case escritura:
+					//desserializar estructura con la base,offset,tamaño y buffer
+					//escritura(procesoActivo,base,offset,tamanio,buffer);
+					//validar si hay segmentation fault
+					break;
+				default:
+					printf("Tipo de mensaje invalido\n");
+					//notificar a la cpu que el mensaje es invalido
+			}	
+		}
+	}	
+	return 0;
 }
 
 void* atenderConsola(){
@@ -43,7 +123,7 @@ void* atenderConsola(){
 		 * en cuenta el \n si es la ultima palabra */
 
 		if(strcmp(palabras[0],"operacion")==0){
-			// validar  que operacion es operacion
+			// validar  que operacion es
 			id_programa = atoi(palabras[2]);
 			if (strcmp(palabras[1],"lectura")==0){
 				// es un pedido de lectura

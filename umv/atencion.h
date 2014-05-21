@@ -50,6 +50,9 @@ int base_buscada;
 void* atenderNuevaConexion();
 void* atenderConsola();
 
+int atenderKernel(int socket);
+int atenderCpu(int socket);
+
 int _menor_id_programa(t_segmento *seg, t_segmento *segMayor);
 int _mayor_tamanio(t_segmento *seg, t_segmento *segMayor);
 int _es_el_buscado(t_segmento* seg);
