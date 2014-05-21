@@ -17,6 +17,7 @@
 #include <sockets.h>
 #include <string.h>
 #include <paquetes.h>
+#include <serializadores.h>
 
 int retardo; // retardo en milisegundos que hay que esperar entre solicitudes
 int algoritmo; //algoritmo para ubicar los segmentos
@@ -38,6 +39,7 @@ typedef struct{
 	t_puntero segStack;
 }t_direcciones; // estructura que se le respondera al kernel cuando se crean los segmentos de un programa
 
+pthread_mutex_t* mutexSegmentos;
 
 t_list* hilos; //lista de hilos
 t_list* segmentos; //lista de segmentos
@@ -59,12 +61,12 @@ int _es_el_buscado(t_segmento* seg);
 int _esta_vacio(t_segmento* seg);
 int _existe_algun_seg(t_segmento* seg);
 
-int first_fit(int id_programa,int tamanio);
-int worst_fit(int id_programa,int tamanio);
+int first_fit(t_list* lista,int id_programa,int tamanio);
+int worst_fit(t_list* lista,int id_programa,int tamanio);
 
 char* leer(int id_programa,int base,int offset,int tamanio);
 int escribir(int id_programa,int base,int offset,int tamanio,char* buffer);
-int crear_segmentos(int id_programa);
+int crear_segmento(t_crearSegmentoUMV* datos);
 int destruir_segmentos(int id_programa);
 
 int compactar();

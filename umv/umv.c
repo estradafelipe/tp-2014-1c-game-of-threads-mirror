@@ -15,6 +15,7 @@ int main(int argc, char **argv){
 /* Creo la lista que va a tener un elemento por cada hilo lanzado */
 	hilos = list_create();
 	printf("Lista de hilos creada\n");
+
 /* Obtener datos del archivo de configuracion */
 	//TODO Obtener tamaño del bloque de memoria
 	//TODO Obtener puerto en el que se va a estar escuchando
@@ -22,11 +23,15 @@ int main(int argc, char **argv){
 	int puerto = 5021; // el puerto se obtendra por archivo de config
 /* Fin obtener datos */
 	printf("El tamaño de memoria es %d y el puerto es %d\n",tamanioMemoria,puerto);
+
 /* Pido la memoria que va a tener disponible el sistema */
 	bloqueDeMemoria = malloc(tamanioMemoria);
 	printf("Se creo el bloque de memoria con direccion inicial %p\n",&bloqueDeMemoria);
+
 /* Creo lista para administrar el bloque de memoria */
 	segmentos = list_create();
+	//Inicializo mutex de la lista
+	pthread_mutex_init(mutexSegmentos,NULL);
 	printf("Lista de segmentos creada\n");
 	t_segmento* vacio = malloc(sizeof(t_segmento));
 	vacio->id_programa = -1;
