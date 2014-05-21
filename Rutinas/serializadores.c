@@ -9,6 +9,86 @@
 #include <string.h>
 
 
+char* serializarPCB(t_PCB * PCB){
+	char* stream = malloc(sizeof(uint32_t)*9);
+	int size=0, offset=0;
+	size = sizeof(uint32_t);
+	memcpy(stream, &PCB->cursorStack, size);
+	offset += size;
+	size = sizeof(uint32_t);
+	memcpy (stream + offset, &PCB->id, size);
+	offset += size;
+	size = sizeof(uint32_t);
+	memcpy (stream + offset, &PCB->indiceCodigo, size);
+	offset += size;
+	size = sizeof(uint32_t);
+	memcpy (stream + offset, &PCB->indiceEtiquetas, size);
+	offset += size;
+	size = sizeof(uint32_t);
+	memcpy (stream + offset, &PCB->programcounter, size);
+	offset += size;
+	size = sizeof(uint32_t);
+	memcpy (stream + offset, &PCB->segmentoCodigo, size);
+	offset += size;
+	size = sizeof(uint32_t);
+	memcpy (stream + offset, &PCB->segmentoStack, size);
+	offset += size;
+	size = sizeof(uint32_t);
+	memcpy (stream + offset, &PCB->sizeContext, size);
+	offset += size;
+	size = sizeof(uint32_t);
+	memcpy (stream + offset, &PCB->sizeIndexLabel, size);
+	return stream;
+}
+
+t_PCB *desserializarPCB(char* PCBSerializada){
+	int offset = 0, tmp_size = 0;
+		t_PCB * PCB ;
+		PCB = malloc(sizeof(t_PCB));
+
+		tmp_size = sizeof(uint32_t);
+		memcpy(&PCB->cursorStack,PCBSerializada+offset,tmp_size);
+
+		offset += tmp_size;
+		tmp_size = sizeof(uint32_t);
+		memcpy(&PCB->id,PCBSerializada+offset,tmp_size);
+
+		offset += tmp_size;
+		tmp_size = sizeof(uint32_t);
+		memcpy(&PCB->indiceCodigo,PCBSerializada+offset,tmp_size);
+
+		offset += tmp_size;
+		tmp_size = sizeof(uint32_t);
+		memcpy(&PCB->indiceEtiquetas,PCBSerializada+offset,tmp_size);
+
+		offset += tmp_size;
+		tmp_size = sizeof(uint32_t);
+		memcpy(&PCB->programcounter,PCBSerializada+offset,tmp_size);
+
+		offset += tmp_size;
+		tmp_size = sizeof(uint32_t);
+		memcpy(&PCB->segmentoCodigo,PCBSerializada+offset,tmp_size);
+
+		offset += tmp_size;
+		tmp_size = sizeof(uint32_t);
+		memcpy(&PCB->segmentoStack,PCBSerializada+offset,tmp_size);
+
+		offset += tmp_size;
+		tmp_size = sizeof(uint32_t);
+		memcpy(&PCB->sizeContext,PCBSerializada+offset,tmp_size);
+
+		offset += tmp_size;
+		tmp_size = sizeof(uint32_t);
+		memcpy(&PCB->sizeIndexLabel,PCBSerializada+offset,tmp_size);
+
+		return PCB;
+}
+
+
+
+
+
+
 char* serializarSolicitudSegmento(t_crearSegmentoUMV *segmento){
 	char *stream = malloc(sizeof(t_crearSegmentoUMV));
 	int size =0, offset =0;
