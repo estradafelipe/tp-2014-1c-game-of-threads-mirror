@@ -34,6 +34,23 @@ typedef struct{
 	char* buffer;
 }__attribute__((packed)) t_solicitudEscritura;
 
+typedef struct{
+		uint32_t *id;
+		uint32_t *segmentoCodigo;
+		uint32_t *segmentoStack;
+		uint32_t *cursorStack;
+		uint32_t *indiceCodigo;
+		uint32_t *indiceEtiquetas;
+		uint32_t *programcounter;
+		uint32_t *sizeContext;
+		uint32_t *sizeIndexLabel;
+	}__attribute__((packed)) t_PCB;
+
+
+
+char* serializarPCB(t_PCB * PCB);
+t_PCB *desserializarPCB(char* PCBSerializada);
+
 
 char* serializarSolicitudLectura(t_solicitudLectura* solicitud);
 t_solicitudLectura* desserializarSolicitudLectura(char* solicitud);
