@@ -8,7 +8,7 @@
 #ifndef PLP_H_
 #define PLP_H_
 
-
+#include <sockets.h>
 
 typedef struct
 {
@@ -22,21 +22,18 @@ typedef struct
 {
 	int id;
 	// **direcciones del primer byte en la umv
-	int segmentoCodigo;
-	int segmentoStack;
-	int cursorStack;
-	int indiceCodigo;
-	int indiceEtiquetas;
+	t_puntero segmentoCodigo;
+	t_puntero segmentoStack;
+	t_puntero cursorStack;
+	t_puntero indiceCodigo;
+	t_puntero indiceEtiquetas;
 	// **
 	int programcounter;
 	int sizeContext;
 	int sizeIndexLabel;
 }t_PCB;
 
-typedef struct
-{
-	int fd_UMV;
-}t_PLP;
+
 void hiloPLP();
 
 #endif /* PLP_H_ */

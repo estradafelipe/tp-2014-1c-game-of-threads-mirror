@@ -16,9 +16,7 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-//#include "paquetes.h"
 #include <commons/collections/dictionary.h>
-//#include "sockets.h"
 #include <sockets.h>
 #include <colas.h>
 #include <semaphore.h>
@@ -34,37 +32,129 @@ t_list *cola_new;
 extern sem_t *sem_exit;
 sem_t *sem_multiprogramacion;
 sem_t *sem_new;
-t_PLP * PLP;
+
 pthread_mutex_t mutex_new = PTHREAD_MUTEX_INITIALIZER;
 
-bool solicitarSegmentosUMV(char *codigo,t_medatada_program *programa){
+void destruirSegmentos(int pcbid){
 
-	//solicito segmento de codigo = strlen(buffer)
-	// indice de codigo=
-	// indice de etiquetas=
-	// stack = kernel->sizeStack
-	//programa->etiquetas_size
-	//programa->instrucciones_size
-	//t_solicitudSegmentosPCB * solicitudSegmentosPCB = malloc(sizeof(t_solicitudSegmentosPCB));
+	char *payload = string_from_format("%d",pcbid);
+	package *paquete = crear_paquete(creacionSegmentos,payload,strlen(payload));
+	int resu = enviar_paquete(paquete,kernel->fd_UMV);
 
-	//solicitudSegmentosPCB->cursorStack = kernel->sizeStack;
-	//solicitudSegmentosPCB->segmentoCodigo = strlen(codigo);
-	//solicitudSegmentosPCB->indiceEtiquetas = programa->etiquetas_size;
+}
 
-	//char * payload = serializarSolicitudSegmentosPCB(solicitudSegmentosPCB);
-	//package *paquete = crear_paquete(creacionSegmentos,payload,strlen(payload));
+t_puntero solicitarSegmento(t_crearSegmentoUMV *segmento){
+	char *payload;
+	payload = serializarSolicitudSegmento(segmento);
+	package *paquete = crear_paquete(creacionSegmentos,payload,strlen(payload));
+	int resu = enviar_paquete(paquete,kernel->fd_UMV);
+	if (resu==-1) return -1;
+	// esperar la respuesta que va a ser un int
+
+	t_puntero dirSegmento; // resultado de la UMV
+	return dirSegmento;
+}
+
+//base,offset,size,buffer
+int enviarBytesUMV(t_puntero base, t_puntero size, void * buffer){
+	t_solicitudEscritura *envioBytes = malloc(sizeof(t_solicitudEscritura));
+	// Segmento de Codigo
+	envioBytes->base = &base;
+	envioBytes->offset = 0;
+	envioBytes->tamanio = &size;
+	envioBytes->buffer = buffer;
+
+	char * payload = serializarSolicitudEscritura(envioBytes);
+	package *paquete = crear_paquete(escritura,payload,strlen(payload));
+	int resu = enviar_paquete(paquete,kernel->fd_UMV);
+	if (resu==-1) return -1;
+	// esperar respuesta
+	return 0;
+}
+bool solicitarSegmentosUMV(char *codigo,t_medatada_program *programa, t_PCB *pcb){
+
+	t_puntero dirSegmento,codigoSize;
+	t_crearSegmentoUMV *crearSegmento = malloc(sizeof(t_crearSegmentoUMV));
+	codigoSize = strlen(codigo);
+	// Segmento de Codigo
+	crearSegmento->programid = pcb->id;
+	crearSegmento->size = codigoSize;
+	dirSegmento = solicitarSegmento(crearSegmento);
+	if(dirSegmento == -1){
+		destruirSegmentos(pcb->id);
+		return false;
+	} else pcb->segmentoCodigo = dirSegmento;
+
+	// Segmento de Stack
+	crearSegmento->programid = pcb->id;
+	crearSegmento->size = kernel->sizeStack;
+	dirSegmento = solicitarSegmento(crearSegmento);
+	if(dirSegmento == -1){
+		destruirSegmentos(pcb->id);
+		return false;
+	} else pcb->segmentoStack = dirSegmento;
+
+	//Indice de Etiquetas
+	crearSegmento->programid = pcb->id;
+	crearSegmento->size = programa->etiquetas_size;
+	dirSegmento = solicitarSegmento(crearSegmento);
+	if(dirSegmento == -1){
+		destruirSegmentos(pcb->id);
+		return false;
+	} else pcb->indiceEtiquetas = dirSegmento;
+
+	//Indice de Codigo
+	crearSegmento->programid = pcb->id;
+	crearSegmento->size = programa->instrucciones_size;
+	dirSegmento = solicitarSegmento(crearSegmento);
+	if(dirSegmento == -1){
+		destruirSegmentos(pcb->id);
+		return false;
+	} else pcb->indiceCodigo = dirSegmento;
+
+	pcb->cursorStack = 0; //offset
+	pcb->programcounter = programa->instruccion_inicio;
+
+	int rta;
+	rta = enviarBytesUMV(pcb->segmentoCodigo,strlen(codigo),codigo); // Segmento de Codigo
+	if (rta==-1){
+		destruirSegmentos(pcb->id);
+		return false;
+	}
+	rta = enviarBytesUMV(pcb->segmentoStack,kernel->sizeStack,string_new()); // Segmento de Stack
+	if (rta==-1){
+		destruirSegmentos(pcb->id);
+		return false;
+	}
+	rta = enviarBytesUMV(pcb->indiceEtiquetas,programa->etiquetas_size,programa->etiquetas); // Segmento de Etiquetas
+	if (rta==-1){
+		destruirSegmentos(pcb->id);
+		return false;
+	}
+
+	rta = enviarBytesUMV(pcb->indiceCodigo,programa->instrucciones_size,programa->instrucciones_serializado); // Segmento de Etiquetas
+	if (rta==-1){
+		destruirSegmentos(pcb->id);
+		return false;
+	}
+
 	return true;
 }
+
 int conectarConUMV(){
-	int descriptor;
+	t_puntero descriptor;
 	char * payload = "HolaUMV";
 	descriptor = abrir_socket();
 	conectar_socket(descriptor,kernel->ip_umv,kernel->puertoumv);
 	package *paquete = crear_paquete(handshakeKernelUmv,payload,strlen(payload));
 	int resu = enviar_paquete(paquete,descriptor);
-	if (resu ==-1)
-		printf("No se pudo conectar con UMV\n");
-	PLP->fd_UMV = descriptor;
+	if (resu ==-1) return 0;
+
+	kernel->fd_UMV = descriptor;
+	package *paquete_recibido = recibir_paquete(descriptor);
+	if (paquete_recibido->type ==handshakeKernelUmv && paquete_recibido->payloadLength>0)
+		resu= 1;
+	else resu=0;
 	return resu;
 }
 
@@ -139,16 +229,12 @@ int tamanioJob(int etiquetas, int funciones, int lineasCodigo){
 	return ((5*etiquetas)+(3*funciones) + lineasCodigo);
 }
 
-
-
 t_PCB *crearPCB(int fd, t_medatada_program *element){
 	t_PCB *pcb =  malloc(sizeof(t_PCB));
 	t_programa *programa = malloc(sizeof(t_programa));
 
 	ultimoid++;
 	pcb->id = ultimoid;
-	pcb->programcounter = element->instruccion_inicio;
-	// faltan campos
 
 	// crea programa
 	programa->fd = fd;
@@ -190,7 +276,7 @@ void loggeo(){
 }
 
 void liberarRecursosUMV(t_PCB *programa){
-
+	destruirSegmentos(programa->id);
 }
 
 /*
@@ -213,7 +299,7 @@ void hiloMultiprogramacion(){
 	while(1){
 		sem_wait(sem_multiprogramacion);
 		sem_wait(sem_new);
-		sleep(10);
+		sleep(10); // pongo el sleep para poder "ver"
 		siguienteSJN(cola_new);
 		// informar NEW -> Programa X -> READY
 		loggeo();
@@ -233,16 +319,11 @@ void gestionarDatos(int fd, package *paquete){
 		saludarPrograma(fd);
 	}
 
-	if (paquete->type == handshakeKernelUmv){
-			printf("Recibi handshake de la UMV\n");
-			//saludarUmv(fd);
-	}
 
 	if (paquete->type == programaNuevo){
 		t_medatada_program *programa = preprocesar(buffer);
-		if (solicitarSegmentosUMV(buffer,programa)) {
-			t_PCB *PCB = crearPCB(fd,programa);
-
+		t_PCB *PCB = crearPCB(fd,programa);
+		if (solicitarSegmentosUMV(buffer,programa,PCB)) {
 			agregarProgramaNuevo(cola_new,PCB);
 			pthread_mutex_unlock(&mutex_new);
 			sem_post(sem_new);
@@ -288,8 +369,9 @@ void recibirProgramas(void){
 			if (FD_ISSET(i, &read_fds)) { // ¡¡tenemos datos!!
 				if (i == listensocket) {
 					// gestionar nuevas conexiones
-					int addrlen = sizeof(remoteaddr);
+					unsigned int addrlen = sizeof(remoteaddr);
 					if ((newfd = accept(listensocket, (struct sockaddr *)&remoteaddr, &addrlen)) == -1)
+
 						perror("accept");
 					else {
 						FD_SET(newfd, &master); // añadir al conjunto maestro
@@ -333,7 +415,7 @@ void hiloPLP(){
 	sem_new = malloc(sizeof(sem_t));
 	sem_init(sem_multiprogramacion,0,kernel->multiprogramacion);
 	sem_init(sem_new,0,0);
-	PLP = malloc(sizeof(t_PLP));
+
 	/*
 	- para el plp llega el programa
 	- pasa el programa por el preprocesador
@@ -356,8 +438,10 @@ void hiloPLP(){
 
 
 	// Conectarse a la UMV
-	//conectarConUMV();
-	// controlar el error
+	int resconn = conectarConUMV();
+	if (resconn==0)
+		printf("No se pudo conectar con la UMV"); //ver como tratamos errores.
+
 	int thr;
 	pthread_t * progthr = malloc(sizeof(pthread_t)); // hilo q recibe programas
 	thr = pthread_create( progthr, NULL, (void*)recibirProgramas, NULL);
