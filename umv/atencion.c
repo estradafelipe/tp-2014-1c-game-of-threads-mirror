@@ -68,11 +68,13 @@ int atenderKernel(int socket){
 					sleep(retardo);
 					//desserializar estructura con id_programa y tamaño del segmento
 					creacionSegmento = deserializarSolicitudSegmento(paquete->payload);
+					//guardo el proceso activo (para la escritura de los segmentos)
 					procesoActivo = creacionSegmento->programid;
 					pthread_mutex_lock(mutexSegmentos);
 					crear_segmento(creacionSegmento);
 					pthread_mutex_unlock(mutexSegmentos);
 					break;
+					//validar si se pudo crear el segmento y responder al kernel
 				case destruccionSegmentos:
 					sleep(retardo);
 					//desserializar para obtener id_programa
