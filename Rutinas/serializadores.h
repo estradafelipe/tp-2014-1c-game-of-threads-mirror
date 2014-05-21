@@ -35,13 +35,6 @@ typedef struct{
 }__attribute__((packed)) t_solicitudEscritura;
 
 typedef struct{
-	t_puntero base;
-	t_puntero offset;
-	t_puntero tamanio;
-	char* buffer;
-}__attribute__((packed)) t_solicitudEscritura;
-
-typedef struct{
 		uint32_t id;
 		uint32_t segmentoCodigo;
 		uint32_t segmentoStack;
