@@ -17,7 +17,7 @@ typedef struct
 	int fd; // file descriptor para socket.
 }t_programa;
 
-
+/*
 typedef struct
 {
 	int id;
@@ -32,7 +32,7 @@ typedef struct
 	int sizeContext;
 	int sizeIndexLabel;
 }t_PCB;
-
+*/
 
 void hiloPLP();
 

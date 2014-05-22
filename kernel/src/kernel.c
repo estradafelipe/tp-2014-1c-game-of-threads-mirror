@@ -84,12 +84,13 @@ void crea_tablasSitema(){
 	entradasalida = malloc(sizeof(t_dictionary));
 	semaforos = dictionary_create();
 	entradasalida = dictionary_create();
-
+	int valorsem;
 	// Crea tabla de semaforos
 	i = 0;
 	while (1) {
 		if (kernel->semaforosid[i]!='\0'){
-			dictionary_put(semaforos,kernel->semaforosid[i],atoi(kernel->semaforosvalor[i]));
+			valorsem = atoi(kernel->semaforosvalor[i]);
+			dictionary_put(semaforos,kernel->semaforosid[i],&valorsem);
 			i++;
 		}else break;
 
@@ -184,6 +185,11 @@ int main(int argc, char**argv) {
 	*/
 	sem_wait(semaforo_fin);
 	printf("Esperando a que se termine todo\n");
+	// Libero recursos
+	free(plpthr);
+	free(semaforo_fin);
+	free(sem_exit);
+	free(kernel);
 
 
 	return EXIT_SUCCESS;

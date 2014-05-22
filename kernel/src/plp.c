@@ -38,36 +38,46 @@ pthread_mutex_t mutex_new = PTHREAD_MUTEX_INITIALIZER;
 void destruirSegmentos(int pcbid){
 
 	char *payload = string_from_format("%d",pcbid);
-	package *paquete = crear_paquete(creacionSegmentos,payload,strlen(payload));
-	int resu = enviar_paquete(paquete,kernel->fd_UMV);
+	package *paquete = crear_paquete(creacionSegmentos,payload,strlen(payload)+1);
+	enviar_paquete(paquete,kernel->fd_UMV);
 
 }
-
+t_puntero recibirSegmento(){
+	//package *paquete_recibido = recibir_paquete(kernel.fd_UMV);
+	t_puntero segmento = 3;
+	return segmento;
+}
 t_puntero solicitarSegmento(t_crearSegmentoUMV *segmento){
 	char *payload;
+	size_t payload_size=sizeof(t_puntero)*2;
 	payload = serializarSolicitudSegmento(segmento);
-	package *paquete = crear_paquete(creacionSegmentos,payload,strlen(payload));
+	package *paquete = crear_paquete(creacionSegmentos,payload,payload_size);
 	int resu = enviar_paquete(paquete,kernel->fd_UMV);
+	free(paquete);
+	free(payload);
 	if (resu==-1) return -1;
-	// esperar la respuesta que va a ser un int
-
-	t_puntero dirSegmento; // resultado de la UMV
-	return dirSegmento;
+	sleep(3); //prueba
+	return recibirSegmento();
 }
 
 //base,offset,size,buffer
 int enviarBytesUMV(t_puntero base, t_puntero size, void * buffer){
 	t_solicitudEscritura *envioBytes = malloc(sizeof(t_solicitudEscritura));
 	// Segmento de Codigo
-	envioBytes->base = &base;
+	envioBytes->base = base;
 	envioBytes->offset = 0;
-	envioBytes->tamanio = &size;
+	envioBytes->tamanio = size;
 	envioBytes->buffer = buffer;
 
 	char * payload = serializarSolicitudEscritura(envioBytes);
-	package *paquete = crear_paquete(escritura,payload,strlen(payload));
+	size_t payload_size = (sizeof(t_puntero)*3) + strlen(buffer) +1;
+	package *paquete = crear_paquete(escritura,payload,payload_size);
 	int resu = enviar_paquete(paquete,kernel->fd_UMV);
+	free(paquete);
+	free(payload);
+	free(envioBytes);
 	if (resu==-1) return -1;
+	sleep(3);
 	// esperar respuesta
 	return 0;
 }
@@ -75,7 +85,7 @@ bool solicitarSegmentosUMV(char *codigo,t_medatada_program *programa, t_PCB *pcb
 
 	t_puntero dirSegmento,codigoSize;
 	t_crearSegmentoUMV *crearSegmento = malloc(sizeof(t_crearSegmentoUMV));
-	codigoSize = strlen(codigo);
+	codigoSize = strlen(codigo)+1;
 	// Segmento de Codigo
 	crearSegmento->programid = pcb->id;
 	crearSegmento->size = codigoSize;
@@ -116,11 +126,12 @@ bool solicitarSegmentosUMV(char *codigo,t_medatada_program *programa, t_PCB *pcb
 	pcb->programcounter = programa->instruccion_inicio;
 
 	int rta;
-	rta = enviarBytesUMV(pcb->segmentoCodigo,strlen(codigo),codigo); // Segmento de Codigo
+	rta = enviarBytesUMV(pcb->segmentoCodigo,codigoSize,codigo); // Segmento de Codigo
 	if (rta==-1){
 		destruirSegmentos(pcb->id);
 		return false;
 	}
+
 	rta = enviarBytesUMV(pcb->segmentoStack,kernel->sizeStack,string_new()); // Segmento de Stack
 	if (rta==-1){
 		destruirSegmentos(pcb->id);
@@ -137,7 +148,7 @@ bool solicitarSegmentosUMV(char *codigo,t_medatada_program *programa, t_PCB *pcb
 		destruirSegmentos(pcb->id);
 		return false;
 	}
-
+	free(crearSegmento);
 	return true;
 }
 
@@ -146,8 +157,9 @@ int conectarConUMV(){
 	char * payload = "HolaUMV";
 	descriptor = abrir_socket();
 	conectar_socket(descriptor,kernel->ip_umv,kernel->puertoumv);
-	package *paquete = crear_paquete(handshakeKernelUmv,payload,strlen(payload));
+	package *paquete = crear_paquete(handshakeKernelUmv,payload,strlen(payload)+1);
 	int resu = enviar_paquete(paquete,descriptor);
+	free(paquete);
 	if (resu ==-1) return 0;
 
 	kernel->fd_UMV = descriptor;
@@ -155,6 +167,7 @@ int conectarConUMV(){
 	if (paquete_recibido->type ==handshakeKernelUmv && paquete_recibido->payloadLength>0)
 		resu= 1;
 	else resu=0;
+	free(paquete_recibido);
 	return resu;
 }
 
@@ -169,7 +182,7 @@ void pasarAReady(t_PCB *element){
 }
 
 void siguienteSJN(t_list *cola_new){
-	printf("funcion siguienteSJN");
+
 	int i,menori,cntnew;
 	t_PCB *element;
 	t_programa *menorPrograma;
@@ -208,7 +221,12 @@ void enviarMsgPrograma(int id,char * msg){
 }
 */
 
-void rechazarPrograma(int fd){
+void rechazarPrograma(int id, int fd){
+	// eliminar programa de la tabla
+	char * key = string_from_format("%d",id);
+	dictionary_remove(programas,key);
+
+	// enviar un mensaje por consola
 	// Cambiar para que envie un paquete
 	char * msg = "No hay recursos suficientes para procesar el programa";
 	if (send(fd, msg, strlen(msg), 0) == -1) {
@@ -290,6 +308,7 @@ void hiloSacaExit(){
 		printf("Hilo Exit, se libero el semaforo");
 		t_PCB *programa = cola_pop(cola_exit);
 		liberarRecursosUMV(programa);
+		free(programa);
 		sem_post(sem_multiprogramacion);
 	}
 }
@@ -299,7 +318,7 @@ void hiloMultiprogramacion(){
 	while(1){
 		sem_wait(sem_multiprogramacion);
 		sem_wait(sem_new);
-		sleep(10); // pongo el sleep para poder "ver"
+		sleep(5); // pongo el sleep para poder "ver"
 		siguienteSJN(cola_new);
 		// informar NEW -> Programa X -> READY
 		loggeo();
@@ -307,8 +326,9 @@ void hiloMultiprogramacion(){
 }
 void saludarPrograma(int fd){
 	char * payload = "Hola Programa";
-	package *paquete = crear_paquete(handshakeProgKernel,payload,strlen(payload));
+	package *paquete = crear_paquete(handshakeProgKernel,payload,strlen(payload)+1);
 	enviar_paquete(paquete,fd);
+	free(paquete);
 }
 
 void gestionarDatos(int fd, package *paquete){
@@ -333,8 +353,9 @@ void gestionarDatos(int fd, package *paquete){
 
 		}
 		else
-			rechazarPrograma(fd); // informa por pantalla
+			rechazarPrograma(PCB->id,fd); // informa por pantalla
 	}
+
 }
 /*  Hilo que recibe los programas (select) */
 void recibirProgramas(void){
@@ -401,6 +422,7 @@ void recibirProgramas(void){
 							printf("Mensaje del socket %d, tamanio:%d\n",i,paquete->payloadLength);
 						gestionarDatos(i,paquete);
 					}
+					free(paquete);
 				}
 			}
 		} // for

@@ -8,5 +8,7 @@
 #include "pcp.h"
 #include <stdio.h>
 void hiloPCP(){
-	//
+	// hilo que reciba CPU
+	// hilo que pase ready->exec
+	// hilo que pase exec->exit
 }
