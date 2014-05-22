@@ -98,7 +98,7 @@ void deserializar_body(package *package, char *stream) {
 
 int enviar_paquete(package *package, int socket) {
 	size_t size_stream = 0;
-	char *stream = NULL;
+	char *stream; //= NULL;
 	//int resultado = EXIT_FAILURE;
 	int32_t bytesEnviados = EXIT_FAILURE;
 
