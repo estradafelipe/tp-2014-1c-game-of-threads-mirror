@@ -224,6 +224,14 @@ int obtenerPuerto(t_config* config){
 	return(puerto);
 }
 
+char* obtenerIP(t_config* config){
+	char* key = "ip";
+	char* ip;
+	ip = config_get_string_value(config,key);
+
+	return(ip);
+}
+
 char* obtenerPathKoopa(t_config* config){
 	char* key = "koopa";
 	char* koopa = malloc(strlen("/home/utnso/koopa"));
