@@ -46,9 +46,6 @@ t_list* segmentos; //lista de segmentos
 
 char* bloqueDeMemoria;
 
-int id_prog_buscado;
-int base_buscada;
-
 void* atenderNuevaConexion();
 void* atenderConsola();
 
@@ -57,15 +54,14 @@ int atenderCpu(int socket);
 
 int _menor_id_programa(t_segmento *seg, t_segmento *segMayor);
 int _mayor_tamanio(t_segmento *seg, t_segmento *segMayor);
-int _es_el_buscado(t_segmento* seg);
 int _esta_vacio(t_segmento* seg);
-int _existe_algun_seg(t_segmento* seg);
+t_segmento* _existe_algun_seg(int id_programa);
 
 int first_fit(t_list* lista,int id_programa,int tamanio);
 int worst_fit(t_list* lista,int id_programa,int tamanio);
 
-char* leer(int id_programa,int base,int offset,int tamanio);
-int escribir(int id_programa,int base,int offset,int tamanio,char* buffer);
+char* leer(int id_programa,t_solicitudLectura* solicitud);
+int escribir(int id_programa,t_solicitudEscritura* solicitud);
 int crear_segmento(t_crearSegmentoUMV* datos);
 int destruir_segmentos(int id_programa);
 
