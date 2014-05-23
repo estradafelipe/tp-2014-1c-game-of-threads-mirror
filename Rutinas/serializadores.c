@@ -85,10 +85,6 @@ t_PCB *desserializarPCB(char* PCBSerializada){
 }
 
 
-
-
-
-
 char* serializarSolicitudSegmento(t_crearSegmentoUMV *segmento){
 	char *stream = malloc(sizeof(t_crearSegmentoUMV));
 	int size =0, offset =0;
@@ -149,7 +145,7 @@ t_solicitudLectura* desserializarSolicitudLectura(char* solicitud){
 }
 
 char* serializarSolicitudEscritura(t_solicitudEscritura* solicitud){
-	char *stream = malloc(sizeof(t_puntero)*3 + strlen(solicitud->buffer)+1);
+	char *stream = malloc(sizeof(t_puntero)*3 + solicitud->tamanio);
 	int size=0, offset=0;
 	size = sizeof(t_puntero);
 	memcpy(stream, &solicitud->base, size);
@@ -160,7 +156,7 @@ char* serializarSolicitudEscritura(t_solicitudEscritura* solicitud){
 	size = sizeof(t_puntero);
 	memcpy (stream + offset, &solicitud->tamanio, size);
 	offset += size;
-	size = strlen(solicitud->buffer)+1;
+	size = solicitud->tamanio;
 	memcpy (stream + offset, solicitud->buffer, size);
 
 	return stream;
@@ -182,7 +178,8 @@ t_solicitudEscritura* desserializarSolicitudEscritura(char* solicitud){
 	memcpy(&solic->tamanio,solicitud+offset,tmp_size);
 
 	offset += tmp_size;
-	for (tmp_size=1 ; (solicitud+offset) [tmp_size-1] != '\0'; tmp_size++);
+	//for (tmp_size=1 ; (solicitud+offset) [tmp_size-1] != '\0'; tmp_size++);
+	tmp_size = solic->tamanio;
 	solic->buffer = malloc (tmp_size);
 	memcpy(solic->buffer, solicitud+offset, tmp_size);
 
