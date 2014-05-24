@@ -43,9 +43,26 @@ void destruirSegmentos(int pcbid){
 
 }
 t_puntero recibirSegmento(){
-	//package *paquete_recibido = recibir_paquete(kernel.fd_UMV);
-	t_puntero segmento = 3;
+	t_puntero segmento;
+	package *paquete_recibido = recibir_paquete(kernel->fd_UMV);
+	if (paquete_recibido->type == respuestaUmv){
+		memcpy(&segmento,paquete_recibido->payload, sizeof(t_puntero));
+		if (segmento==-1) printf("Error al recibir el segmento\n");
+		else printf("Base del nuevo segmento: %d\n",segmento);
+	}
+	free(paquete_recibido);
 	return segmento;
+}
+t_puntero recibirRespuestaEscritura(){
+	t_puntero bytesEscritos;
+	package *paquete_recibido = recibir_paquete(kernel->fd_UMV);
+	if (paquete_recibido->type == respuestaUmv){
+		memcpy(&bytesEscritos,paquete_recibido->payload, sizeof(t_puntero));
+		if (bytesEscritos==-1) printf("Error al escribir en el segmento (UMV)\n");
+		else printf("Escritura en el segmento: %d\n",bytesEscritos);
+	}
+	free(paquete_recibido);
+	return bytesEscritos;
 }
 t_puntero solicitarSegmento(t_crearSegmentoUMV *segmento){
 	char *payload;
@@ -56,7 +73,6 @@ t_puntero solicitarSegmento(t_crearSegmentoUMV *segmento){
 	free(paquete);
 	free(payload);
 	if (resu==-1) return -1;
-	sleep(1); //prueba
 	return recibirSegmento();
 }
 
@@ -77,9 +93,7 @@ int enviarBytesUMV(t_puntero base, t_puntero size, void * buffer){
 	free(payload);
 	free(envioBytes);
 	if (resu==-1) return -1;
-	sleep(1);
-	// esperar respuesta
-	return 0;
+	return recibirRespuestaEscritura();
 }
 bool solicitarSegmentosUMV(char *codigo, uint16_t codigoSize, t_medatada_program *programa, t_PCB *pcb){
 
