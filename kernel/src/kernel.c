@@ -145,7 +145,7 @@ int main(int argc, char**argv) {
 	cola_exit = cola_create();
 	sem_exit = malloc(sizeof(sem_t));
 	sem_init(sem_exit,0,0);
-
+	sem_init(semaforo_fin,0,0);
 	char * path = argv[1]; // path del archivo de configuracion
 	leerconfiguracion(path);
 	crea_tablasSitema();
