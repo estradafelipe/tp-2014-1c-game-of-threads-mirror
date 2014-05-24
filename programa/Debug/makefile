@@ -8,7 +8,6 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include src/socket/subdir.mk
 -include src/subdir.mk
 -include subdir.mk
 -include objects.mk
@@ -26,11 +25,14 @@ endif
 # All Target
 all: programa
 
+dependents:
+	-cd /home/utnso/workspace/Rutinas/Debug && $(MAKE) all
+
 # Tool invocations
-programa: $(OBJS) $(USER_OBJS)
+programa: $(OBJS) $(USER_OBJS) /home/utnso/workspace/Rutinas/Debug/libRutinas.so
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	gcc -L"/home/utnso/workspace/commons/Debug" -o "programa" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc -L"/home/utnso/workspace/Rutinas/Debug" -L"/home/utnso/workspace/commons/Debug" -o "programa" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -41,5 +43,6 @@ clean:
 
 .PHONY: all clean dependents
 .SECONDARY:
+/home/utnso/workspace/Rutinas/Debug/libRutinas.so:
 
 -include ../makefile.targets

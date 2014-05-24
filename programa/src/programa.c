@@ -48,7 +48,9 @@ int main(int argc, char **argv) {
 	stat(path, &stat_file);
 
 	FILE* file = NULL;
+
 	file = fopen(path,"r");
+
 	if (file==NULL)
 		printf("no se puede abrir el archivo\n");
 
@@ -56,12 +58,12 @@ int main(int argc, char **argv) {
 
 		char * buffer = "HolaKernel";
 		package *paquete_nuevo = malloc(sizeof(paquete_nuevo));
-		//** Prueba basica envio por socket
+
 		int descriptor;
 		descriptor = abrir_socket();
 		conectar_socket(descriptor,ip,puerto);
 		printf("me conecte, voy a enviar el saludo..\n");
-		package *paquete = crear_paquete(handshakeProgKernel,buffer,strlen(buffer));
+		package *paquete = crear_paquete(handshakeProgKernel,buffer,strlen(buffer)+1);
 		int resu = enviar_paquete(paquete,descriptor);
 		printf("mande el handshake\n");
 		//Enviar msj al server
@@ -71,11 +73,9 @@ int main(int argc, char **argv) {
 		package * paquete_recibido = recibir_paquete(descriptor);
 		if(paquete_recibido->type==handshakeProgKernel) {
 			printf("Me dio el ok el Kernel\n");
-			buffer = calloc(1, stat_file.st_size + 1);
-			fread(buffer, stat_file.st_size, 1, file); // levanto el archivo en buffer
-			//printf("%s",buffer);
-			printf("tamanio:%d\n",(int)stat_file.st_size);
-			package *paquete = crear_paquete(programaNuevo,buffer,strlen(buffer));
+			buffer = calloc(1, stat_file.st_size); //+1
+			fread(buffer, stat_file.st_size-1, 1, file); // levanto el archivo en buffer
+			package *paquete = crear_paquete(programaNuevo,buffer,stat_file.st_size);
 			int resu = enviar_paquete(paquete,descriptor);
 			if (resu ==-1)
 				printf("No se pudo enviar el mensaje\n");
