@@ -37,8 +37,9 @@ pthread_mutex_t mutex_new = PTHREAD_MUTEX_INITIALIZER;
 
 void destruirSegmentos(int pcbid){
 
-	char *payload = string_from_format("%d",pcbid);
-	package *paquete = crear_paquete(creacionSegmentos,payload,strlen(payload)+1);
+	char *payload = malloc(sizeof(int));
+	memcpy(payload,&pcbid,sizeof(int));
+	package *paquete = crear_paquete(destruccionSegmentos,payload,sizeof(int));
 	enviar_paquete(paquete,kernel->fd_UMV);
 
 }
@@ -47,8 +48,7 @@ t_puntero recibirSegmento(){
 	package *paquete_recibido = recibir_paquete(kernel->fd_UMV);
 	if (paquete_recibido->type == respuestaUmv){
 		memcpy(&segmento,paquete_recibido->payload, sizeof(t_puntero));
-		if (segmento==-1) printf("Error al recibir el segmento\n");
-		else printf("Base del nuevo segmento: %d\n",segmento);
+		if (segmento!=-1) printf("Base del nuevo segmento: %d\n",segmento);
 	}
 	free(paquete_recibido);
 	return segmento;
@@ -106,6 +106,7 @@ bool solicitarSegmentosUMV(char *codigo, uint16_t codigoSize, t_medatada_program
 	dirSegmento = solicitarSegmento(crearSegmento);
 	if(dirSegmento == -1){
 		destruirSegmentos(pcb->id);
+		free(crearSegmento);
 		return false;
 	} else pcb->segmentoCodigo = dirSegmento;
 
@@ -232,18 +233,23 @@ void enviarMsgPrograma(int id,char * msg){
 }
 */
 
-void rechazarPrograma(int id, int fd){
-	// eliminar programa de la tabla
+void enviarMsgPrograma(int fd, char *msg){
+	char *string = strdup(msg);
+	package *paquete = crear_paquete(rechazoPrograma,string,strlen(string)+1);
+	enviar_paquete(paquete,fd);
+	free(paquete);
+}
+
+void eliminarProgramaTabla(int id){
+
 	char * key = string_from_format("%d",id);
 	dictionary_remove(programas,key);
 
-	// enviar un mensaje por consola
-	// Cambiar para que envie un paquete
-	char * msg = "No hay recursos suficientes para procesar el programa";
-	if (send(fd, msg, strlen(msg), 0) == -1) {
-		perror("send");
-	}
+}
 
+
+void rechazarPrograma(int fd){
+	enviarMsgPrograma(fd,"No hay recursos suficientes para procesar el programa");
 }
 
 t_medatada_program* preprocesar(char *buffer){
@@ -329,6 +335,7 @@ void hiloMultiprogramacion(){
 	while(1){
 		sem_wait(sem_multiprogramacion);
 		sem_wait(sem_new);
+		printf("paso el sem de multiprogramacion y de new");
 		sleep(3); // pongo el sleep para poder "ver"
 		siguienteSJN(cola_new);
 		// informar NEW -> Programa X -> READY
@@ -360,12 +367,13 @@ void gestionarDatos(int fd, package *paquete){
 			pthread_mutex_unlock(&mutex_new);
 			sem_post(sem_new);
 			// loguear: informar Programa X -> NEW
-
 			loggeo();
 
 		}
-		else
-			rechazarPrograma(PCB->id,fd); // informa por pantalla
+		else {
+			eliminarProgramaTabla(PCB->id);
+			rechazarPrograma(fd); // informa por pantalla
+		}
 	}
 
 }
@@ -423,13 +431,13 @@ void recibirProgramas(void){
 						printf("selectserver: socket %d hung up\n", i);
 						close(i);
 						FD_CLR(i, &master); // eliminar del conjunto maestro
-						// eliminar del dictionary
+						//eliminarProgramaTabla(i);
 
 					}
 					else {
 
 						if (paquete->type == handshakeProgKernel)
-							printf("Handshake del socket %d, tamanio:%d",i,strlen(strdup(paquete->payload)));
+							printf("Handshake del socket %d, tamanio:%d\n",i,strlen(strdup(paquete->payload)));
 						else
 							printf("Mensaje del socket %d, tamanio:%d\n",i,paquete->payloadLength);
 						gestionarDatos(i,paquete);

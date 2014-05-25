@@ -23,7 +23,10 @@ typedef enum nipc_type{
 	respuestaUmv,							//07 - respuesta de la UMV a una solicitud
 	handshakeProgKernel,					//08
 	programaNuevo,							//09
+	rechazoPrograma,						//10 - respuesta del Kernel de rechazo al programa
 }t_paquete;
+
+
 // Tipo paquete
 typedef struct paquete{
 		t_paquete type;

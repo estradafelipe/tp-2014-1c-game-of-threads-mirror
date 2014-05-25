@@ -66,6 +66,7 @@ int main(int argc, char **argv) {
 		package *paquete = crear_paquete(handshakeProgKernel,buffer,strlen(buffer)+1);
 		int resu = enviar_paquete(paquete,descriptor);
 		printf("mande el handshake\n");
+		free(paquete);
 		//Enviar msj al server
 		if (resu ==-1)
 			printf("No se pudo enviar el mensaje\n");
@@ -75,23 +76,28 @@ int main(int argc, char **argv) {
 			printf("Me dio el ok el Kernel\n");
 			buffer = calloc(1, stat_file.st_size); //+1
 			fread(buffer, stat_file.st_size-1, 1, file); // levanto el archivo en buffer
+			fclose(file);
 			package *paquete = crear_paquete(programaNuevo,buffer,stat_file.st_size);
 			int resu = enviar_paquete(paquete,descriptor);
 			if (resu ==-1)
 				printf("No se pudo enviar el mensaje\n");
-
+			free(paquete);
 			printf("Envie el programa\n");
 			paquete_nuevo = recibir_paquete(descriptor);
 			// Analizar Respuestas del Kernel
+			if (paquete_nuevo->type==rechazoPrograma){
+				char *string = malloc(paquete_nuevo->payloadLength);
+				memcpy(string,paquete_nuevo->payload,paquete_nuevo->payloadLength);
+				printf("%s\n",string);
+			}
 
 		}
-		else
-			printf("recibi el tipo de paquete:%d",paquete_recibido->type);
 
+
+		free(paquete_recibido);
+		free(paquete_nuevo);
 		free(buffer);
-		//close(descriptor);
-
-		fclose(file);
+		close(descriptor);
 	}
 	return EXIT_SUCCESS;
 }
