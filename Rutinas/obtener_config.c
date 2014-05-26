@@ -48,7 +48,7 @@ char* obtenerAlgoritmo(t_config* config){
 }
 
 int obtenerAlgoritmoUMV(t_config* config){
-	char* key = "algortimo";
+	char* key = "algoritmo";
 	int algoritmo;
 	algoritmo = config_get_int_value(config,key);
 
