@@ -40,6 +40,8 @@ int obtenerRecovery(t_config* config);
 int obtenerQuantum(t_config* config);
 int obtenerRetardo(t_config* config);
 char* obtenerAlgoritmo(t_config* config);
+int obtenerAlgoritmoUMV(t_config* config);
+int obtenerTamanioMemoria(t_config* config);
 int obtenerPuerto(t_config* config);
 int obtenerTamanioStack(t_config* config);
 #endif /* OBTENER_CONFIG_H_ */

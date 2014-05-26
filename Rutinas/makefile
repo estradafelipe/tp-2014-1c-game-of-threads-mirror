@@ -3,8 +3,8 @@ CC=gcc
 
 C_SRCS=$(shell find . -iname "*.c" | tr '\n' ' ')
 H_SRCS=$(shell find . -iname "*.h" | tr '\n' ' ')
-OBJS:= build/obtener_config.o build/sockets.o build/serializadores.o build/paquetes.o build/colas.o
-HDRS:= obtener_config.h sockets.h serializadores.h paquetes.h colas.h
+OBJS:= build/obtener_config.o build/sockets.o build/serializadores.o build/paquetes.o build/colas.o build/stack.o
+HDRS:= obtener_config.h sockets.h serializadores.h paquetes.h colas.h stack.h
 # Clean and compile .so
 all: build/libRutinas.so
 
@@ -27,6 +27,9 @@ build/paquetes.o: paquetes.c paquetes.h
 	$(CC) -c -fmessage-length=0 -fPIC -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 
 build/colas.o: colas.c colas.h
+	$(CC) -c -fmessage-length=0 -fPIC -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+
+build/stack.o: stack.c stack.h
 	$(CC) -c -fmessage-length=0 -fPIC -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 
 # Add debug parameters and compile

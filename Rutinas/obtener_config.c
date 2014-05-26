@@ -47,6 +47,21 @@ char* obtenerAlgoritmo(t_config* config){
 	return(algoritmo);
 }
 
+int obtenerAlgoritmoUMV(t_config* config){
+	char* key = "algortimo";
+	int algoritmo;
+	algoritmo = config_get_int_value(config,key);
+
+	return(algoritmo);
+}
+
+int obtenerTamanioMemoria(t_config* config){
+	char* key = "tamaño";
+	int tamanio;
+	tamanio = config_get_int_value(config,key);
+
+	return(tamanio);
+}
 
 int obtenerPuerto(t_config* config){
 	char* key = "puerto";
