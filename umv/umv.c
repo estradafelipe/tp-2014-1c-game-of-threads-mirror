@@ -12,17 +12,20 @@
 #include "atencion.h"
 
 int main(int argc, char **argv){
+
+	t_config *configUMV = config_create(argv[1]);
+
 /* Creo la lista que va a tener un elemento por cada hilo lanzado */
 	hilos = list_create();
 	printf("Lista de hilos creada\n");
 
 /* Obtener datos del archivo de configuracion */
-	//TODO Obtener tamaño del bloque de memoria
-	//TODO Obtener puerto en el que se va a estar escuchando
-	int tamanioMemoria=1024; // el 1024 se cambiara por lo que obtenga del archivo de config
-	int puerto = 5021; // el puerto se obtendra por archivo de config
+	int tamanioMemoria=obtenerTamanioMemoria(configUMV);
+	int puerto = obtenerPuerto(configUMV);
+	algoritmo = obtenerAlgoritmoUMV(configUMV);
+	retardo = obtenerRetardo(configUMV);
 /* Fin obtener datos */
-	printf("El tamaño de memoria es %d y el puerto es %d\n",tamanioMemoria,puerto);
+	printf("El tamaño de memoria es %d, el puerto es %d, el algoritmo es: %s y el retardo es: %d\n",tamanioMemoria,puerto,algoritmo==1?"FIRST-FIT":"WORST-FIT",retardo);
 
 /* Pido la memoria que va a tener disponible el sistema */
 	bloqueDeMemoria = malloc(tamanioMemoria);
@@ -31,6 +34,7 @@ int main(int argc, char **argv){
 /* Creo lista para administrar el bloque de memoria */
 	segmentos = list_create();
 	//Inicializo mutex de la lista
+	mutexSegmentos = malloc(sizeof(pthread_mutex_t));
 	pthread_mutex_init(mutexSegmentos,NULL);
 	printf("Lista de segmentos creada\n");
 	t_segmento* vacio = malloc(sizeof(t_segmento));
@@ -69,7 +73,6 @@ int main(int argc, char **argv){
 			return EXIT_FAILURE;
 		} else {
 		/* Creo nuevo hilo por cada nueva conexion */
-		//TODO Hacer funcion que atiende a una nueva conexion
 			pthread_create(&nuevoHilo, NULL,(void*)atenderNuevaConexion,(void*)socketNuevaConexion);
 		/* Agrego el identificador del hilo a la lista de hilos */
 			list_add(hilos,(void*)nuevoHilo);

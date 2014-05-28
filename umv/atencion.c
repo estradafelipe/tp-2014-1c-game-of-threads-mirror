@@ -31,18 +31,15 @@ void* atenderNuevaConexion(void* parametro){
 				break;
 		}
 	}
-
-	//TODO Hacer handshake
-	//Ver que tipo de paquete se usara en el handshake
 }
 
-// TODO Ver si combiene o no hacer dos funciones separadas
 /* Atiende solicitudes del kernel */
 /* quedarse esperando solicitudes de creacion  o eliminacion de segmentos de programas */
 int atenderKernel(int socket){
 	printf("Atendiendo al Kernel\n");
 	package* paquete;
 	package* respuesta;
+	char* answer = malloc(sizeof(t_puntero));
 	int bytesRecibidos;
 	t_paquete tipo;
 	int procesoActivo;
@@ -74,6 +71,9 @@ int atenderKernel(int socket){
 					pthread_mutex_unlock(mutexSegmentos);
 					if(resultado>=0){
 						printf("El segmento del %d de tamaño %d se creo correctamente\n",creacionSegmento->programid,creacionSegmento->size);
+						memcpy(answer, &resultado, sizeof(t_puntero));
+						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
+						enviar_paquete(respuesta,socket);
 					} else {
 						printf("No hubo espacio suficiente, se realizara la compactacion y se volvera a intentar\n");
 						pthread_mutex_lock(mutexSegmentos);
@@ -84,8 +84,14 @@ int atenderKernel(int socket){
 						pthread_mutex_unlock(mutexSegmentos);
 						if(resultado>=0){
 							printf("El segmento del %d de tamaño %d se creo correctamente\n",creacionSegmento->programid,creacionSegmento->size);
+							memcpy(answer, &resultado, sizeof(t_puntero));
+							respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
+							enviar_paquete(respuesta,socket);
 						} else {
-							printf("Violación de segmento!!!\n");
+							printf("No hubo espacio suficiente\n");
+							memcpy(answer, &resultado, sizeof(t_puntero));
+							respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
+							enviar_paquete(respuesta,socket);
 						}
 					}
 					break;
@@ -119,8 +125,11 @@ int atenderKernel(int socket){
 						enviar_paquete(respuesta,socket);
 					} else {
 						printf("Violación de segmento!!!\n");
-						//notificar a la cpu
-						respuesta = crear_paquete(respuestaUmv,"Segmentation Fault",strlen("Segmentation Fault")+1);
+						printf("Solicitud lectura:\n");
+						printf("Id_programa: %d, base: %d, offset: %d y tamaño: %d\n",procesoActivo,solicitudLectura->base,solicitudLectura->offset,solicitudLectura->tamanio);
+						resultado = -1;
+						memcpy(answer, &resultado, sizeof(t_puntero));
+						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
 						enviar_paquete(respuesta,socket);
 					}
 					break;
@@ -135,13 +144,16 @@ int atenderKernel(int socket){
 					//validar si hay segmentation fault
 					if(resultado >= 0){
 						printf("La operacion de escritura termino correctamente\n");
-						//notificar a la cpu
-						respuesta = crear_paquete(respuestaUmv,"TODO OK",strlen("TODO OK")+1);
+						memcpy(answer, &resultado, sizeof(t_puntero));
+						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
 						enviar_paquete(respuesta,socket);
 					} else {
 						printf("Violación de segmento!!!\n");
-						//notificar a la cpu
-						respuesta = crear_paquete(respuestaUmv,"Segmentation Fault",strlen("Segmentation Fault")+1);
+						printf("Solicitud escritura:\n");
+						printf("Id_programa: %d, base: %d, offset: %d y tamaño: %d\n",procesoActivo,solicitudEscritura->base,solicitudEscritura->offset,solicitudEscritura->tamanio);
+						resultado = -1;
+						memcpy(answer, &resultado, sizeof(t_puntero));
+						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
 						enviar_paquete(respuesta,socket);
 					}
 					break;
@@ -163,6 +175,7 @@ int atenderCpu(int socket){
 	printf("Atendiendo a una Cpu\n");	
 	package* paquete;
 	package* respuesta;
+	char* answer = malloc(sizeof(t_puntero));
 	int bytesRecibidos;
 	t_paquete tipo;
 	int procesoActivo = -1;
@@ -192,12 +205,15 @@ int atenderCpu(int socket){
 					if(datos!=NULL){
 						printf("Los datos obtenidos son: %s\n",datos);
 						// responder a la cpu
-						respuesta = crear_paquete(respuestaUmv,datos,strlen(datos)+1);
+						respuesta = crear_paquete(respuestaUmv,datos,solicitudLectura->tamanio);
 						enviar_paquete(respuesta,socket);
 					} else {
 						printf("Violación de segmento!!!\n");
-						//notificar a la cpu
-						respuesta = crear_paquete(respuestaUmv,"Segmentation Fault",strlen("Segmentation Fault")+1);
+						printf("Solicitud lectura:\n");
+						printf("Id_programa: %d, base: %d, offset: %d y tamaño: %d\n",procesoActivo,solicitudLectura->base,solicitudLectura->offset,solicitudLectura->tamanio);
+						resultado = -1;
+						memcpy(answer, &resultado, sizeof(t_puntero));
+						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
 						enviar_paquete(respuesta,socket);
 					}
 					break;
@@ -211,13 +227,16 @@ int atenderCpu(int socket){
 					//validar si hay segmentation fault
 					if(resultado >= 0){
 						printf("La operacion de escritura termino correctamente\n");
-						//notificar a la cpu
-						respuesta = crear_paquete(respuestaUmv,"TODO OK",strlen("TODO OK")+1);
+						memcpy(answer, &resultado, sizeof(t_puntero));
+						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
 						enviar_paquete(respuesta,socket);
 					} else {
 						printf("Violación de segmento!!!\n");
-						//notificar a la cpu
-						respuesta = crear_paquete(respuestaUmv,"Segmentation Fault",strlen("Segmentation Fault")+1);
+						printf("Solicitud escritura:\n");
+						printf("Id_programa: %d, base: %d, offset: %d y tamaño: %d\n",procesoActivo,solicitudEscritura->base,solicitudEscritura->offset,solicitudEscritura->tamanio);
+						resultado = -1;
+						memcpy(answer, &resultado, sizeof(t_puntero));
+						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
 						enviar_paquete(respuesta,socket);
 					}
 					break;
@@ -321,7 +340,7 @@ void* atenderConsola(){
 				if(estado >= 0){
 					printf("Los segmentos del programa %d se borraron correctamente\n",id_programa);
 				} else {
-					printf("Violación de segmento!!!\n");
+					printf("No habia segmentos del programa\n");
 				}
 			} else {
 				printf("Comando no reconocido, intente de nuevo\n");
@@ -375,7 +394,6 @@ void* atenderConsola(){
 			} else {
 				printf("Comando no reconocido, intente de nuevo\n");
 			}
-
 		} else {
 			printf("Comando no reconocido, intente de nuevo\n");
 		}
@@ -387,7 +405,7 @@ int _menor_id_programa(t_segmento *seg, t_segmento *segMayor) {
 }
 /* Devuelve si el segmento siguiente es de mayor tamaño */
 int _mayor_tamanio(t_segmento *seg, t_segmento *segMayor) {
-	return seg->tamanio < segMayor->tamanio;
+	return seg->tamanio >= segMayor->tamanio;
 }
 /* Devuelve si esta vacio el segmento */
 int _esta_vacio(t_segmento* seg){
@@ -473,7 +491,7 @@ int escribir(int id_programa,t_solicitudEscritura* solicitud){
 		int maximo = segmentoBuscado->tamanio + segmentoBuscado->base_logica;
 		if(segmentoBuscado->base_logica <= paraEscribir && paraEscribir <= maximo ){
 			memcpy(segmentoBuscado->base+solicitud->offset,solicitud->buffer,solicitud->tamanio);
-			return 1;
+			return solicitud->tamanio;
 		} else {
 			return -1;
 		}
@@ -507,31 +525,63 @@ int crear_segmento(t_crearSegmentoUMV* datos){
  * En caso de que no exista ningun segmento de ese programa devuelve -1
  * Caso contrario devuelve 1
  */
-//TODO Juntar segmentos vacios contiguos
 int destruir_segmentos(int id_programa){
 	t_segmento* seg_aux =_existe_algun_seg(id_programa);
 	if(seg_aux==NULL){
-		return -1; //no hay ningun segmento de ese programa (segmentation fault)
+		return -1; //no hay ningun segmento de ese programa
 	} else {
 		int i;
 		t_segmento* aux;
-		t_segmento* vacio = malloc(sizeof(t_segmento));
-		vacio->id_programa = -1;
 		int cant_seg=list_size(segmentos);
 		for(i=0;i<cant_seg;i++){
 			aux = list_get(segmentos,i);
 			if(aux->id_programa == id_programa){
-				vacio->base = aux->base;
-				vacio->base_logica = 0;
-				vacio->tamanio = aux->tamanio;
-				list_replace(segmentos,i,vacio);
+				printf("Segmento del programa %d encontrado de un tamaño %d\n",id_programa,aux->tamanio);
+				aux->base_logica = 0;
+				aux->id_programa = -1;
 			}
 		}
 		return 1;
 	}
 }
-//TODO Implementacion de compactar!!
+
 int compactar(){
+	int i;
+	t_segmento* aux;
+	t_segmento* libre = malloc(sizeof(t_segmento));
+	libre->id_programa = -1;
+	libre->base = 0;
+	libre->tamanio = 0;
+	int cant_seg=list_size(segmentos);
+	printf("Cantidad total de segmentos: %d\n",cant_seg);
+	//sumo el espacio libre total
+	for(i=0;i<cant_seg;i++){
+		aux = list_get(segmentos,i);
+		if(aux->id_programa == -1){
+			libre->tamanio += aux->tamanio;
+		}
+	}
+	printf("El espacio vacio total es %d\n",libre->tamanio);
+	//elimino todos los segmentos vacios
+	for(i=0;i<cant_seg;i++){
+		aux =  list_remove_by_condition(segmentos, (void*) _esta_vacio);
+		free(aux);
+		cant_seg = list_size(segmentos);
+	}
+	printf("Segmentos vacios eliminados\n");
+	printf("Cantidad total de segmentos: %d\n",list_size(segmentos));
+	int offsetAcumulado = 0;
+	char* baseNueva;
+	for(i=0;i<list_size(segmentos);i++){
+		aux = list_get(segmentos,i);
+		printf("Copiando datos del segmento %d a partir del offset %d con un tamaño de %d\n",i,offsetAcumulado,aux->tamanio);
+		baseNueva = bloqueDeMemoria + offsetAcumulado;
+		memcpy(baseNueva,aux->base,aux->tamanio);
+		aux->base = baseNueva;
+		offsetAcumulado += aux->tamanio;
+		printf("El offset siguiente es %d\n",offsetAcumulado);
+	}
+	list_add(segmentos,libre);
 	return -1;
 }
 
@@ -604,20 +654,26 @@ int imprimir_contenido(int offset, int tamanio){
  */
 int first_fit(t_list* lista,int id_programa,int tamanio){
 	int i;
+	int resultado = -1;
 	t_segmento* aux;
 	t_segmento* vacio = malloc(sizeof(t_segmento));
 	int cant_seg=list_size(lista);
 	for(i=0;i<cant_seg;i++){
 		aux = list_get(lista,i);
 		if(_esta_vacio(aux)){
+			printf("Se encontro un segmento vacio\n");
 			if(aux->tamanio >= tamanio){
+				printf("Tiene un tamaño mayor o igual que el solicitado\n");
 				//si el tamanio es igual al solicitado lo reemplazo directamente
 				//sino debe ser reemplazado por dos segmentos
 				//el usado y el espacio que queda libre
 				aux->id_programa = id_programa;
+				aux->base_logica = calcularBaseLogica(id_programa);
 				if(aux->tamanio == tamanio){
+					printf("Era igual al tamaño solicitado\n");
 					list_replace(lista,i,aux);
 				} else {
+					printf("Era mas grande\n");
 					vacio->base = aux->base + tamanio;
 					vacio->id_programa = -1;
 					vacio->tamanio = aux->tamanio - tamanio;
@@ -626,11 +682,12 @@ int first_fit(t_list* lista,int id_programa,int tamanio){
 					list_replace(lista,i,aux);
 					list_add_in_index(lista,i+1,vacio);
 				}
-				return i;
+				resultado = aux->base_logica;
 			}
 		}
 	}
-	return -1;
+	printf("La base logica del segmento creado es %d\n",resultado);
+	return resultado;
 }
 
 /* Crea un nuevo segmento con el algoritmo WORST-FIT
@@ -638,17 +695,18 @@ int first_fit(t_list* lista,int id_programa,int tamanio){
  * Caso contrario devuelve la posicion en la lista
  */
 int worst_fit(t_list* lista,int id_programa,int tamanio){
-	t_list* listaOrdenada = lista;// revisar si se hace una copia o es la misma lista!!!!
+	t_list* listaOrdenada = list_take(lista,list_size(segmentos));// revisar si se hace una copia o es la misma lista!!!!
 	//ordeno la lista por tamanio descendente
 	list_sort(listaOrdenada,(void*)_mayor_tamanio);
 	int i,j;
+	int resultado = -1;
 	t_segmento* auxOrd;
 	t_segmento* aux;
 	t_segmento* vacio = malloc(sizeof(t_segmento));
 	int cant_seg=list_size(listaOrdenada);
 	for(i=0;i<cant_seg;i++){
 		auxOrd = list_get(listaOrdenada,i);
-		if(_esta_vacio(aux)){
+		if(auxOrd->id_programa == -1){
 			if(auxOrd->tamanio >= tamanio){
 				//busco el segmento en la lista original
 				for(j=0;j<=cant_seg;j++){
@@ -657,25 +715,48 @@ int worst_fit(t_list* lista,int id_programa,int tamanio){
 						//si el tamanio es igual al solicitado lo reemplazo directamente
 						//sino debe ser reemplazado por dos segmentos
 						//el usado y el espacio que queda libre
+						aux->id_programa = id_programa;
+						aux->base_logica = calcularBaseLogica(id_programa);
 						if(aux->tamanio == tamanio){
-							aux->id_programa = id_programa;
 							list_replace(lista,j,aux);
 						} else {
 							vacio->base = aux->base + tamanio;
 							vacio->id_programa = -1;
 							vacio->tamanio = aux->tamanio - tamanio;
-							aux->id_programa = id_programa;
 							aux->tamanio = tamanio;
 							list_replace(lista,j,aux);
 							list_add_in_index(lista,j+1,vacio);
 						}
-						return j;
+						resultado = aux->base_logica;
 					}
 				}
 			}
 		}
 	}
-	return -1;
+	printf("La base logica del segmento creado es %d\n",resultado);
+	return resultado;
 
+}
+
+t_puntero calcularBaseLogica(int id_programa){
+	int i;
+	t_segmento* aux;
+	t_puntero resultado;
+	int baseMaxima = 0;
+	int tamanioMaximo = 0;
+	int cant_seg=list_size(segmentos);
+	for(i=0;i<cant_seg;i++){
+		aux = list_get(segmentos,i);
+		if(aux->id_programa == id_programa && aux->base_logica >= baseMaxima){
+			baseMaxima = aux->base_logica;
+			tamanioMaximo = aux->tamanio;
+		}
+	}
+	if(baseMaxima > 0 && tamanioMaximo >0){
+		resultado = baseMaxima + tamanioMaximo;
+	} else {
+		resultado = 0;
+	}
+	return resultado;
 }
 

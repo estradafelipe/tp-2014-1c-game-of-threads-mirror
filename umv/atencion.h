@@ -56,6 +56,7 @@ int _menor_id_programa(t_segmento *seg, t_segmento *segMayor);
 int _mayor_tamanio(t_segmento *seg, t_segmento *segMayor);
 int _esta_vacio(t_segmento* seg);
 t_segmento* _existe_algun_seg(int id_programa);
+t_puntero calcularBaseLogica(int id_programa);
 
 int first_fit(t_list* lista,int id_programa,int tamanio);
 int worst_fit(t_list* lista,int id_programa,int tamanio);
@@ -69,4 +70,5 @@ int compactar();
 int imprimir_estructuras(int id_programa);
 int imprimir_segmentos_memoria();
 int imprimir_contenido(int offset, int tamanio);
+
 #endif /* ATENCION_H_ */
