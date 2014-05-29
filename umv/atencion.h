@@ -45,7 +45,7 @@ t_list* hilos; //lista de hilos
 t_list* segmentos; //lista de segmentos
 
 char* bloqueDeMemoria;
-
+int scriptCreacionSegmentos();
 void* atenderNuevaConexion();
 void* atenderConsola();
 
