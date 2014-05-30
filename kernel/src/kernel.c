@@ -4,7 +4,7 @@
  Author      : silvina
  Version     :
  Copyright   : Your copyright notice
- Description : Hello World in C, Ansi-style
+ Description :
  ============================================================================
  */
 
@@ -27,6 +27,7 @@
 t_kernel *kernel;
 sem_t *semaforo_fin;
 sem_t *sem_exit;
+sem_t *sem_multiprogramacion;
 int ultimoid;
 t_cola *cola_ready;
 t_cola *cola_exit;
@@ -76,6 +77,9 @@ void leerconfiguracion(char *path_config){
 	if (config_has_property(config,key))
 		kernel->entradasalidaret =	config_get_array_value(config,key);
 
+	kernel->programas = dictionary_create();
+	pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+	kernel->mutex_programas = mutex;
   }
 /* Crea las tablas de semaforos y de I/O */
 void crea_tablasSitema(){
@@ -105,6 +109,7 @@ void crea_tablasSitema(){
 			IO->id = kernel->entradasalidaid[i];
 			IO->retardo = atoi(kernel->entradasalidaret[i]);
 			IO->semaforo_IO = malloc(sizeof(sem_t));
+			IO->cola = cola_create();
 			sem_init(IO->semaforo_IO,0,0); //inicializo semaforo del hilo en 0
 			dictionary_put(entradasalida,IO->id,IO);
 			i++;
@@ -157,10 +162,10 @@ int main(int argc, char**argv) {
 	printf("QUANTUM:%d\n",kernel->quantum);
 	printf("RETARDO:%d\n",kernel->retardo);
 	printf("MULTIPROGRAMACION:%d\n",kernel->multiprogramacion);
-	printf("SEMAFOROS:\n");
+	//printf("SEMAFOROS:\n");
 	//dictionary_iterator(semaforos,(void*)imprimepantalla);
-	printf("\nENTRADA Y SALIDA:\n");
-	dictionary_iterator(entradasalida,(void*)imprimepantalla);
+	//printf("\nENTRADA Y SALIDA:\n");
+	//dictionary_iterator(entradasalida,(void*)imprimepantalla);
 	// **
 
 	// Crea hilos I/O

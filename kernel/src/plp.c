@@ -23,14 +23,14 @@
 #include <pthread.h>
 
 
-t_dictionary *programas;
 extern t_kernel *kernel;
 extern int ultimoid;
 extern t_cola *cola_ready;
 extern t_cola *cola_exit;
 t_list *cola_new;
+t_dictionary *programasxfd;
 extern sem_t *sem_exit;
-sem_t *sem_multiprogramacion;
+extern sem_t *sem_multiprogramacion;
 sem_t *sem_new;
 
 pthread_mutex_t mutex_new = PTHREAD_MUTEX_INITIALIZER;
@@ -64,18 +64,6 @@ t_puntero recibirRespuestaEscritura(){
 	free(paquete_recibido);
 	return bytesEscritos;
 }
-t_puntero solicitarSegmento(t_crearSegmentoUMV *segmento){
-	char *payload;
-	size_t payload_size=sizeof(t_puntero)*2;
-	payload = serializarSolicitudSegmento(segmento);
-	package *paquete = crear_paquete(creacionSegmentos,payload,payload_size);
-	int resu = enviar_paquete(paquete,kernel->fd_UMV);
-	free(paquete);
-	free(payload);
-	if (resu==-1) return -1;
-	return recibirSegmento();
-}
-
 //base,offset,size,buffer
 int enviarBytesUMV(t_puntero base, t_puntero size, void * buffer){
 	t_solicitudEscritura *envioBytes = malloc(sizeof(t_solicitudEscritura));
@@ -95,45 +83,59 @@ int enviarBytesUMV(t_puntero base, t_puntero size, void * buffer){
 	if (resu==-1) return -1;
 	return recibirRespuestaEscritura();
 }
+
+t_puntero solicitarSegmento(t_crearSegmentoUMV *segmento){
+	char *payload;
+	size_t payload_size=sizeof(t_puntero)*2;
+	payload = serializarSolicitudSegmento(segmento);
+	package *paquete = crear_paquete(creacionSegmentos,payload,payload_size);
+	int resu = enviar_paquete(paquete,kernel->fd_UMV);
+	free(paquete);
+	free(payload);
+	if (resu==-1) return -1;
+	return recibirSegmento();
+}
+
+t_puntero solicitudSegmento(t_puntero id, t_puntero size){
+	t_puntero dirSegmento;
+	t_crearSegmentoUMV *crearSegmento = malloc(sizeof(t_crearSegmentoUMV));
+	crearSegmento->programid = id;
+	crearSegmento->size = size;
+	dirSegmento = solicitarSegmento(crearSegmento);
+	if(dirSegmento == -1){
+		destruirSegmentos(id);
+	}
+	free(crearSegmento);
+	return dirSegmento;
+}
+
 bool solicitarSegmentosUMV(char *codigo, uint16_t codigoSize, t_medatada_program *programa, t_PCB *pcb){
 
 	t_puntero dirSegmento;
 	t_crearSegmentoUMV *crearSegmento = malloc(sizeof(t_crearSegmentoUMV));
 
+
 	// Segmento de Codigo
-	crearSegmento->programid = pcb->id;
-	crearSegmento->size = codigoSize;
-	dirSegmento = solicitarSegmento(crearSegmento);
-	if(dirSegmento == -1){
-		destruirSegmentos(pcb->id);
-		free(crearSegmento);
+	dirSegmento = solicitudSegmento(pcb->id,codigoSize);
+	if (dirSegmento==-1)
 		return false;
-	} else pcb->segmentoCodigo = dirSegmento;
+	else pcb->segmentoCodigo = dirSegmento;
 
 	// Segmento de Stack
-	crearSegmento->programid = pcb->id;
-	crearSegmento->size = kernel->sizeStack;
-	dirSegmento = solicitarSegmento(crearSegmento);
+	dirSegmento = solicitudSegmento(pcb->id,kernel->sizeStack);
 	if(dirSegmento == -1){
-		destruirSegmentos(pcb->id);
 		return false;
 	} else pcb->segmentoStack = dirSegmento;
 
 	//Indice de Etiquetas
-	crearSegmento->programid = pcb->id;
-	crearSegmento->size = programa->etiquetas_size;
-	dirSegmento = solicitarSegmento(crearSegmento);
+	dirSegmento = solicitudSegmento(pcb->id,programa->etiquetas_size);
 	if(dirSegmento == -1){
-		destruirSegmentos(pcb->id);
 		return false;
 	} else pcb->indiceEtiquetas = dirSegmento;
 
 	//Indice de Codigo
-	crearSegmento->programid = pcb->id;
-	crearSegmento->size = programa->instrucciones_size;
-	dirSegmento = solicitarSegmento(crearSegmento);
+	dirSegmento = solicitudSegmento(pcb->id,programa->instrucciones_size);
 	if(dirSegmento == -1){
-		destruirSegmentos(pcb->id);
 		return false;
 	} else pcb->indiceCodigo = dirSegmento;
 
@@ -200,38 +202,26 @@ void siguienteSJN(t_list *cola_new){
 	t_programa *menorPrograma;
 	t_programa *programa;
 	pthread_mutex_lock(&mutex_new);
-
+	pthread_mutex_lock(&kernel->mutex_programas);
 	cntnew = list_size(cola_new);
 	t_PCB *menorElement=list_get(cola_new,0);
-	menorPrograma = dictionary_get(programas,string_from_format("%d",menorElement->id));
+	menorPrograma = dictionary_get(kernel->programas,string_from_format("%d",menorElement->id));
 	menori = 0;
 	for (i=1;i<cntnew;i++){
 		element = list_get(cola_new,i);
-		programa = dictionary_get(programas,string_from_format("%d",element->id));
+		programa = dictionary_get(kernel->programas,string_from_format("%d",element->id));
 		if (programa->peso<menorPrograma->peso){
 			menori = i;
 			menorElement = element;
 			menorPrograma = programa;
 		}
 	}
-
+	pthread_mutex_unlock(&kernel->mutex_programas);
 	pasarAReady(menorElement);
 	list_remove(cola_new,menori);
 	pthread_mutex_unlock(&mutex_new);
 }
 
-
-/*
-void enviarMsgPrograma(int id,char * msg){
-	char * key = string_from_format("%d",id);
-	int * item = dictionary_get(programas,key);
-	int fd = *item;
-	int nbytes;
-	if (send(fd, msg, nbytes, 0) == -1) {
-		perror("send");
-	}
-}
-*/
 
 void enviarMsgPrograma(int fd, char *msg){
 	char *string = strdup(msg);
@@ -241,9 +231,13 @@ void enviarMsgPrograma(int fd, char *msg){
 }
 
 void eliminarProgramaTabla(int id){
-
+	printf("Elimina programa de los dictionary\n");
 	char * key = string_from_format("%d",id);
-	dictionary_remove(programas,key);
+	pthread_mutex_lock(&kernel->mutex_programas);
+	t_programa *programa = dictionary_get(kernel->programas,key);
+	dictionary_remove(programasxfd,string_from_format("%d",programa->fd));
+	dictionary_remove(kernel->programas,key);
+	pthread_mutex_unlock(&kernel->mutex_programas);
 
 }
 
@@ -275,13 +269,17 @@ t_PCB *crearPCB(int fd, t_medatada_program *element){
 	programa->fd = fd;
 	programa->id = pcb->id;
 	programa->peso = tamanioJob(element->cantidad_de_etiquetas,element->cantidad_de_funciones,element->instrucciones_size);
+	programa->estado = 1;
 	char * key = string_from_format("%d",pcb->id);
-	dictionary_put(programas,key, programa);
+	pthread_mutex_lock(&kernel->mutex_programas);
+	dictionary_put(kernel->programas,key, programa);
+	pthread_mutex_unlock(&kernel->mutex_programas);
+	dictionary_put(programasxfd,string_from_format("%d",fd),&pcb->id);
 	return pcb;
 }
 
 void elementosCola(t_PCB *pcb ){
-	t_programa *prog = dictionary_get(programas, string_from_format("%d",pcb->id));
+	t_programa *prog = dictionary_get(kernel->programas, string_from_format("%d",pcb->id));
 	printf("%d   |   %d\n",pcb->id, prog->peso);
 }
 
@@ -293,20 +291,32 @@ void loggeo(){
 		int i = 0;
 		printf("ID  |  Peso\n");
 		printf("************\n");
-
+		pthread_mutex_lock(&kernel->mutex_programas);
 		while(i < list_size(cola_new)){
 			parm = list_get(cola_new,i);
-			prog = dictionary_get(programas, string_from_format("%d",parm->id));
+			prog = dictionary_get(kernel->programas, string_from_format("%d",parm->id));
 			printf("%d   |   %d\n",parm->id, prog->peso);
 			i++;
 		}
+		pthread_mutex_unlock(&kernel->mutex_programas);
 		printf("************\n");
 
 		printf("***IMPRIMO LA COLA DE READY***\n");
 		printf("ID  |  Peso\n");
 		printf("************\n");
 		//armar una simil en la libreria de colas.
+		pthread_mutex_lock(&kernel->mutex_programas);
 		list_iterate(cola_ready->queue->elements,(void*)elementosCola);
+		pthread_mutex_unlock(&kernel->mutex_programas);
+		printf("************\n");
+
+		printf("***IMPRIMO LA COLA DE EXIT***\n");
+		printf("ID  |  Peso\n");
+		printf("************\n");
+		//armar una simil en la libreria de colas.
+		pthread_mutex_lock(cola_exit->mutexCola);
+		list_iterate(cola_exit->queue->elements,(void*)elementosCola);
+		pthread_mutex_unlock(cola_exit->mutexCola);
 		printf("************\n");
 }
 
@@ -322,11 +332,12 @@ void hiloSacaExit(){
 
 	while(1){
 		sem_wait(sem_exit);
-		printf("Hilo Exit, se libero el semaforo");
+		printf("Hilo Exit, se libero el semaforo\n");
 		t_PCB *programa = cola_pop(cola_exit);
 		liberarRecursosUMV(programa);
-		free(programa);
-		sem_post(sem_multiprogramacion);
+		eliminarProgramaTabla(programa->id);
+		//free(programa);
+		//sem_post(sem_multiprogramacion); !!!!
 	}
 }
 
@@ -335,8 +346,7 @@ void hiloMultiprogramacion(){
 	while(1){
 		sem_wait(sem_multiprogramacion);
 		sem_wait(sem_new);
-		printf("paso el sem de multiprogramacion y de new");
-		sleep(3); // pongo el sleep para poder "ver"
+		printf("paso el sem de multiprogramacion y de new\n");
 		siguienteSJN(cola_new);
 		// informar NEW -> Programa X -> READY
 		loggeo();
@@ -364,7 +374,6 @@ void gestionarDatos(int fd, package *paquete){
 		t_PCB *PCB = crearPCB(fd,programa);
 		if (solicitarSegmentosUMV(paquete->payload,paquete->payloadLength,programa,PCB)) {
 			agregarProgramaNuevo(cola_new,PCB);
-			pthread_mutex_unlock(&mutex_new);
 			sem_post(sem_new);
 			// loguear: informar Programa X -> NEW
 			loggeo();
@@ -377,6 +386,46 @@ void gestionarDatos(int fd, package *paquete){
 	}
 
 }
+
+
+void pasarAExit(t_PCB *pcb){
+	cola_push(cola_exit,pcb);
+	loggeo();
+	sem_post(sem_exit);
+}
+
+void buscarEnColaDesconectado(int id){
+	t_PCB *pcb;
+	pthread_mutex_lock(&mutex_new);
+	int size = list_size(cola_new);
+	int i =0;
+	if (size > 0){
+		while(i<=size){
+			pcb =list_get(cola_new,i);
+			if(pcb->id == id){
+				list_remove(cola_new,i);
+				pasarAExit(pcb);
+				sem_wait(sem_new);
+				break;
+			}
+			i++;
+		}
+	}
+	pthread_mutex_unlock(&mutex_new);
+}
+/* Actualiza el estado de un programa que se desconecto*/
+void detectoDesconexion(int fd){
+
+	printf("detecto la desconexion, actualiza estado del programa\n");
+	int *id = dictionary_get(programasxfd,string_from_format("%d",fd));
+	char *key = string_from_format("%d",*id);
+	pthread_mutex_lock(&kernel->mutex_programas);
+	t_programa * programa = dictionary_get(kernel->programas,key);
+	programa->estado =0;
+	pthread_mutex_unlock(&kernel->mutex_programas);
+	buscarEnColaDesconectado(programa->id); // busca en cola de New
+}
+
 /*  Hilo que recibe los programas (select) */
 void recibirProgramas(void){
 	int newfd,nbytes;
@@ -431,8 +480,7 @@ void recibirProgramas(void){
 						printf("selectserver: socket %d hung up\n", i);
 						close(i);
 						FD_CLR(i, &master); // eliminar del conjunto maestro
-						//eliminarProgramaTabla(i);
-
+						detectoDesconexion(i);
 					}
 					else {
 
@@ -452,33 +500,11 @@ void recibirProgramas(void){
 void hiloPLP(){
 
 	cola_new = list_create();
-	programas = dictionary_create(); // contendra los fd de los programas con el id del PCB
+	programasxfd = dictionary_create();
 	sem_multiprogramacion = malloc(sizeof(sem_t));
 	sem_new = malloc(sizeof(sem_t));
-	sem_init(sem_multiprogramacion,0,kernel->multiprogramacion);
 	sem_init(sem_new,0,0);
-
-	/*
-	- para el plp llega el programa
-	- pasa el programa por el preprocesador
-	- pide los segmentos de memoria
-	- crea su pcb
-	- los pone en la cola de new
-		* yo pondria en new el pcb con la memoria ya reservada, porque
-			 * si no me dan esos segmentos de memoria debo rechazar el programa
-			 * y sacarlo de la cola de new en ese caso.
-			 * Mejor encolarlos en new cuando ya se que van
-
-	- controla grado de multiprogramacion
-			* el grado de multiprogramacion es la cantidad de programas que pueden
-			* estar encolados en ready block y exec
-
-	- si no da el grado de multiprogramacion los deja en la cola de new
-	- si da, saca de new y pone en ready segun sjn
-
-	 */
-
-
+	sem_init(sem_multiprogramacion,0,kernel->multiprogramacion);
 	// Conectarse a la UMV
 	int resconn = conectarConUMV();
 	if (resconn==0)

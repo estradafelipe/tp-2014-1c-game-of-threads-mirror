@@ -25,13 +25,25 @@ typedef struct
 	char** semaforosvalor;
 	int sizeStack; // en bytes
 	t_puntero fd_UMV;
+	t_dictionary *programas;
+	pthread_mutex_t mutex_programas;
 }t_kernel;
+
+typedef struct
+{
+	int id; // el mismo que el del pcb
+	int peso;
+	int fd; // file descriptor para socket.
+	int estado; // estado 1 Activo, 0 Inactivo
+
+}t_programa;
 
 typedef struct
 {
 	char *id;
 	int retardo;
 	sem_t *semaforo_IO;
+	t_cola *cola;
 }t_entradasalida;
 
 #endif /* KERNEL_H_ */
