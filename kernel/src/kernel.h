@@ -48,7 +48,7 @@ typedef struct
 
 typedef struct
 {
-	int id;
+	t_PCB *PCB;
 	int unidadesTiempo;
 }t_progIO;
 

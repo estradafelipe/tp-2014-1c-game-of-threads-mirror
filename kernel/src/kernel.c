@@ -34,7 +34,6 @@ t_cola *cola_block;
 char *pathconfig;
 t_dictionary *semaforos;
 t_dictionary *entradasalida;
-t_dictionary *bloqueados;
 pthread_mutex_t mutex_ready = PTHREAD_MUTEX_INITIALIZER;
 
 void leerconfiguracion(char *path_config){
@@ -124,14 +123,10 @@ void hiloIO(t_entradasalida *IO){
 
 	while(1){
 		sem_wait(IO->semaforo_IO); // cuando deba ejecutar este hilo, darle signal
-		printf("Hilo IO: %s empieza\n",IO->id);
 		t_progIO *elemento = cola_pop(IO->cola);
-		t_PCB * pcb = dictionary_get(bloqueados,string_from_format("%d",elemento->id));
 		int retardo = IO->retardo * elemento->unidadesTiempo;
 		usleep(retardo);
-		printf("Termino el sleep de IO: %s\n",IO->id);
-		cola_push(cola_ready,pcb); //pasar a ready del pcp
-		dictionary_remove(bloqueados,string_from_format("%d",elemento->id));
+		cola_push(cola_ready,elemento->PCB); // Usar funcion "pasar a ready" del PCP
 		free(elemento);
 	}
 }
@@ -161,7 +156,6 @@ int main(int argc, char**argv) {
 	sem_init(sem_exit,0,0);
 	sem_init(semaforo_fin,0,0);
 	char * path = argv[1]; // path del archivo de configuracion
-	bloqueados = dictionary_create();
 	leerconfiguracion(path);
 	crea_tablasSitema();
 
