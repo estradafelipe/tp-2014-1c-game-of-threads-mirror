@@ -20,8 +20,7 @@
 #include "kernel.h"
 #include "plp.h"
 #include "colas.h"
-
-//#include "pcp.h"
+#include "pcp.h"
 
 
 t_kernel *kernel;
@@ -31,9 +30,11 @@ sem_t *sem_multiprogramacion;
 int ultimoid;
 t_cola *cola_ready;
 t_cola *cola_exit;
+t_cola *cola_block;
 char *pathconfig;
 t_dictionary *semaforos;
 t_dictionary *entradasalida;
+t_dictionary *bloqueados;
 pthread_mutex_t mutex_ready = PTHREAD_MUTEX_INITIALIZER;
 
 void leerconfiguracion(char *path_config){
@@ -123,7 +124,15 @@ void hiloIO(t_entradasalida *IO){
 
 	while(1){
 		sem_wait(IO->semaforo_IO); // cuando deba ejecutar este hilo, darle signal
-		usleep(IO->retardo);
+		printf("Hilo IO: %s empieza\n",IO->id);
+		t_progIO *elemento = cola_pop(IO->cola);
+		t_PCB * pcb = dictionary_get(bloqueados,string_from_format("%d",elemento->id));
+		int retardo = IO->retardo * elemento->unidadesTiempo;
+		usleep(retardo);
+		printf("Termino el sleep de IO: %s\n",IO->id);
+		cola_push(cola_ready,pcb); //pasar a ready del pcp
+		dictionary_remove(bloqueados,string_from_format("%d",elemento->id));
+		free(elemento);
 	}
 }
 
@@ -152,6 +161,7 @@ int main(int argc, char**argv) {
 	sem_init(sem_exit,0,0);
 	sem_init(semaforo_fin,0,0);
 	char * path = argv[1]; // path del archivo de configuracion
+	bloqueados = dictionary_create();
 	leerconfiguracion(path);
 	crea_tablasSitema();
 
@@ -173,7 +183,7 @@ int main(int argc, char**argv) {
 	int thr;
 
 	pthread_t * plpthr = malloc(sizeof(pthread_t)); // hilo plp
-	//pthread_t * pcpthr = malloc(sizeof(pthread_t)); // hilo pcp
+	pthread_t * pcpthr = malloc(sizeof(pthread_t)); // hilo pcp
 
 	thr = pthread_create( plpthr, NULL, (void*)hiloPLP, NULL);
 
@@ -182,8 +192,9 @@ int main(int argc, char**argv) {
 	else printf("no se pudo crear el hilo\n");//no se pudo crear el hilo
 
 	//dejo comentado para cuando este el PCP
-	//thr = pthread_create( pcpthr, NULL, (void*)hiloPCP, NULL);
-
+	thr = pthread_create( pcpthr, NULL, (void*)hiloPCP, NULL);
+	if (thr== 0)
+			printf("Se creo el hilo pcp lo mas bien\n");
 	/*
 		En vez de hacer el join de los threads me bloqueo con un semaforo
 		hasta que se termine todo.

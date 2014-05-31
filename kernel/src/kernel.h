@@ -46,4 +46,10 @@ typedef struct
 	t_cola *cola;
 }t_entradasalida;
 
+typedef struct
+{
+	int id;
+	int unidadesTiempo;
+}t_progIO;
+
 #endif /* KERNEL_H_ */
