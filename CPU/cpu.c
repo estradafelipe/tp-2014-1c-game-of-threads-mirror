@@ -22,7 +22,7 @@ int main(int argc, char **argv){
 	t_config *configUMV = config_create((char*)argv[1]);
 	t_ip kernelIP;
 	t_ip umvIP;
-	t_PCB *PCB =  malloc(sizeof(t_PCB));
+	t_PCB* PCB =  malloc(sizeof(t_PCB));
 	uint32_t programCounter, indiceCodigo, segmentoCodigo;
 
 
@@ -35,14 +35,26 @@ int main(int argc, char **argv){
 
 
 	int socketKernel, socketUMV;
+
 	socketKernel = abrir_socket();
 	conectar_socket(socketKernel, kernelIP.ip, (int)kernelIP.port); // me conecto al kernel
+
+	package* handshakeCPU_Kernel = crear_paquete(handshakeCpuKernel, "Hola Kernel!", sizeof(char)*12);
+	enviar_paquete(handshakeCPU_Kernel);
+
+	// Aca recibimos la rta del handshake por parte del Kernel
 
 	socketUMV = abrir_socket();
 	conectar_socket(socketUMV,umvIP.ip, (int)umvIP.port); // me conecto a la UMV
 
-	while(1){ //para recibir los PCB
+	package* handshakeCPU_UMV = crear_paquete(handshakeCpuUmv,"Hola Umv!",sizeof(char)*12);
+	enviar_paquete(handshakeCPU_UMV, socketUMV);
 
+	// Aca recibimos la rta del handshake por parte de la UMV
+
+	while(1){ //para recibir los PCB
+			printf("Esperando PCB...\n");
+	// TODO: Informar al kernel que estamos libres
 			packagePCB = recibir_paquete(socketKernel);
 			PCB = desserializarPCB(packagePCB->payload);
 			int quantumPrograma = 0;
@@ -50,7 +62,7 @@ int main(int argc, char **argv){
 			while(quantumPrograma<quantumKernel){ // falta obtener el quantum del kernel
 
 								programCounter = PCB->programCounter;
-								programCounter++;
+								programCounter++; // ver si se aumenta ahora o despues de ejecutar
 								indiceCodigo = PCB->indiceCodigo;
 
 								t_solicitudLectura sol = malloc(sizeof(t_solicitudLectura));
@@ -59,12 +71,10 @@ int main(int argc, char **argv){
 								sol->tamanio = TAMANIO_SEG;
 
 								char* payloadSerializado = serializarSolicitudLectura(sol);
-								package* handShakeUMV_CPU = crear_paquete(handshakeCpuUmv,payloadSerializado,sizeof(t_puntero)*3);
-								enviar_paquete(handShakeUMV_CPU, socketUMV);
+								package* handshakeUMV_CPU = crear_paquete(handshakeCpuUmv,payloadSerializado,sizeof(t_puntero)*3);
+								enviar_paquete(handshakeUMV_CPU, socketUMV);
 
-								//ver bien como es el handshake con pipe, segun veo en su codigo el recibe el handshake y sin contestar espera por otro paquete (sol de lectura)
-
-								package* paquete, respuesta;
+								package* paquete;
 								int bytesRecibidos;
 								t_paquete tipo;
 
@@ -74,8 +84,8 @@ int main(int argc, char **argv){
 
 								segmentoCodigo = PCB->segmentoCodigo;
 
+								t_solicitudLectura* respuesta = desserializarSolicitudLectura(paquete->payload);
 								sol->base = segmentoCodigo;
-								// TODO: respuesta = desserializarRespuestaUmv(paquete->payload);
 								sol->offset = respuesta->offset;
 								sol->tamanio = respuesta->tamanio;
 
@@ -90,12 +100,13 @@ int main(int argc, char **argv){
 								bytesRecibidos = paquete->payloadLength;
 								tipo = paquete->type;
 
-								respuesta = desSerializarRespuestaUmv(paquete->payload);
+								respuesta = desserializarSolicitudLectura(paquete->payload);
 
 								// Ejecutar parser
 
 								quantumPrograma ++;
 												}
+	// Pasar nuevo status del PCB al kernel
 			}
 	return 0;
 }
