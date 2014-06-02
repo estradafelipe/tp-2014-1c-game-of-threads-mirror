@@ -120,13 +120,13 @@ void crea_tablasSitema(){
 
 void hiloIO(t_entradasalida *IO){
 	// hilo de entrada salida
-
 	while(1){
 		sem_wait(IO->semaforo_IO); // cuando deba ejecutar este hilo, darle signal
 		t_progIO *elemento = cola_pop(IO->cola);
 		int retardo = IO->retardo * elemento->unidadesTiempo;
 		usleep(retardo);
-		cola_push(cola_ready,elemento->PCB); // Usar funcion "pasar a ready" del PCP
+		// cola de bloqueados intermedia para pasar de block->ready
+		cola_push(cola_block,elemento->PCB);
 		free(elemento);
 	}
 }
@@ -152,6 +152,7 @@ int main(int argc, char**argv) {
 	semaforo_fin = malloc(sizeof(sem_t));
 	cola_ready = cola_create();
 	cola_exit = cola_create();
+	cola_block = cola_create();
 	sem_exit = malloc(sizeof(sem_t));
 	sem_init(sem_exit,0,0);
 	sem_init(semaforo_fin,0,0);
