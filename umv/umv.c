@@ -14,6 +14,8 @@
 int main(int argc, char **argv){
 
 	t_config *configUMV = config_create(argv[1]);
+/* Creo logger */
+	logger = log_create("loggerUMV.log", "UMV", false, LOG_LEVEL_DEBUG);
 
 /* Creo la lista que va a tener un elemento por cada hilo lanzado */
 	hilos = list_create();
@@ -23,10 +25,10 @@ int main(int argc, char **argv){
 	int tamanioMemoria=obtenerTamanioMemoria(configUMV);
 	int puerto = obtenerPuerto(configUMV);
 	algoritmo = obtenerAlgoritmoUMV(configUMV);
-	retardo = obtenerRetardo(configUMV);
+	retardo = obtenerRetardo(configUMV)/1000;
 /* Fin obtener datos */
 	printf("El tamaño de memoria es %d, el puerto es %d, el algoritmo es: %s y el retardo es: %d\n",tamanioMemoria,puerto,algoritmo==1?"FIRST-FIT":"WORST-FIT",retardo);
-
+	log_info(logger,"El tamaño de memoria es %d, el puerto es %d, el algoritmo es: %s y el retardo es: %d\n",tamanioMemoria,puerto,algoritmo==1?"FIRST-FIT":"WORST-FIT",retardo);
 /* Pido la memoria que va a tener disponible el sistema */
 	bloqueDeMemoria = malloc(tamanioMemoria);
 	printf("Se creo el bloque de memoria con direccion inicial %p\n",&bloqueDeMemoria);
@@ -61,7 +63,8 @@ int main(int argc, char **argv){
 
 /* Variables hilos */
 	pthread_t nuevoHilo;
-
+/* Seteo semilla para el calculo aleatorio de las bases logicas */
+	srand(time(NULL));
 /* Creo hilo que atendera la consola */
 	pthread_create(&nuevoHilo, NULL,(void*)atenderConsola,NULL);
 	list_add(hilos,(void*)nuevoHilo);
@@ -76,6 +79,7 @@ int main(int argc, char **argv){
 			pthread_create(&nuevoHilo, NULL,(void*)atenderNuevaConexion,(void*)socketNuevaConexion);
 		/* Agrego el identificador del hilo a la lista de hilos */
 			list_add(hilos,(void*)nuevoHilo);
+			log_debug(logger,"Se conecto alguien, hilo para atenderlo lanzado");
 		}
 	}
 

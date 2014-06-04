@@ -14,13 +14,16 @@
 #include <pthread.h>
 #include <commons/collections/list.h>
 #include <commons/config.h>
+#include <commons/log.h>
 #include <sockets.h>
 #include <string.h>
 #include <paquetes.h>
 #include <serializadores.h>
+#include <time.h>
 
 int retardo; // retardo en milisegundos que hay que esperar entre solicitudes
 int algoritmo; //algoritmo para ubicar los segmentos
+t_log* logger;
 
 typedef u_int32_t t_puntero;
 
@@ -56,7 +59,8 @@ int _menor_id_programa(t_segmento *seg, t_segmento *segMayor);
 int _mayor_tamanio(t_segmento *seg, t_segmento *segMayor);
 int _esta_vacio(t_segmento* seg);
 t_segmento* _existe_algun_seg(int id_programa);
-t_puntero calcularBaseLogica(int id_programa);
+int validarBaseLogica(int id, int tamanio,t_puntero aleatorio);
+t_puntero calcularBaseLogica(int id_programa, int tamanio);
 
 int first_fit(t_list* lista,int id_programa,int tamanio);
 int worst_fit(t_list* lista,int id_programa,int tamanio);
