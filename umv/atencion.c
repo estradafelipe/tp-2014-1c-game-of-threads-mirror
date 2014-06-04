@@ -694,15 +694,12 @@ t_puntero calcularBaseLogica(int id_programa, int tamanio){
 	t_puntero resultado;
 	while(validacion == -1){
 		resultado = rand()%1000000;
-		printf("Base logica calculada es %d\n",resultado);
 		validacion = validarBaseLogica(id_programa,tamanio, resultado);
-		sleep(5);
 	}
 	return resultado;
 }
 
 int validarBaseLogica(int id, int tamanio, t_puntero aleatorio){
-	printf("Validando base logica %d para el segmento del programa %d de tamaño %d\n",aleatorio,id,tamanio);
 	int i;
 	int retorno = -1;
 	t_segmento* aux;
@@ -711,15 +708,12 @@ int validarBaseLogica(int id, int tamanio, t_puntero aleatorio){
 	int final;
 	int finalCalculado = aleatorio + tamanio;
 	int cant_seg=list_size(segmentos);
-	log_debug(logger, "Validacion base logica, cantidad de segmentos %d",cant_seg);
 	if(seg_aux != NULL){
 		for(i=0;i<cant_seg;i++){
 			aux = list_get(segmentos,i);
 			if(aux->id_programa == id){
 				base = aux->base_logica;
 				final = aux->base_logica + aux->tamanio - 1;
-				printf("Base existente: %d y final: %d\n",base,final);
-				printf("Base calculada: %d y final: %d\n",aleatorio,finalCalculado);
 				if((aleatorio >= base && aleatorio <= final) || (finalCalculado >= base && finalCalculado <= final) ){
 					retorno = -1;
 				} else {
