@@ -565,7 +565,7 @@ int destruir_segmentos(int id_programa){
 		for(i=0;i<cant_seg;i++){
 			aux = list_get(segmentos,i);
 			if(aux->id_programa == id_programa){
-				log_debug(logger, "Segmento del programa %d encontrado de un tamaño %d\n",id_programa,aux->tamanio);
+				log_debug(logger, "Segmento del programa %d encontrado de un tamaño %d",id_programa,aux->tamanio);
 				aux->base_logica = 0;
 				aux->id_programa = -1;
 			}
@@ -575,12 +575,14 @@ int destruir_segmentos(int id_programa){
 }
 
 int compactar(){
-	int i;
+	log_debug(logger, "Realizando compactacion");
+	int i, flag = 1;
 	t_segmento* aux;
 	t_segmento* libre = malloc(sizeof(t_segmento));
 	libre->id_programa = -1;
 	libre->base = 0;
 	libre->tamanio = 0;
+	libre->base = bloqueDeMemoria;
 	int cant_seg=list_size(segmentos);
 	//sumo el espacio libre total
 	for(i=0;i<cant_seg;i++){
@@ -589,14 +591,20 @@ int compactar(){
 			libre->tamanio += aux->tamanio;
 		}
 	}
+	log_debug(logger, "Tamaño libre total %d",libre->tamanio);
 	//elimino todos los segmentos vacios
-	for(i=0;i<cant_seg;i++){
+	while(flag == 1){
 		aux =  list_remove_by_condition(segmentos, (void*) _esta_vacio);
-		free(aux);
-		cant_seg = list_size(segmentos);
+		if(aux != NULL){
+			free(aux);
+		} else {
+			flag = 0;
+		}
 	}
+	log_debug(logger, "Segmentos vacios eliminados");
 	int offsetAcumulado = 0;
 	char* baseNueva;
+
 	for(i=0;i<list_size(segmentos);i++){
 		aux = list_get(segmentos,i);
 		baseNueva = bloqueDeMemoria + offsetAcumulado;
@@ -604,7 +612,11 @@ int compactar(){
 		aux->base = baseNueva;
 		offsetAcumulado += aux->tamanio;
 	}
+	log_debug(logger, "Offset acumulado %d",offsetAcumulado);
+	libre->base += offsetAcumulado;
+	log_debug(logger, "Bases fisicas actualizadas");
 	list_add(segmentos,libre);
+	log_debug(logger, "Segmento vacio agregado al final");
 	return -1;
 }
 
