@@ -42,7 +42,8 @@ typedef struct{
 	t_puntero segStack;
 }t_direcciones; // estructura que se le respondera al kernel cuando se crean los segmentos de un programa
 
-pthread_mutex_t* mutexSegmentos;
+pthread_rwlock_t lockSegmentos, lockMemoria;
+pthread_mutex_t mutexAlgoritmo;
 
 t_list* hilos; //lista de hilos
 t_list* segmentos; //lista de segmentos

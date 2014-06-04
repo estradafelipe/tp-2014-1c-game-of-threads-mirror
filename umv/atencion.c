@@ -39,6 +39,7 @@ void* atenderNuevaConexion(void* parametro){
 	} else if (bytesRecibidos==0) {	//Se desconecto
 		log_debug(logger, "Se desconecto y no se pudo realizar el handshake");
 	}
+	return (void*)socketCliente;
 }
 
 /* Atiende solicitudes del kernel */
@@ -74,9 +75,9 @@ int atenderKernel(int socket){
 					creacionSegmento = deserializarSolicitudSegmento(paquete->payload);
 					//guardo el proceso activo (para la escritura de los segmentos)
 					procesoActivo = creacionSegmento->programid;
-					pthread_mutex_lock(mutexSegmentos);
+					pthread_rwlock_wrlock(&lockSegmentos);
 					resultado = crear_segmento(creacionSegmento);
-					pthread_mutex_unlock(mutexSegmentos);
+					pthread_rwlock_unlock(&lockSegmentos);
 					if(resultado>=0){ // se creo el segmento correctamente
 						log_debug(logger, "El segmento del %d de tamaño %d se creo correctamente",creacionSegmento->programid,creacionSegmento->size);
 						memcpy(answer, &resultado, sizeof(t_puntero));
@@ -85,13 +86,15 @@ int atenderKernel(int socket){
 						destruir_paquete(respuesta);
 					} else {
 						log_debug(logger, "No hubo espacio suficiente, se realizara la compactacion y se volvera a intentar");
-						pthread_mutex_lock(mutexSegmentos);
+						pthread_rwlock_wrlock(&lockSegmentos);
+						pthread_rwlock_rdlock(&lockMemoria);
 						compactar();
-						pthread_mutex_unlock(mutexSegmentos);
+						pthread_rwlock_unlock(&lockMemoria);
+						pthread_rwlock_unlock(&lockSegmentos);
 						log_debug(logger, "Volviendo a intentar la creación del segmento");
-						pthread_mutex_lock(mutexSegmentos);
+						pthread_rwlock_wrlock(&lockSegmentos);
 						resultado = crear_segmento(creacionSegmento);
-						pthread_mutex_unlock(mutexSegmentos);
+						pthread_rwlock_unlock(&lockSegmentos);
 						if(resultado>=0){//se creo el segmento correctamente
 							log_debug(logger, "El segmento del %d de tamaño %d se creo correctamente",creacionSegmento->programid,creacionSegmento->size);
 							memcpy(answer, &resultado, sizeof(t_puntero));
@@ -112,9 +115,9 @@ int atenderKernel(int socket){
 					//obtengo id_programa del paquete
 					memcpy(&id_programa,paquete->payload,sizeof(t_puntero));
 					log_debug(logger, "Es un pedido de destruccion de segmentos del programa %d",id_programa);
-					pthread_mutex_lock(mutexSegmentos);
+					pthread_rwlock_wrlock(&lockSegmentos);
 					resultado = destruir_segmentos(id_programa);
-					pthread_mutex_unlock(mutexSegmentos);
+					pthread_rwlock_unlock(&lockSegmentos);
 					respuesta = crear_paquete(respuestaUmv,"TODO OK",strlen("TODO OK"));
 					enviar_paquete(respuesta,socket);
 					destruir_paquete(respuesta);
@@ -125,9 +128,9 @@ int atenderKernel(int socket){
 					//desserializar estructura con la base,offset y tamaño
 					solicitudLectura = desserializarSolicitudLectura(paquete->payload);
 					log_debug(logger, "Es un pedido de lectura con id_programa: %d, base: %d, offset: %d y tamaño: %d",procesoActivo,solicitudLectura->base,solicitudLectura->offset,solicitudLectura->tamanio);
-					pthread_mutex_lock(mutexSegmentos);
+					pthread_rwlock_rdlock(&lockSegmentos);
 					datos = leer(procesoActivo,solicitudLectura);
-					pthread_mutex_unlock(mutexSegmentos);
+					pthread_rwlock_unlock(&lockSegmentos);
 					//validar si hay segmentation fault
 					if(datos!=NULL){
 						log_debug(logger, "El pedido de lectura fue valido");
@@ -147,9 +150,9 @@ int atenderKernel(int socket){
 					//desserializar estructura con la base,offset,tamaño y buffer
 					solicitudEscritura = desserializarSolicitudEscritura(paquete->payload);
 					log_debug(logger, "Es un pedido de escritura con id_programa: %d, base: %d, offset: %d y tamaño: %d",procesoActivo,solicitudEscritura->base,solicitudEscritura->offset,solicitudEscritura->tamanio);
-					pthread_mutex_lock(mutexSegmentos);
+					pthread_rwlock_rdlock(&lockSegmentos);
 					resultado = escribir(procesoActivo,solicitudEscritura);
-					pthread_mutex_unlock(mutexSegmentos);
+					pthread_rwlock_unlock(&lockSegmentos);
 					//validar si hay segmentation fault
 					if(resultado >= 0){
 						log_debug(logger, "La operacion de escritura termino correctamente");
@@ -214,10 +217,9 @@ int atenderCpu(int socket){
 					//desserializar estructura con la base,offset y tamaño
 					solicitudLectura = desserializarSolicitudLectura(paquete->payload);
 					log_debug(logger, "Es un pedido de lectura con id_programa: %d, base: %d, offset: %d y tamaño: %d",procesoActivo,solicitudLectura->base,solicitudLectura->offset,solicitudLectura->tamanio);
-					//TODO cambiar mutex por read/write locks!!
-					pthread_mutex_lock(mutexSegmentos);
+					pthread_rwlock_rdlock(&lockSegmentos);
 					datos = leer(procesoActivo,solicitudLectura);
-					pthread_mutex_unlock(mutexSegmentos);
+					pthread_rwlock_unlock(&lockSegmentos);
 					//validar si hay segmentation fault
 					if(datos!=NULL){
 						log_debug(logger, "El pedido de lectura fue valido");
@@ -238,9 +240,9 @@ int atenderCpu(int socket){
 					//desserializar estructura con la base,offset,tamaño y buffer
 					solicitudEscritura = desserializarSolicitudEscritura(paquete->payload);
 					log_debug(logger, "Es un pedido de escritura con id_programa: %d, base: %d, offset: %d y tamaño: %d",procesoActivo,solicitudEscritura->base,solicitudEscritura->offset,solicitudEscritura->tamanio);
-					pthread_mutex_lock(mutexSegmentos);
+					pthread_rwlock_rdlock(&lockSegmentos);
 					resultado = escribir(procesoActivo,solicitudEscritura);
-					pthread_mutex_unlock(mutexSegmentos);
+					pthread_rwlock_unlock(&lockSegmentos);
 					//validar si hay segmentation fault
 					if(resultado >= 0){
 						log_debug(logger, "La operacion de escritura termino correctamente");
@@ -304,9 +306,9 @@ void* atenderConsola(){
 				reader->offset = atoi(palabras[4]);
 				reader->tamanio = atoi(palabras[5]);
 				printf("Leyendo %d bytes en el segmento del programa %d con base %d\n",reader->tamanio,id_programa,reader->base);
-				pthread_mutex_lock(mutexSegmentos);
+				pthread_rwlock_rdlock(&lockSegmentos);
 				datos = leer(id_programa,reader);
-				pthread_mutex_unlock(mutexSegmentos);
+				pthread_rwlock_unlock(&lockSegmentos);
 				if(datos!=NULL){
 					printf("Los datos obtenidos son: %s\n",datos);
 				} else {
@@ -323,9 +325,9 @@ void* atenderConsola(){
 				memcpy(writer->buffer,palabras[6],writer->tamanio);
 				printf("Escribiendo %d bytes en el segmento del programa %d con base %d\n",writer->tamanio,id_programa,writer->base);
 				printf("El buffer es %s\n",writer->buffer);
-				pthread_mutex_lock(mutexSegmentos);
+				pthread_rwlock_rdlock(&lockSegmentos);
 				estado = escribir(id_programa,writer);
-				pthread_mutex_unlock(mutexSegmentos);
+				pthread_rwlock_unlock(&lockSegmentos);
 				if(estado >= 0){
 					printf("La operacion de escritura termino correctamente\n");
 				} else {
@@ -337,20 +339,20 @@ void* atenderConsola(){
 				crear = malloc(sizeof(t_crearSegmentoUMV));
 				crear->programid = atoi(palabras[2]);
 				crear->size = atoi(palabras[3]);
-				pthread_mutex_lock(mutexSegmentos);
+				pthread_rwlock_wrlock(&lockSegmentos);
 				estado = crear_segmento(crear);
-				pthread_mutex_unlock(mutexSegmentos);
+				pthread_rwlock_unlock(&lockSegmentos);
 				printf("Crear_seg devolvio %d\n",estado);
 				if(estado>=0){
 					printf("El segmento del %d de tamaño %d se creo correctamente\n",crear->programid,crear->size);
 				} else {
 					printf("No hubo espacio suficiente, se realizara la compactacion y se volvera a intentar\n");
-					pthread_mutex_lock(mutexSegmentos);
+					pthread_rwlock_wrlock(&lockSegmentos);
 					compactar();
-					pthread_mutex_unlock(mutexSegmentos);
-					pthread_mutex_lock(mutexSegmentos);
+					pthread_rwlock_unlock(&lockSegmentos);
+					pthread_rwlock_wrlock(&lockSegmentos);
 					estado = crear_segmento(crear);
-					pthread_mutex_unlock(mutexSegmentos);
+					pthread_rwlock_unlock(&lockSegmentos);
 					if(estado>=0){
 						printf("El segmento del %d de tamaño %d se creo correctamente\n",crear->programid,crear->size);
 					} else {
@@ -360,9 +362,9 @@ void* atenderConsola(){
 			} else if (strcmp(palabras[1],"destruir_seg")==0){
 				// es un pedido de destruccion de segmentos
 				id_programa = atoi(palabras[2]);
-				pthread_mutex_lock(mutexSegmentos);
+				pthread_rwlock_wrlock(&lockSegmentos);
 				estado = destruir_segmentos(id_programa);
-				pthread_mutex_unlock(mutexSegmentos);
+				pthread_rwlock_unlock(&lockSegmentos);
 				if(estado >= 0){
 					printf("Los segmentos del programa %d se borraron correctamente\n",id_programa);
 				} else {
@@ -379,6 +381,8 @@ void* atenderConsola(){
 		} else if (strcmp(palabras[0],"algoritmo")==0){
 			// modificar el algoritmo de ubicacion de segmentos
 			// worst-fit o first-fit
+			//mutex del algoritmo
+			pthread_mutex_lock(&mutexAlgoritmo);
 			if (strcmp(palabras[1],"WORSTFIT\n")==0){
 				algoritmo = WORSTFIT;
 				printf("Se modifico el algortimo correctamente. El algoritmo actual es Worst-Fit\n");
@@ -388,13 +392,16 @@ void* atenderConsola(){
 			} else {
 				printf("Comando no reconocido, intente de nuevo\n");
 			}
+			pthread_mutex_unlock(&mutexAlgoritmo);
 
 		} else if (strcmp(palabras[0],"compactacion\n")==0){
 			// hacer compactacion
 			printf("Compactando...\n");
-			pthread_mutex_lock(mutexSegmentos);
+			pthread_rwlock_wrlock(&lockSegmentos);
+			pthread_rwlock_rdlock(&lockMemoria);
 			compactar();
-			pthread_mutex_unlock(mutexSegmentos);
+			pthread_rwlock_unlock(&lockMemoria);
+			pthread_rwlock_unlock(&lockSegmentos);
 			printf("Compactación terminada\n");
 
 		} else if (strcmp(palabras[0],"dump")==0){
@@ -402,21 +409,21 @@ void* atenderConsola(){
 			if (strcmp(palabras[1],"estructuras")==0){
 			// imprimir tabla de segmentos por proceso en memoria
 				id_programa = atoi(palabras[2]);
-				pthread_mutex_lock(mutexSegmentos);
+				pthread_rwlock_rdlock(&lockSegmentos);
 				imprimir_estructuras(id_programa);
-				pthread_mutex_unlock(mutexSegmentos);
+				pthread_rwlock_unlock(&lockSegmentos);
 			} else if (strcmp(palabras[1],"memoria\n")==0){
 			// imprimir segmentos de la memoria incluyendo espacios libres
-				pthread_mutex_lock(mutexSegmentos);
+				pthread_rwlock_rdlock(&lockSegmentos);
 				imprimir_segmentos_memoria();
-				pthread_mutex_unlock(mutexSegmentos);
+				pthread_rwlock_unlock(&lockSegmentos);
 			} else if (strcmp(palabras[1],"contenido")==0){
 			// imprimir contenido dado un offset y una cantidad de bytes
 				offset = atoi(palabras[2]);
 				tamanio = atoi(palabras[3]);
-				pthread_mutex_lock(mutexSegmentos);
+				pthread_rwlock_rdlock(&lockMemoria);
 				imprimir_contenido(offset,tamanio);
-				pthread_mutex_unlock(mutexSegmentos);
+				pthread_rwlock_unlock(&lockMemoria);
 			} else {
 				printf("Comando no reconocido, intente de nuevo\n");
 			}
@@ -497,7 +504,9 @@ char* leer(int id_programa,t_solicitudLectura* solicitud){
 		paraLeer = solicitud->base + solicitud->offset + solicitud->tamanio;
 		int maximo = segmentoBuscado->tamanio + segmentoBuscado->base_logica - 1;
 		if(segmentoBuscado->base_logica <= paraLeer && paraLeer <= maximo){
+			pthread_rwlock_rdlock(&lockMemoria);
 			memcpy(datos,segmentoBuscado->base+solicitud->offset,solicitud->tamanio);
+			pthread_rwlock_unlock(&lockMemoria);
 			return datos;
 		} else {
 			return NULL;
@@ -519,7 +528,9 @@ int escribir(int id_programa,t_solicitudEscritura* solicitud){
 		paraEscribir = solicitud->base + solicitud->offset + solicitud->tamanio;
 		int maximo = segmentoBuscado->tamanio + segmentoBuscado->base_logica - 1;
 		if(segmentoBuscado->base_logica <= paraEscribir && paraEscribir <= maximo ){
+			pthread_rwlock_wrlock(&lockMemoria);
 			memcpy(segmentoBuscado->base+solicitud->offset,solicitud->buffer,solicitud->tamanio);
+			pthread_rwlock_unlock(&lockMemoria);
 			return solicitud->tamanio;
 		} else {
 			return -1;
@@ -535,12 +546,15 @@ int escribir(int id_programa,t_solicitudEscritura* solicitud){
  */
 int crear_segmento(t_crearSegmentoUMV* datos){
 	int resultado = -1;
+	pthread_mutex_lock(&mutexAlgoritmo);
 	switch(algoritmo){
 		case WORSTFIT:
+			pthread_mutex_unlock(&mutexAlgoritmo);
 			log_debug(logger, "Creando segmento del programa %d con tamaño %d con algoritmo Worst-Fit",datos->programid,datos->size);
 			resultado = worst_fit(segmentos,datos->programid,datos->size);
 			break;
 		case FIRSTFIT:
+			pthread_mutex_unlock(&mutexAlgoritmo);
 			log_debug(logger, "Creando segmento del programa %d con tamaño %d con algoritmo First-Fit",datos->programid,datos->size);
 			resultado = first_fit(segmentos,datos->programid,datos->size);
 			break;

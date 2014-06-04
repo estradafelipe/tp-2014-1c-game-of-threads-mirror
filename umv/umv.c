@@ -36,8 +36,9 @@ int main(int argc, char **argv){
 /* Creo lista para administrar el bloque de memoria */
 	segmentos = list_create();
 	//Inicializo mutex de la lista
-	mutexSegmentos = malloc(sizeof(pthread_mutex_t));
-	pthread_mutex_init(mutexSegmentos,NULL);
+	pthread_rwlock_init(&lockSegmentos,NULL);
+	pthread_rwlock_init(&lockMemoria,NULL);
+	pthread_mutex_init(&mutexAlgoritmo,NULL);
 	printf("Lista de segmentos creada\n");
 	t_segmento* vacio = malloc(sizeof(t_segmento));
 	vacio->id_programa = -1;
