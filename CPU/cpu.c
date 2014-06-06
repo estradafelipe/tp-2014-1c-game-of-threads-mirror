@@ -16,18 +16,20 @@
 #include <parser/parser.h>
 #include <colas.h>
 #define TAMANIO_SEG 8
+#define TAMANIO_ID_VAR 1
+#define TAMANIO_VAR 4
 
 typedef struct{
 	t_nombre_variable identificador_variable;
 	uint32_t direccion;
-}t_diccionario;
+}t_datosvariable;
 
-t_cola *diccionario;
+t_list *diccionario;
 t_PCB *PCB;
+int socketKernel, socketUMV;
 
 int main(int argc, char **argv){
-
-
+	diccionario = list_create();
 	package* packagePCB;
 	t_config *configKernel = config_create((char*)argv[1]);
 	t_config *configUMV = config_create((char*)argv[1]);
@@ -46,7 +48,7 @@ int main(int argc, char **argv){
 	umvIP.port = obtenerPuerto(configKernel);
 
 
-	int socketKernel, socketUMV;
+
 	socketKernel = abrir_socket();
 	conectar_socket(socketKernel, kernelIP.ip, (int)kernelIP.port); // me conecto al kernel
 
@@ -112,34 +114,62 @@ int main(int argc, char **argv){
 }
 
 t_puntero definirVariable(t_nombre_variable identificador_variable){
-	diccionario = cola_create();
-	t_diccionario *dicc;
-	if(PCB->sizeContext == 0){ // El contexto esta vacio
+	t_datosvariable *var;
+	uint32_t sizeContext = PCB->sizeContext;
+	t_solicitudEscritura *sol;
+	package* escritura;
+	package* respuesta;
+	t_puntero *puntero;
 
-		/*Decir a pipe que escriba en el stack la variable : direccion = cursor_stack
-		 * solicitudEscritura(tamanio=1,identificador_variable);
-		 * solicitudEscritura(tamanio=4);
-		 */
+	sol->base = PCB->segmentoStack;
+	sol->offset = PCB->cursorStack + sizeContext;
+	sol->tamanio = TAMANIO_ID_VAR ;
+	sol->buffer = identificador_variable;
 
-		dicc->identificador_variable = identificador_variable;
-		dicc->direccion	= 0 ; //Poner la direccion
+	puntero = sol->offset;
 
-		cola_push(diccionario,(void*)dicc);
+	char* payloadSerializado = serializarSolicitudEscritura(sol);
 
-		// return direccionVaraible
+	escritura = crear_paquete(escritura,payloadSerializado,sizeof(t_puntero)*3 + strlen(sol->buffer));
+	enviar_paquete(escritura,socketUMV);
+
+	recibir_paquete(respuesta,socketUMV);
+
+	puntero = respuesta->payload; //TODO: VERIFICAR SI PIPE ME ESTA PASANDO EL PUNTERO A LA ID DE LA VARIABLE
+
+	if (respuesta->payload == -1){
+		printf("Fallo la escritura\n");
+		exit();
+		//TODO: ver como notificamos al kernel;
 	}
-		else{ //El contexto tiene al menos una variable
 
-			/*Decir a pipe que escriba en el stack la variable : direccion = sizecontext*5 + 1
-					 * solicitudEscritura(tamanio=1,identificador_variable);
-					 * solicitudEscritura(tamanio=4);
-					 */
-			dicc->identificador_variable = identificador_variable;
-					dicc->direccion	= 0 ; //Poner la direccion
 
-					cola_push(diccionario,(void*)dicc);
+	var->identificador_variable = identificador_variable;
+	var->direccion = puntero;
+	list_add(diccionario,var);
 
-			// return direccionVaraible
+	PCB->sizeContext++;
 
-		}
+	return puntero;
 }
+
+t_puntero obtenerPosicionVariable(t_nombre_variable identificador_variable ){
+	t_datosvariable *var;
+
+	int tamanio = list_size(diccionario);
+	int i;
+	for(i=0;i<=tamanio;i++){ //TODO: ESTA HECHO CON list_get() , VER SI SE PUEDE HACER CON list_find()
+
+		var = (t_datosvariable*) list_get(diccionario,i);
+		if (var->identificador_variable == identificador_variable){
+			return var->direccion;
+		}
+		else{
+			i++;
+		}
+
+	}
+
+	return -1;
+}
+
