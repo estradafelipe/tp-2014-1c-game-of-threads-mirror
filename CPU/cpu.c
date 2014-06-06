@@ -12,19 +12,31 @@
 #include <obtener_config.h>
 #include <serializadores.h>
 #include <paquetes.h>
-
+#include <parser/sintax.h>
+#include <parser/parser.h>
+#include <colas.h>
 #define TAMANIO_SEG 8
 
+typedef struct{
+	t_nombre_variable identificador_variable;
+	uint32_t direccion;
+}t_diccionario;
+
+t_cola *diccionario;
+t_PCB *PCB;
+
 int main(int argc, char **argv){
+
 
 	package* packagePCB;
 	t_config *configKernel = config_create((char*)argv[1]);
 	t_config *configUMV = config_create((char*)argv[1]);
 	t_ip kernelIP;
 	t_ip umvIP;
-	t_PCB* PCB =  malloc(sizeof(t_PCB));
-	uint32_t programCounter, indiceCodigo, segmentoCodigo;
-
+	PCB= malloc(sizeof(t_PCB));
+	uint32_t programcounter, indiceCodigo, segmentoCodigo;
+	t_solicitudLectura *sol;
+	package* paquete, respuesta;
 
 	kernelIP.ip = malloc((sizeof(char))*15);
 	kernelIP.port = obtenerPuerto(configKernel);
@@ -35,46 +47,34 @@ int main(int argc, char **argv){
 
 
 	int socketKernel, socketUMV;
-
 	socketKernel = abrir_socket();
 	conectar_socket(socketKernel, kernelIP.ip, (int)kernelIP.port); // me conecto al kernel
-
-	package* handshakeCPU_Kernel = crear_paquete(handshakeCpuKernel, "Hola Kernel!", sizeof(char)*12);
-	enviar_paquete(handshakeCPU_Kernel);
-
-	// Aca recibimos la rta del handshake por parte del Kernel
 
 	socketUMV = abrir_socket();
 	conectar_socket(socketUMV,umvIP.ip, (int)umvIP.port); // me conecto a la UMV
 
-	package* handshakeCPU_UMV = crear_paquete(handshakeCpuUmv,"Hola Umv!",sizeof(char)*12);
-	enviar_paquete(handshakeCPU_UMV, socketUMV);
-
-	// Aca recibimos la rta del handshake por parte de la UMV
 
 	while(1){ //para recibir los PCB
-			printf("Esperando PCB...\n");
-	// TODO: Informar al kernel que estamos libres
+
 			packagePCB = recibir_paquete(socketKernel);
 			PCB = desserializarPCB(packagePCB->payload);
 			int quantumPrograma = 0;
 
-			while(quantumPrograma<quantumKernel){ // falta obtener el quantum del kernel
+			while(quantumPrograma<20/*quantumKernel*/){ // falta obtener el quantum del kernel
 
-								programCounter = PCB->programCounter;
-								programCounter++; // ver si se aumenta ahora o despues de ejecutar
+								programcounter = PCB->programcounter;
+								programcounter++;
 								indiceCodigo = PCB->indiceCodigo;
 
-								t_solicitudLectura sol = malloc(sizeof(t_solicitudLectura));
-								sol->base = indiceCodigo;
-								sol->offset = (programCounter*8);
+								sol->base = PCB->indiceCodigo;
+								sol->offset = programcounter*8;
 								sol->tamanio = TAMANIO_SEG;
 
 								char* payloadSerializado = serializarSolicitudLectura(sol);
-								package* handshakeUMV_CPU = crear_paquete(handshakeCpuUmv,payloadSerializado,sizeof(t_puntero)*3);
-								enviar_paquete(handshakeUMV_CPU, socketUMV);
+								package* handShakeUMV_CPU = crear_paquete(handshakeCpuUmv,payloadSerializado,sizeof(t_puntero)*3);
+								enviar_paquete(handShakeUMV_CPU, socketUMV);
 
-								package* paquete;
+
 								int bytesRecibidos;
 								t_paquete tipo;
 
@@ -83,6 +83,7 @@ int main(int argc, char **argv){
 								tipo = paquete->type;
 
 								segmentoCodigo = PCB->segmentoCodigo;
+
 
 								t_solicitudLectura* respuesta = desserializarSolicitudLectura(paquete->payload);
 								sol->base = segmentoCodigo;
@@ -100,13 +101,45 @@ int main(int argc, char **argv){
 								bytesRecibidos = paquete->payloadLength;
 								tipo = paquete->type;
 
-								respuesta = desserializarSolicitudLectura(paquete->payload);
+								respuesta = desserializarSolicitudLectura(paquete->payload); //Esto es la sentencia a ejecutar posta
 
 								// Ejecutar parser
 
 								quantumPrograma ++;
 												}
-	// Pasar nuevo status del PCB al kernel
 			}
 	return 0;
+}
+
+t_puntero definirVariable(t_nombre_variable identificador_variable){
+	diccionario = cola_create();
+	t_diccionario *dicc;
+	if(PCB->sizeContext == 0){ // El contexto esta vacio
+
+		/*Decir a pipe que escriba en el stack la variable : direccion = cursor_stack
+		 * solicitudEscritura(tamanio=1,identificador_variable);
+		 * solicitudEscritura(tamanio=4);
+		 */
+
+		dicc->identificador_variable = identificador_variable;
+		dicc->direccion	= 0 ; //Poner la direccion
+
+		cola_push(diccionario,(void*)dicc);
+
+		// return direccionVaraible
+	}
+		else{ //El contexto tiene al menos una variable
+
+			/*Decir a pipe que escriba en el stack la variable : direccion = sizecontext*5 + 1
+					 * solicitudEscritura(tamanio=1,identificador_variable);
+					 * solicitudEscritura(tamanio=4);
+					 */
+			dicc->identificador_variable = identificador_variable;
+					dicc->direccion	= 0 ; //Poner la direccion
+
+					cola_push(diccionario,(void*)dicc);
+
+			// return direccionVaraible
+
+		}
 }
