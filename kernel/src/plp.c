@@ -49,6 +49,7 @@ t_puntero recibirSegmento(){
 	if (paquete_recibido->type == respuestaUmv){
 		memcpy(&segmento,paquete_recibido->payload, sizeof(t_puntero));
 		if (segmento!=-1) printf("Base del nuevo segmento: %d\n",segmento);
+		else printf("No hubo espacio suficiente para el segmento");
 	}
 	free(paquete_recibido);
 	return segmento;
@@ -66,6 +67,7 @@ t_puntero recibirRespuestaEscritura(){
 }
 //base,offset,size,buffer
 int enviarBytesUMV(t_puntero base, t_puntero size, void * buffer){
+	printf("solicito escritura en segmento %d, tamanio: %d\n ",base,size);
 	t_solicitudEscritura *envioBytes = malloc(sizeof(t_solicitudEscritura));
 	// Segmento de Codigo
 	envioBytes->base = base;
@@ -121,17 +123,20 @@ bool solicitarSegmentosUMV(char *codigo, uint16_t codigoSize, t_medatada_program
 		return false;
 	else pcb->segmentoCodigo = dirSegmento;
 
+
 	// Segmento de Stack
 	dirSegmento = solicitudSegmento(pcb->id,kernel->sizeStack);
 	if(dirSegmento == -1){
 		return false;
 	} else pcb->segmentoStack = dirSegmento;
 
-	//Indice de Etiquetas
-	dirSegmento = solicitudSegmento(pcb->id,programa->etiquetas_size);
-	if(dirSegmento == -1){
-		return false;
-	} else pcb->indiceEtiquetas = dirSegmento;
+	if (programa->etiquetas_size){
+		//Indice de Etiquetas
+		dirSegmento = solicitudSegmento(pcb->id,programa->etiquetas_size);
+		if(dirSegmento == -1){
+			return false;
+		} else pcb->indiceEtiquetas = dirSegmento;
+	}
 
 	//Indice de Codigo
 	dirSegmento = solicitudSegmento(pcb->id,programa->instrucciones_size);
@@ -149,11 +154,12 @@ bool solicitarSegmentosUMV(char *codigo, uint16_t codigoSize, t_medatada_program
 		return false;
 	}
 
-
-	rta = enviarBytesUMV(pcb->indiceEtiquetas,programa->etiquetas_size,programa->etiquetas); // Segmento de Etiquetas
-	if (rta==-1){
-		destruirSegmentos(pcb->id);
-		return false;
+	if (programa->etiquetas_size>0){
+		rta = enviarBytesUMV(pcb->indiceEtiquetas,programa->etiquetas_size,programa->etiquetas); // Segmento de Etiquetas
+		if (rta==-1){
+			destruirSegmentos(pcb->id);
+			return false;
+		}
 	}
 
 	rta = enviarBytesUMV(pcb->indiceCodigo,programa->instrucciones_size,programa->instrucciones_serializado); // Segmento de Etiquetas
@@ -233,11 +239,13 @@ void enviarMsgPrograma(int fd, char *msg){
 void eliminarProgramaTabla(int id){
 	printf("Elimina programa de los dictionary\n");
 	char * key = string_from_format("%d",id);
-	pthread_mutex_lock(&kernel->mutex_programas);
-	t_programa *programa = dictionary_get(kernel->programas,key);
-	dictionary_remove(programasxfd,string_from_format("%d",programa->fd));
-	dictionary_remove(kernel->programas,key);
-	pthread_mutex_unlock(&kernel->mutex_programas);
+	if (dictionary_has_key(kernel->programas,key)){
+		pthread_mutex_lock(&kernel->mutex_programas);
+		t_programa *programa = dictionary_get(kernel->programas,key);
+		dictionary_remove(programasxfd,string_from_format("%d",programa->fd));
+		dictionary_remove(kernel->programas,key);
+		pthread_mutex_unlock(&kernel->mutex_programas);
+	}
 
 }
 
@@ -375,8 +383,20 @@ void gestionarDatos(int fd, package *paquete){
 		if (solicitarSegmentosUMV(paquete->payload,paquete->payloadLength,programa,PCB)) {
 			agregarProgramaNuevo(cola_new,PCB);
 			sem_post(sem_new);
-			// loguear: informar Programa X -> NEW
-			loggeo();
+			loggeo(); // loguear: informar Programa X -> NEW
+			/*
+
+
+			sleep(10);
+			dictionary_put(bloqueados,string_from_format("%d",PCB->id),PCB);
+			t_progIO *IO = malloc(sizeof(t_progIO));
+			IO->id = PCB->id;
+			IO->unidadesTiempo = 5;
+			t_entradasalida *hiloIO = dictionary_get(entradasalida,"Disco");
+			cola_push(hiloIO->cola,IO);
+			sem_post(hiloIO->semaforo_IO);
+
+			*/
 
 		}
 		else {
@@ -417,13 +437,15 @@ void buscarEnColaDesconectado(int id){
 void detectoDesconexion(int fd){
 
 	printf("detecto la desconexion, actualiza estado del programa\n");
-	int *id = dictionary_get(programasxfd,string_from_format("%d",fd));
-	char *key = string_from_format("%d",*id);
-	pthread_mutex_lock(&kernel->mutex_programas);
-	t_programa * programa = dictionary_get(kernel->programas,key);
-	programa->estado =0;
-	pthread_mutex_unlock(&kernel->mutex_programas);
-	buscarEnColaDesconectado(programa->id); // busca en cola de New
+	if (dictionary_has_key(programasxfd,string_from_format("%d",fd))){
+		int *id = dictionary_get(programasxfd,string_from_format("%d",fd));
+		char *key = string_from_format("%d",*id);
+		pthread_mutex_lock(&kernel->mutex_programas);
+		t_programa * programa = dictionary_get(kernel->programas,key);
+		programa->estado =0;
+		pthread_mutex_unlock(&kernel->mutex_programas);
+		buscarEnColaDesconectado(programa->id); // busca en cola de New
+	}
 }
 
 /*  Hilo que recibe los programas (select) */
