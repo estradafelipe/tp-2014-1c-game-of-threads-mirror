@@ -28,38 +28,34 @@ int main(int argc, char **argv){
 	retardo = obtenerRetardo(configUMV)/1000;
 /* Fin obtener datos */
 	printf("El tamaño de memoria es %d, el puerto es %d, el algoritmo es: %s y el retardo es: %d\n",tamanioMemoria,puerto,algoritmo==1?"FIRST-FIT":"WORST-FIT",retardo);
-	log_info(logger,"El tamaño de memoria es %d, el puerto es %d, el algoritmo es: %s y el retardo es: %d\n",tamanioMemoria,puerto,algoritmo==1?"FIRST-FIT":"WORST-FIT",retardo);
+	log_info(logger,"El tamaño de memoria es %d, el puerto es %d, el algoritmo es: %s y el retardo es: %d",tamanioMemoria,puerto,algoritmo==1?"FIRST-FIT":"WORST-FIT",retardo);
 /* Pido la memoria que va a tener disponible el sistema */
 	bloqueDeMemoria = malloc(tamanioMemoria);
 	printf("Se creo el bloque de memoria con direccion inicial %p\n",&bloqueDeMemoria);
+	log_info(logger, "Se creo el bloque de memoria con direccion inicial %p",&bloqueDeMemoria);
 
 /* Creo lista para administrar el bloque de memoria */
 	segmentos = list_create();
-	//Inicializo mutex de la lista
+	//Inicializo semaforos de la lista, memoria y algoritmo
 	pthread_rwlock_init(&lockSegmentos,NULL);
 	pthread_rwlock_init(&lockMemoria,NULL);
-	pthread_mutex_init(&mutexAlgoritmo,NULL);
+	pthread_rwlock_init(&lockAlgoritmo,NULL);
+
 	printf("Lista de segmentos creada\n");
 	t_segmento* vacio = malloc(sizeof(t_segmento));
 	vacio->id_programa = -1;
-	vacio->base = bloqueDeMemoria; // TODO revisar esto!!
+	vacio->base = bloqueDeMemoria;
 	vacio->base_logica = 0;
 	vacio->tamanio = tamanioMemoria;
 	list_add(segmentos,vacio);
-	printf("La lista tiene %d segmentos\n",list_size(segmentos));
-	t_segmento* elemento = list_get(segmentos,0);
-	printf("El segmento tiene:\n");
-	printf("Id_programa: %d\n",elemento->id_programa);
-	printf("Base fisica: %p\n",&elemento->base);
-	printf("Base logica: %d\n",elemento->base_logica);
-	printf("Tamaño: %d\n",elemento->tamanio);
 
 /* Creo el socket que escucha */
 	int socketEscucha, socketNuevaConexion;
 	socketEscucha = abrir_socket();
 	vincular_socket(socketEscucha, puerto);
+	printf("Socket creado\n");
+	log_debug(logger, "Socket creado, escuchando...");
 	escuchar_socket(socketEscucha);
-	printf("Socket creado, escuchando... \n");
 /* Fin creacion socket */
 
 /* Variables hilos */
@@ -69,6 +65,7 @@ int main(int argc, char **argv){
 /* Creo hilo que atendera la consola */
 	pthread_create(&nuevoHilo, NULL,(void*)atenderConsola,NULL);
 	list_add(hilos,(void*)nuevoHilo);
+	log_debug(logger, "Hilo que atiende la consola corriendo");
 
 	while(1){
 		// Aceptar una nueva conexion entrante. Se genera un nuevo socket con la nueva conexion.
@@ -80,10 +77,13 @@ int main(int argc, char **argv){
 			pthread_create(&nuevoHilo, NULL,(void*)atenderNuevaConexion,(void*)socketNuevaConexion);
 		/* Agrego el identificador del hilo a la lista de hilos */
 			list_add(hilos,(void*)nuevoHilo);
-			log_debug(logger,"Se conecto alguien, hilo para atenderlo lanzado");
+			log_debug(logger,"Se conecto alguien, lanzo hilo para atenderlo");
 		}
 	}
 
+	pthread_rwlock_destroy(&lockSegmentos);
+	pthread_rwlock_destroy(&lockMemoria);
+	pthread_rwlock_destroy(&lockAlgoritmo);
 	//pthread_join(nuevoHilo,NULL);
 	return 0;
 }

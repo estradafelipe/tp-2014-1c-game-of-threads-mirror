@@ -34,21 +34,14 @@ typedef struct{
 	t_puntero base_logica; //base para el kernel y cpus
 }t_segmento;
 
-typedef struct{
-	t_puntero segCodigo;
-	t_puntero indiceEtiquetas;
-	t_puntero indiceFunciones;
-	t_puntero indiceCodigo;
-	t_puntero segStack;
-}t_direcciones; // estructura que se le respondera al kernel cuando se crean los segmentos de un programa
-
-pthread_rwlock_t lockSegmentos, lockMemoria;
-pthread_mutex_t mutexAlgoritmo;
+pthread_rwlock_t lockSegmentos, lockMemoria, lockAlgoritmo;
+//pthread_mutex_t mutexAlgoritmo;
 
 t_list* hilos; //lista de hilos
 t_list* segmentos; //lista de segmentos
 
 char* bloqueDeMemoria;
+
 int scriptCreacionSegmentos();
 void* atenderNuevaConexion();
 void* atenderConsola();
@@ -60,6 +53,7 @@ int _menor_id_programa(t_segmento *seg, t_segmento *segMayor);
 int _mayor_tamanio(t_segmento *seg, t_segmento *segMayor);
 int _esta_vacio(t_segmento* seg);
 t_segmento* _existe_algun_seg(int id_programa);
+
 int validarBaseLogica(int id, int tamanio,t_puntero aleatorio);
 t_puntero calcularBaseLogica(int id_programa, int tamanio);
 
