@@ -501,7 +501,7 @@ char* leer(int id_programa,t_solicitudLectura* solicitud){
 	char* datos = malloc(solicitud->tamanio);
 	t_segmento* segmentoBuscado = buscarSegmento(id_programa,solicitud->base);
 	if(segmentoBuscado!=NULL){
-		paraLeer = solicitud->base + solicitud->offset + solicitud->tamanio;
+		paraLeer = solicitud->base + solicitud->offset + solicitud->tamanio - 1;
 		int maximo = segmentoBuscado->tamanio + segmentoBuscado->base_logica - 1;
 		if(segmentoBuscado->base_logica <= paraLeer && paraLeer <= maximo){
 			pthread_rwlock_rdlock(&lockMemoria);
