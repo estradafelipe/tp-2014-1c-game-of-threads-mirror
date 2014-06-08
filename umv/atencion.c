@@ -9,6 +9,7 @@
 
 void* atenderNuevaConexion(void* parametro){
 	int socketCliente = (int) parametro;
+	package* respuesta;
 	printf("Esperando handshake...\n");
 	package* paquete = recibir_paquete(socketCliente);
 	int bytesRecibidos = paquete->payloadLength;
@@ -18,13 +19,17 @@ void* atenderNuevaConexion(void* parametro){
 		switch(tipo){
 			case handshakeKernelUmv:
 				log_debug(logger, "Bienvenido KERNEL");
-				//enviar confirmacion al kernel
+				respuesta = crear_paquete(handshakeKernelUmv,"Hola Kernel",strlen("Hola Kernel")+1);
+				enviar_paquete(respuesta,socketCliente);
+				destruir_paquete(respuesta);
 				atenderKernel(socketCliente);
 				break;
 			
 			case handshakeCpuUmv:
 				log_debug(logger, "Bienvenida CPU");
-				//enviar confirmacion a la cpu
+				respuesta = crear_paquete(handshakeKernelUmv,"Hola Cpu",strlen("Hola Cpu")+1);
+				enviar_paquete(respuesta,socketCliente);
+				destruir_paquete(respuesta);
 				atenderCpu(socketCliente);
 				break;
 			
@@ -34,17 +39,17 @@ void* atenderNuevaConexion(void* parametro){
 		}
 	}
 	if (bytesRecibidos==-1) {
-		printf("BytesRecibidos == -1\n ");
+		log_debug(logger, "BytesRecibidos == -1, Error al recibir datos");
 		perror("Error al recibir datos");
 	} else if (bytesRecibidos==0) {	//Se desconecto
 		log_debug(logger, "Se desconecto y no se pudo realizar el handshake");
 	}
-	return (void*)socketCliente;
+	return (void*)socketCliente;// para que no rompa las bolas con que la funcion no retorna un void*
 }
 
 /* Atiende solicitudes del kernel */
 /* quedarse esperando solicitudes de creacion  o eliminacion de segmentos de programas */
-int atenderKernel(int socket){
+int atenderKernel(int fd){
 	package* paquete;
 	package* respuesta;
 	char* answer = malloc(sizeof(t_puntero));
@@ -58,7 +63,7 @@ int atenderKernel(int socket){
 	char* datos; //datos de la lectura
 	int resultado; //resultado de la escritura
 	while(1){
-		paquete = recibir_paquete(socket);
+		paquete = recibir_paquete(fd);
 		bytesRecibidos = paquete->payloadLength;
 		tipo = paquete->type;
 		if(bytesRecibidos>0){
@@ -82,7 +87,7 @@ int atenderKernel(int socket){
 						log_debug(logger, "El segmento del %d de tamaño %d se creo correctamente",creacionSegmento->programid,creacionSegmento->size);
 						memcpy(answer, &resultado, sizeof(t_puntero));
 						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
-						enviar_paquete(respuesta,socket);
+						enviar_paquete(respuesta,fd);
 						destruir_paquete(respuesta);
 					} else {
 						log_debug(logger, "No hubo espacio suficiente, se realizara la compactacion y se volvera a intentar");
@@ -99,13 +104,13 @@ int atenderKernel(int socket){
 							log_debug(logger, "El segmento del %d de tamaño %d se creo correctamente",creacionSegmento->programid,creacionSegmento->size);
 							memcpy(answer, &resultado, sizeof(t_puntero));
 							respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
-							enviar_paquete(respuesta,socket);
+							enviar_paquete(respuesta,fd);
 							destruir_paquete(respuesta);
 						} else {
-							log_debug(logger, "No hubo espacio suficiente");
+							log_debug(logger, "No hubo espacio suficiente, Memory Overload!!");
 							memcpy(answer, &resultado, sizeof(t_puntero));
 							respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
-							enviar_paquete(respuesta,socket);
+							enviar_paquete(respuesta,fd);
 							destruir_paquete(respuesta);
 						}
 					}
@@ -118,8 +123,9 @@ int atenderKernel(int socket){
 					pthread_rwlock_wrlock(&lockSegmentos);
 					resultado = destruir_segmentos(id_programa);
 					pthread_rwlock_unlock(&lockSegmentos);
-					respuesta = crear_paquete(respuestaUmv,"TODO OK",strlen("TODO OK"));
-					enviar_paquete(respuesta,socket);
+					memcpy(answer, &resultado, sizeof(t_puntero));
+					respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
+					enviar_paquete(respuesta,fd);
 					destruir_paquete(respuesta);
 
 					break;
@@ -136,13 +142,13 @@ int atenderKernel(int socket){
 						log_debug(logger, "El pedido de lectura fue valido");
 						// responder a la cpu
 						respuesta = crear_paquete(respuestaUmv,datos,solicitudLectura->tamanio);
-						enviar_paquete(respuesta,socket);
+						enviar_paquete(respuesta,fd);
 					} else {
 						log_debug(logger, "Violación de segmento!");
 						resultado = -1;
 						memcpy(answer, &resultado, sizeof(t_puntero));
 						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
-						enviar_paquete(respuesta,socket);
+						enviar_paquete(respuesta,fd);
 					}
 					break;
 				case escritura:
@@ -158,13 +164,13 @@ int atenderKernel(int socket){
 						log_debug(logger, "La operacion de escritura termino correctamente");
 						memcpy(answer, &resultado, sizeof(t_puntero));
 						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
-						enviar_paquete(respuesta,socket);
+						enviar_paquete(respuesta,fd);
 					} else {
 						log_debug(logger, "Violación de segmento!");
 						resultado = -1;
 						memcpy(answer, &resultado, sizeof(t_puntero));
 						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
-						enviar_paquete(respuesta,socket);
+						enviar_paquete(respuesta,fd);
 					}
 					break;
 				default:
@@ -190,7 +196,7 @@ int atenderKernel(int socket){
  * luego esperar solicitudes de escritura y lectura en los segmentos de dicho programa,
  * o el cambio del programa activo
  */
-int atenderCpu(int socket){
+int atenderCpu(int fd){
 	package* paquete;
 	package* respuesta;
 	char* answer = malloc(sizeof(t_puntero));
@@ -202,7 +208,7 @@ int atenderCpu(int socket){
 	char* datos; //datos de la lectura
 	int resultado; //resultado de la escritura
 	while(1){
-		paquete = recibir_paquete(socket);
+		paquete = recibir_paquete(fd);
 		bytesRecibidos = paquete->payloadLength;
 		tipo = paquete->type;
 		if(bytesRecibidos>0){
@@ -225,13 +231,13 @@ int atenderCpu(int socket){
 						log_debug(logger, "El pedido de lectura fue valido");
 						// responder a la cpu
 						respuesta = crear_paquete(respuestaUmv,datos,solicitudLectura->tamanio);
-						enviar_paquete(respuesta,socket);
+						enviar_paquete(respuesta,fd);
 					} else {
 						log_debug(logger, "Violación de segmento!");
 						resultado = -1;
 						memcpy(answer, &resultado, sizeof(t_puntero));
 						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
-						enviar_paquete(respuesta,socket);
+						enviar_paquete(respuesta,fd);
 						destruir_paquete(respuesta);
 					}
 					break;
@@ -248,14 +254,14 @@ int atenderCpu(int socket){
 						log_debug(logger, "La operacion de escritura termino correctamente");
 						memcpy(answer, &resultado, sizeof(t_puntero));
 						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
-						enviar_paquete(respuesta,socket);
+						enviar_paquete(respuesta,fd);
 						destruir_paquete(respuesta);
 					} else {
 						log_debug(logger, "Violación de segmento!");
 						resultado = -1;
 						memcpy(answer, &resultado, sizeof(t_puntero));
 						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
-						enviar_paquete(respuesta,socket);
+						enviar_paquete(respuesta,fd);
 						destruir_paquete(respuesta);
 					}
 					break;
@@ -284,6 +290,7 @@ void* atenderConsola(){
 	int tamanio;
 	char* datos;
 	int estado;
+
 	t_crearSegmentoUMV* crear;
 	t_solicitudLectura* reader;
 	t_solicitudEscritura* writer;
@@ -356,7 +363,7 @@ void* atenderConsola(){
 					if(estado>=0){
 						printf("El segmento del %d de tamaño %d se creo correctamente\n",crear->programid,crear->size);
 					} else {
-						printf("Violación de segmento!!!\n");
+						printf("Memory overload!!!\n");
 					}
 				}
 			} else if (strcmp(palabras[1],"destruir_seg")==0){
@@ -375,24 +382,31 @@ void* atenderConsola(){
 			}
 
 		} else if (strcmp(palabras[0],"retardo")==0){
-			// modificar el retardo (en milisegundos)
-			retardo = atoi(palabras[1]);
+			if(palabras[1]!=NULL){
+				// modificar el retardo (en milisegundos)
+				printf("El retardo paso de %d a ",retardo*1000);
+				retardo = atoi(palabras[1])/1000;
+				printf("%d milisegundos\n",retardo*1000);
+			}
 
 		} else if (strcmp(palabras[0],"algoritmo")==0){
 			// modificar el algoritmo de ubicacion de segmentos
 			// worst-fit o first-fit
 			//mutex del algoritmo
-			pthread_mutex_lock(&mutexAlgoritmo);
-			if (strcmp(palabras[1],"WORSTFIT\n")==0){
-				algoritmo = WORSTFIT;
-				printf("Se modifico el algortimo correctamente. El algoritmo actual es Worst-Fit\n");
-			} else if (strcmp(palabras[1],"FIRSTFIT\n")==0){
-				algoritmo = FIRSTFIT;
-				printf("Se modifico el algortimo correctamente. El algoritmo actual es First-Fit\n");
-			} else {
-				printf("Comando no reconocido, intente de nuevo\n");
+			if(palabras[1]!=NULL){
+			pthread_rwlock_wrlock(&lockAlgoritmo);
+				if (strcmp(palabras[1],"WORSTFIT\n")==0){
+					algoritmo = WORSTFIT;
+					pthread_rwlock_unlock(&lockAlgoritmo);
+					printf("Se modifico el algortimo correctamente. El algoritmo actual es Worst-Fit\n");
+				} else if (strcmp(palabras[1],"FIRSTFIT\n")==0){
+					algoritmo = FIRSTFIT;
+					pthread_rwlock_unlock(&lockAlgoritmo);
+					printf("Se modifico el algortimo correctamente. El algoritmo actual es First-Fit\n");
+				} else {
+					printf("Comando no reconocido, intente de nuevo\n");
+				}
 			}
-			pthread_mutex_unlock(&mutexAlgoritmo);
 
 		} else if (strcmp(palabras[0],"compactacion\n")==0){
 			// hacer compactacion
@@ -478,20 +492,6 @@ t_segmento* buscarSegmento(int id_programa,int base){
 	return NULL;
 }
 
-/* Devuelve la posicion de un segmento vacio */
-int buscarSegmentoVacio(int tamanio){
-	int i;
-	t_segmento* aux;
-	int cant_seg=list_size(segmentos);
-	for(i=0;i<cant_seg;i++){
-		aux = list_get(segmentos,i);
-		if(_esta_vacio(aux)){
-			return i;
-		}
-	}
-	return -1;
-}
-
 /* Busca el segmento del programa y lee el tamaño indicado:
  * Si encuentra el semgento y el acceso es dentro del mismo devuelve los datos solicitados
  * Caso contrario devuelve NULL
@@ -501,7 +501,7 @@ char* leer(int id_programa,t_solicitudLectura* solicitud){
 	char* datos = malloc(solicitud->tamanio);
 	t_segmento* segmentoBuscado = buscarSegmento(id_programa,solicitud->base);
 	if(segmentoBuscado!=NULL){
-		paraLeer = solicitud->base + solicitud->offset + solicitud->tamanio;
+		paraLeer = solicitud->base + solicitud->offset + solicitud->tamanio - 1;
 		int maximo = segmentoBuscado->tamanio + segmentoBuscado->base_logica - 1;
 		if(segmentoBuscado->base_logica <= paraLeer && paraLeer <= maximo){
 			pthread_rwlock_rdlock(&lockMemoria);
@@ -518,21 +518,23 @@ char* leer(int id_programa,t_solicitudLectura* solicitud){
 }
 
 /*Busca el segmento del programa y escribe los datos:
- * Si encuentra el semgento y el acceso es dentro del mismo devuelve 1
+ * Si encuentra el segmento y el acceso es dentro del mismo devuelve 1
  * Caso contrario devuelve -1
  */
 int escribir(int id_programa,t_solicitudEscritura* solicitud){
 	int paraEscribir;
 	t_segmento* segmentoBuscado = buscarSegmento(id_programa,solicitud->base);
 	if(segmentoBuscado!=NULL){
-		paraEscribir = solicitud->base + solicitud->offset + solicitud->tamanio;
+		paraEscribir = solicitud->base + solicitud->offset + solicitud->tamanio - 1;
 		int maximo = segmentoBuscado->tamanio + segmentoBuscado->base_logica - 1;
+		printf("Para escribir hay %d y la base es %d y el limite es %d\n",paraEscribir,segmentoBuscado->base_logica,maximo);
 		if(segmentoBuscado->base_logica <= paraEscribir && paraEscribir <= maximo ){
 			pthread_rwlock_wrlock(&lockMemoria);
 			memcpy(segmentoBuscado->base+solicitud->offset,solicitud->buffer,solicitud->tamanio);
 			pthread_rwlock_unlock(&lockMemoria);
 			return solicitud->tamanio;
 		} else {
+			printf("Violacion de segmento\n");
 			return -1;
 		}
 	} else {
@@ -546,15 +548,15 @@ int escribir(int id_programa,t_solicitudEscritura* solicitud){
  */
 int crear_segmento(t_crearSegmentoUMV* datos){
 	int resultado = -1;
-	pthread_mutex_lock(&mutexAlgoritmo);
+	pthread_rwlock_rdlock(&lockAlgoritmo);
 	switch(algoritmo){
 		case WORSTFIT:
-			pthread_mutex_unlock(&mutexAlgoritmo);
+			pthread_rwlock_unlock(&lockAlgoritmo);
 			log_debug(logger, "Creando segmento del programa %d con tamaño %d con algoritmo Worst-Fit",datos->programid,datos->size);
 			resultado = worst_fit(segmentos,datos->programid,datos->size);
 			break;
 		case FIRSTFIT:
-			pthread_mutex_unlock(&mutexAlgoritmo);
+			pthread_rwlock_unlock(&lockAlgoritmo);
 			log_debug(logger, "Creando segmento del programa %d con tamaño %d con algoritmo First-Fit",datos->programid,datos->size);
 			resultado = first_fit(segmentos,datos->programid,datos->size);
 			break;
@@ -569,25 +571,21 @@ int crear_segmento(t_crearSegmentoUMV* datos){
  * Caso contrario devuelve 1
  */
 int destruir_segmentos(int id_programa){
-	t_segmento* seg_aux =_existe_algun_seg(id_programa);
-	if(seg_aux==NULL){
-		return -1; //no hay ningun segmento de ese programa
-	} else {
-		int i;
-		t_segmento* aux;
-		int cant_seg=list_size(segmentos);
-		for(i=0;i<cant_seg;i++){
-			aux = list_get(segmentos,i);
-			if(aux->id_programa == id_programa){
-				log_debug(logger, "Segmento del programa %d encontrado de un tamaño %d",id_programa,aux->tamanio);
-				aux->base_logica = 0;
-				aux->id_programa = -1;
-			}
+	int i;
+	t_segmento* aux;
+	int cant_seg=list_size(segmentos);
+	for(i=0;i<cant_seg;i++){
+		aux = list_get(segmentos,i);
+		if(aux->id_programa == id_programa){
+			log_debug(logger, "Segmento del programa %d encontrado de un tamaño %d",id_programa,aux->tamanio);
+			aux->base_logica = 0;
+			aux->id_programa = -1;
 		}
-		return 1;
 	}
+	return 1;
 }
 
+/* Realiza la compactacion */
 int compactar(){
 	log_debug(logger, "Realizando compactacion");
 	int i, flag = 1;
@@ -715,6 +713,7 @@ int worst_fit(t_list* lista,int id_programa,int tamanio){
 	return(resultado);
 }
 
+/* Calcula la base logica del segmento aleatoriamente */
 t_puntero calcularBaseLogica(int id_programa, int tamanio){
 	int validacion = -1;
 	t_puntero resultado;
@@ -725,6 +724,7 @@ t_puntero calcularBaseLogica(int id_programa, int tamanio){
 	return resultado;
 }
 
+/* Verifica si la base calculada es valida */
 int validarBaseLogica(int id, int tamanio, t_puntero aleatorio){
 	int i;
 	int retorno = -1;
@@ -809,12 +809,14 @@ int imprimir_segmentos_memoria(){
 }
 
 /* Imprime el contenido de la memoria a partir de un offset y tamanio */
+//TODO Preguntar como imprimir los datos
 int imprimir_contenido(int offset, int tamanio){
 	char* datos = malloc(tamanio);
 	memcpy(datos,bloqueDeMemoria+offset,tamanio);
 	printf("El contenido a partir de la posicion %d y tamaño %d es: %s\n", offset, tamanio,datos);//imprimir datos en hexa??
 	return 0;
 }
+
 
 /* Para facilitar las pruebas ACORDATE DE BORRARLO DESPUES!!!!! */
 int scriptCreacionSegmentos(){

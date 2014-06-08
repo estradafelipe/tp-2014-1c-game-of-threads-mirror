@@ -1,0 +1,83 @@
+
+[INFO] 22:16:40:67 UMV/(3979:3979): El tamaño de memoria es 128, el puerto es 5021, el algoritmo es: WORST-FIT y el retardo es: 1
+[INFO] 22:16:40:68 UMV/(3979:3979): Se creo el bloque de memoria con direccion inicial 0x804e120
+[DEBUG] 22:16:40:68 UMV/(3979:3979): Socket creado, escuchando...
+[DEBUG] 22:16:40:68 UMV/(3979:3979): Hilo que atiende la consola corriendo
+[DEBUG] 22:16:42:561 UMV/(3979:3979): Se conecto alguien, lanzo hilo para atenderlo
+[DEBUG] 22:16:42:561 UMV/(3979:3982): Bienvenido KERNEL
+[DEBUG] 22:16:46:23 UMV/(3979:3980): Creando segmento del programa 0 con tamaño 24 con algoritmo Worst-Fit
+[DEBUG] 22:16:46:23 UMV/(3979:3980): Creando segmento del programa 1 con tamaño 16 con algoritmo Worst-Fit
+[DEBUG] 22:16:46:23 UMV/(3979:3980): Creando segmento del programa 0 con tamaño 14 con algoritmo Worst-Fit
+[DEBUG] 22:16:51:137 UMV/(3979:3982): Se recibio algo del KERNEL
+[DEBUG] 22:16:52:138 UMV/(3979:3982): Es un pedido de creacion de segmento
+[DEBUG] 22:16:52:138 UMV/(3979:3982): Creando segmento del programa 1 con tamaño 7 con algoritmo Worst-Fit
+[DEBUG] 22:16:52:138 UMV/(3979:3982): El segmento del 1 de tamaño 7 se creo correctamente
+[DEBUG] 22:16:58:887 UMV/(3979:3982): Se recibio algo del KERNEL
+[DEBUG] 22:16:59:887 UMV/(3979:3982): Es un pedido de escritura con id_programa: 1, base: 892252, offset: 0 y tamaño: 4
+[DEBUG] 22:16:59:887 UMV/(3979:3982): La operacion de escritura termino correctamente
+[DEBUG] 22:17:02:957 UMV/(3979:3982): Se recibio algo del KERNEL
+[DEBUG] 22:17:03:957 UMV/(3979:3982): Es un pedido de escritura con id_programa: 1, base: 892252, offset: 4 y tamaño: 4
+[DEBUG] 22:17:03:957 UMV/(3979:3982): Violación de segmento!
+[DEBUG] 22:17:48:9 UMV/(3979:3982): Se desconecto el Kernel
+[DEBUG] 22:17:48:9 UMV/(3979:3982): Hilo que atiende al KERNEL termino
+[INFO] 22:21:20:247 UMV/(4114:4114): El tamaño de memoria es 128, el puerto es 5021, el algoritmo es: WORST-FIT y el retardo es: 1
+[INFO] 22:21:20:247 UMV/(4114:4114): Se creo el bloque de memoria con direccion inicial 0x804e120
+[DEBUG] 22:21:20:247 UMV/(4114:4114): Socket creado, escuchando...
+[DEBUG] 22:21:20:247 UMV/(4114:4114): Hilo que atiende la consola corriendo
+[DEBUG] 22:21:23:146 UMV/(4114:4114): Se conecto alguien, lanzo hilo para atenderlo
+[DEBUG] 22:21:23:146 UMV/(4114:4117): Bienvenido KERNEL
+[DEBUG] 22:21:27:211 UMV/(4114:4115): Creando segmento del programa 0 con tamaño 24 con algoritmo Worst-Fit
+[DEBUG] 22:21:27:211 UMV/(4114:4115): Creando segmento del programa 1 con tamaño 16 con algoritmo Worst-Fit
+[DEBUG] 22:21:27:211 UMV/(4114:4115): Creando segmento del programa 0 con tamaño 14 con algoritmo Worst-Fit
+[DEBUG] 22:21:34:110 UMV/(4114:4117): Se recibio algo del KERNEL
+[DEBUG] 22:21:35:110 UMV/(4114:4117): Es un pedido de creacion de segmento
+[DEBUG] 22:21:35:111 UMV/(4114:4117): Creando segmento del programa 1 con tamaño 7 con algoritmo Worst-Fit
+[DEBUG] 22:21:35:111 UMV/(4114:4117): El segmento del 1 de tamaño 7 se creo correctamente
+[DEBUG] 22:22:02:465 UMV/(4114:4117): Se recibio algo del KERNEL
+[DEBUG] 22:22:03:466 UMV/(4114:4117): Es un pedido de escritura con id_programa: 1, base: 385507, offset: 0 y tamaño: 4
+[DEBUG] 22:22:03:466 UMV/(4114:4117): La operacion de escritura termino correctamente
+[DEBUG] 22:22:11:491 UMV/(4114:4117): Se recibio algo del KERNEL
+[DEBUG] 22:22:12:492 UMV/(4114:4117): Es un pedido de escritura con id_programa: 1, base: 385507, offset: 4 y tamaño: 4
+[DEBUG] 22:22:12:492 UMV/(4114:4117): Violación de segmento!
+[INFO] 22:24:12:180 UMV/(4174:4174): El tamaño de memoria es 128, el puerto es 5021, el algoritmo es: WORST-FIT y el retardo es: 1
+[INFO] 22:24:12:180 UMV/(4174:4174): Se creo el bloque de memoria con direccion inicial 0x804e120
+[DEBUG] 22:24:12:180 UMV/(4174:4174): Socket creado, escuchando...
+[DEBUG] 22:24:12:180 UMV/(4174:4174): Hilo que atiende la consola corriendo
+[DEBUG] 22:24:14:992 UMV/(4174:4174): Se conecto alguien, lanzo hilo para atenderlo
+[DEBUG] 22:24:14:992 UMV/(4174:4177): Bienvenido KERNEL
+[DEBUG] 22:24:20:279 UMV/(4174:4175): Creando segmento del programa 0 con tamaño 24 con algoritmo Worst-Fit
+[DEBUG] 22:24:20:279 UMV/(4174:4175): Creando segmento del programa 1 con tamaño 16 con algoritmo Worst-Fit
+[DEBUG] 22:24:20:279 UMV/(4174:4175): Creando segmento del programa 0 con tamaño 14 con algoritmo Worst-Fit
+[DEBUG] 22:24:22:255 UMV/(4174:4177): Se recibio algo del KERNEL
+[DEBUG] 22:24:23:256 UMV/(4174:4177): Es un pedido de creacion de segmento
+[DEBUG] 22:24:23:256 UMV/(4174:4177): Creando segmento del programa 1 con tamaño 7 con algoritmo Worst-Fit
+[DEBUG] 22:24:23:256 UMV/(4174:4177): El segmento del 1 de tamaño 7 se creo correctamente
+[DEBUG] 22:24:29:597 UMV/(4174:4177): Se recibio algo del KERNEL
+[DEBUG] 22:24:30:597 UMV/(4174:4177): Es un pedido de escritura con id_programa: 1, base: 109406, offset: 0 y tamaño: 4
+[DEBUG] 22:24:30:597 UMV/(4174:4177): La operacion de escritura termino correctamente
+[DEBUG] 22:24:34:798 UMV/(4174:4177): Se recibio algo del KERNEL
+[DEBUG] 22:24:35:799 UMV/(4174:4177): Es un pedido de escritura con id_programa: 1, base: 109406, offset: 4 y tamaño: 4
+[DEBUG] 22:24:35:799 UMV/(4174:4177): Violación de segmento!
+[DEBUG] 22:30:29:211 UMV/(4174:4177): Se desconecto el Kernel
+[DEBUG] 22:30:29:211 UMV/(4174:4177): Hilo que atiende al KERNEL termino
+[INFO] 22:30:57:757 UMV/(4226:4226): El tamaño de memoria es 128, el puerto es 5021, el algoritmo es: WORST-FIT y el retardo es: 1
+[INFO] 22:30:57:757 UMV/(4226:4226): Se creo el bloque de memoria con direccion inicial 0x804e120
+[DEBUG] 22:30:57:757 UMV/(4226:4226): Socket creado, escuchando...
+[DEBUG] 22:30:57:757 UMV/(4226:4226): Hilo que atiende la consola corriendo
+[DEBUG] 22:31:02:92 UMV/(4226:4226): Se conecto alguien, lanzo hilo para atenderlo
+[DEBUG] 22:31:02:92 UMV/(4226:4232): Bienvenido KERNEL
+[DEBUG] 22:31:04:929 UMV/(4226:4227): Creando segmento del programa 0 con tamaño 24 con algoritmo Worst-Fit
+[DEBUG] 22:31:04:929 UMV/(4226:4227): Creando segmento del programa 1 con tamaño 16 con algoritmo Worst-Fit
+[DEBUG] 22:31:04:929 UMV/(4226:4227): Creando segmento del programa 0 con tamaño 14 con algoritmo Worst-Fit
+[DEBUG] 22:31:07:231 UMV/(4226:4232): Se recibio algo del KERNEL
+[DEBUG] 22:31:08:231 UMV/(4226:4232): Es un pedido de creacion de segmento
+[DEBUG] 22:31:08:231 UMV/(4226:4232): Creando segmento del programa 1 con tamaño 7 con algoritmo Worst-Fit
+[DEBUG] 22:31:08:231 UMV/(4226:4232): El segmento del 1 de tamaño 7 se creo correctamente
+[DEBUG] 22:31:09:305 UMV/(4226:4232): Se recibio algo del KERNEL
+[DEBUG] 22:31:10:306 UMV/(4226:4232): Es un pedido de escritura con id_programa: 1, base: 138347, offset: 0 y tamaño: 4
+[DEBUG] 22:31:10:306 UMV/(4226:4232): La operacion de escritura termino correctamente
+[DEBUG] 22:31:12:786 UMV/(4226:4232): Se recibio algo del KERNEL
+[DEBUG] 22:31:13:787 UMV/(4226:4232): Es un pedido de escritura con id_programa: 1, base: 138347, offset: 4 y tamaño: 4
+[DEBUG] 22:31:13:787 UMV/(4226:4232): Violación de segmento!
+[DEBUG] 22:35:25:947 UMV/(4226:4232): Se desconecto el Kernel
+[DEBUG] 22:35:25:947 UMV/(4226:4232): Hilo que atiende al KERNEL termino
