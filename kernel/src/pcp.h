@@ -10,9 +10,8 @@
 #include "plp.h"
 typedef struct
 {
-	t_PCB *pcb; // pcb del programa que esta ejecutando
-	int fd; 	// file descriptor para socket del CPU
-	int estado; // 1 Ocupado; 0 Libre.
+	uint32_t fd;     // file descriptor para socket del CPU
+	uint32_t id_pcb; // ID PCB
 }t_CPU;
 
 void hiloPCP();
