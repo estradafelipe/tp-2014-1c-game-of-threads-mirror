@@ -31,7 +31,7 @@ typedef struct {
 	char* ip;
 	short port;
 	int tamanioStack;
-}t_kernel;
+}t_confKernel;
 
 
 char* obtenerIP(t_config* config);

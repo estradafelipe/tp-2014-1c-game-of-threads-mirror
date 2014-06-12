@@ -12,7 +12,7 @@
 #include <commons/collections/list.h>
 #include "colas.h"
 
-typedef u_int32_t t_puntero;
+typedef int32_t t_puntero;
 
 
 typedef struct{
@@ -35,16 +35,16 @@ typedef struct{
 }__attribute__((packed)) t_solicitudEscritura;
 
 typedef struct{
-		uint32_t id;
-		uint32_t segmentoCodigo;
-		uint32_t segmentoStack;
-		uint32_t cursorStack;
-		uint32_t indiceCodigo;
-		uint32_t indiceEtiquetas;
-		uint32_t programcounter;
-		uint32_t sizeContext;
-		uint32_t sizeIndexLabel;
-	}__attribute__((packed)) t_PCB;
+	t_puntero id;
+	t_puntero segmentoCodigo;
+	t_puntero segmentoStack;
+	t_puntero cursorStack;
+	t_puntero indiceCodigo;
+	t_puntero indiceEtiquetas;
+	t_puntero programcounter;
+	t_puntero sizeContext;
+	t_puntero sizeIndexLabel;
+}__attribute__((packed)) t_PCB;
 
 
 
