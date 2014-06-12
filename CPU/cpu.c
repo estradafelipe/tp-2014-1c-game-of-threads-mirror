@@ -19,24 +19,20 @@
 #define TAMANIO_ID_VAR 1
 #define TAMANIO_VAR 4
 
-typedef struct{
-	t_nombre_variable identificador_variable;
-	uint32_t direccion;
-}t_datosvariable;
-
-t_list *diccionario;
-t_PCB *PCB;
+typedef u_int32_t t_valor_variable;
+t_dictionary *diccionario;
+t_PCB *pcb;
 int socketKernel, socketUMV;
 
 int main(int argc, char **argv){
-	diccionario = list_create();
+	diccionario = dictionary_create();
 	package* packagePCB;
 	t_config *configKernel = config_create((char*)argv[1]);
 	t_config *configUMV = config_create((char*)argv[1]);
 	t_ip kernelIP;
 	t_ip umvIP;
-	PCB= malloc(sizeof(t_PCB));
-	uint32_t programcounter, indiceCodigo, segmentoCodigo;
+	pcb = malloc(sizeof(t_PCB));
+	uint32_t programcounter, indiceCodigo, segmentoCodigo, sizeContext, cursorStack;
 	t_solicitudLectura *sol;
 	package* paquete, respuesta;
 
@@ -47,10 +43,8 @@ int main(int argc, char **argv){
 	umvIP.ip = obtenerIP(configUMV);
 	umvIP.port = obtenerPuerto(configKernel);
 
-
-
 	socketKernel = abrir_socket();
-	conectar_socket(socketKernel, kernelIP.ip, (int)kernelIP.port); // me conecto al kernel
+	conectar_socket(socketKernel, kernelIP.ip, (int)kernelIP.port); // me conecto al kernel (hacer handshake)
 
 	socketUMV = abrir_socket();
 	conectar_socket(socketUMV,umvIP.ip, (int)umvIP.port); // me conecto a la UMV
@@ -59,71 +53,100 @@ int main(int argc, char **argv){
 	while(1){ //para recibir los PCB
 
 			packagePCB = recibir_paquete(socketKernel);
-			PCB = desserializarPCB(packagePCB->payload);
+			pcb = desserializarPCB(packagePCB->payload);
 			int quantumPrograma = 0;
+
+			//recrear diccionario
+
+			uint32_t cant_var = pcb->sizeContext;
+
+			while(cant_var >0){
+				cursorStack = pcb->cursorStack;
+
+				sol->base = cursorStack;
+				sol->offset = (cant_var - 1) * 5;
+				sol->tamanio = TAMANIO_SEG; // aca leo el nombre de la variable.. nose si es TAMANIO_SEG
+
+				char* payloadSerializado = serializarSolicitudLectura(sol);
+				package* solicitudLectura;
+				solicitudLectura = crear_paquete(lectura,payloadSerializado,sizeof(t_puntero)*3);
+				enviar_paquete(solicitudLectura, socketUMV);
+
+				paquete = recibir_paquete(socketUMV);
+				bytesRecibidos = paquete->payloadLength;
+				tipo = paquete->type;
+
+				 char* var;
+				 t_puntero* puntero;
+
+				 var = desserializarSolicitudLectura(paquete->payload);
+				 puntero = sol->base + sol->offset;
+
+				dictionary_put(diccionario, var, puntero);
+				cant_var --;
+			}
 
 			while(quantumPrograma<20/*quantumKernel*/){ // falta obtener el quantum del kernel
 
-								programcounter = PCB->programcounter;
-								programcounter++;
-								indiceCodigo = PCB->indiceCodigo;
+				programcounter = pcb->programcounter;
+				programcounter++;
+				indiceCodigo = pcb->indiceCodigo;
 
-								sol->base = PCB->indiceCodigo;
-								sol->offset = programcounter*8;
-								sol->tamanio = TAMANIO_SEG;
+				sol->base = pcb->indiceCodigo;
+				sol->offset = programcounter*8;
+				sol->tamanio = TAMANIO_SEG;
 
-								char* payloadSerializado = serializarSolicitudLectura(sol);
-								package* handShakeUMV_CPU = crear_paquete(handshakeCpuUmv,payloadSerializado,sizeof(t_puntero)*3);
-								enviar_paquete(handShakeUMV_CPU, socketUMV);
+				char* payloadSerializado = serializarSolicitudLectura(sol);
+				package* handShakeUMV_CPU = crear_paquete(handshakeCpuUmv,payloadSerializado,sizeof(t_puntero)*3);
+				enviar_paquete(handShakeUMV_CPU, socketUMV);
 
+				int bytesRecibidos;
+				t_paquete tipo;
 
-								int bytesRecibidos;
-								t_paquete tipo;
+				paquete = recibir_paquete(socketUMV);
+				bytesRecibidos = paquete->payloadLength;
+				tipo = paquete->type;
 
-								paquete = recibir_paquete(socketUMV);
-								bytesRecibidos = paquete->payloadLength;
-								tipo = paquete->type;
+				segmentoCodigo = pcb->segmentoCodigo;
 
-								segmentoCodigo = PCB->segmentoCodigo;
+				t_solicitudLectura* respuesta = desserializarSolicitudLectura(paquete->payload);
+				sol->base = segmentoCodigo;
+				sol->offset = respuesta->offset;
+				sol->tamanio = respuesta->tamanio;
 
+//ver con julian como manejamos la respuesta de la umv (offset del segmento de codigo y la longitud de la proxima instruccion a ejecutar)
 
-								t_solicitudLectura* respuesta = desserializarSolicitudLectura(paquete->payload);
-								sol->base = segmentoCodigo;
-								sol->offset = respuesta->offset;
-								sol->tamanio = respuesta->tamanio;
+				payloadSerializado = serializarSolicitudLectura(sol);
+				package* solicitudLectura;
+				solicitudLectura = crear_paquete(lectura,payloadSerializado,sizeof(t_puntero)*3);
+				enviar_paquete(solicitudLectura, socketUMV);
 
-								//ver con julian como manejamos la respuesta de la umv (offset del segmento de codigo y la longitud de la proxima instruccion a ejecutar)
+				paquete = recibir_paquete(socketUMV);
+				bytesRecibidos = paquete->payloadLength;
+				tipo = paquete->type;
 
-								payloadSerializado = serializarSolicitudLectura(sol);
-								package* solicitudLectura;
-								solicitudLectura = crear_paquete(lectura,payloadSerializado,sizeof(t_puntero)*3);
-								enviar_paquete(solicitudLectura, socketUMV);
+				respuesta = desserializarSolicitudLectura(paquete->payload); //Esto es la sentencia a ejecutar posta
 
-								paquete = recibir_paquete(socketUMV);
-								bytesRecibidos = paquete->payloadLength;
-								tipo = paquete->type;
+// Ejecutar parser
 
-								respuesta = desserializarSolicitudLectura(paquete->payload); //Esto es la sentencia a ejecutar posta
-
-								// Ejecutar parser
-
-								quantumPrograma ++;
-												}
-			}
+				quantumPrograma ++;
+		}
+			dictionary_clean(diccionario); //limpia el diccionario de variables
+	}
 	return 0;
 }
 
 t_puntero definirVariable(t_nombre_variable identificador_variable){
-	t_datosvariable *var;
-	uint32_t sizeContext = PCB->sizeContext;
+	char* var = (char*)identificador_variable; //Aca casteamos.. verificar los tipos (es la key)
+	uint32_t sizeContext = pcb->sizeContext;
 	t_solicitudEscritura *sol;
-	package* escritura;
-	package* respuesta;
+	package* escritura = malloc(sizeof(package));
+	package* respuesta = malloc(sizeof(package));
 	t_puntero *puntero;
 
-	sol->base = PCB->segmentoStack;
-	sol->offset = PCB->cursorStack + sizeContext;
-	sol->tamanio = TAMANIO_ID_VAR ;
+	sol->base = pcb->segmentoStack;
+	sol->offset = pcb->cursorStack + sizeContext*5;
+	sol->tamanio = TAMANIO_ID_VAR;
 	sol->buffer = identificador_variable;
 
 	puntero = sol->offset;
@@ -135,41 +158,66 @@ t_puntero definirVariable(t_nombre_variable identificador_variable){
 
 	recibir_paquete(respuesta,socketUMV);
 
-	puntero = respuesta->payload; //TODO: VERIFICAR SI PIPE ME ESTA PASANDO EL PUNTERO A LA ID DE LA VARIABLE
-
-	if (respuesta->payload == -1){
+	if (respuesta->payload == "Segmentation Fault"){
 		printf("Fallo la escritura\n");
 		exit();
 		//TODO: ver como notificamos al kernel;
 	}
 
+	dictionary_put(diccionario, var, puntero);
 
-	var->identificador_variable = identificador_variable;
-	var->direccion = puntero;
-	list_add(diccionario,var);
-
-	PCB->sizeContext++;
+	pcb->sizeContext++;
 
 	return puntero;
 }
 
 t_puntero obtenerPosicionVariable(t_nombre_variable identificador_variable ){
-	t_datosvariable *var;
-
-	int tamanio = list_size(diccionario);
-	int i;
-	for(i=0;i<=tamanio;i++){ //TODO: ESTA HECHO CON list_get() , VER SI SE PUEDE HACER CON list_find()
-
-		var = (t_datosvariable*) list_get(diccionario,i);
-		if (var->identificador_variable == identificador_variable){
-			return var->direccion;
-		}
-		else{
-			i++;
-		}
-
-	}
-
-	return -1;
+	char* key = (char*)identificador_variable;
+	t_puntero posicion = dictionary_get(diccionario, key);
+	return posicion;
 }
 
+t_valor_variable dereferenciar(t_puntero direccion_variable){
+	t_valor_variable valorVariable;
+	package* solicitudLectura = malloc(sizeof(package));;
+	package* respuesta = malloc(sizeof(package));;
+	t_solicitudLectura* sol;
+	sol->base = pcb->segmentoStack;
+	sol->offset = direccion_variable;
+	sol->tamanio = TAMANIO_SEG;
+
+	char* payloadSerializado = serializarSolicitudLectura(sol);
+	solicitudLectura = crear_paquete(lectura,payloadSerializado,sizeof(t_puntero)*3);
+	enviar_paquete(solicitudLectura, socketUMV);
+
+	respuesta = recibir_paquete(socketUMV);
+	valorVariable = (t_valor_variable)desserializarSolicitudLectura(respuesta->payload);
+	return valorVariable;
+}
+
+void asignar(t_puntero direccion_variable, t_valor_variable valor){
+	package* solicitudEscritura = malloc(sizeof(package));;
+	package* respuesta = malloc(sizeof(package));;
+	t_solicitudEscritura* sol;
+	sol->base = pcb->segmentoStack;
+	sol->offset = dirreccion_variable + 1;
+	sol->tamanio = TAMANIO_SEG;
+	sol->buffer = valor; //TODO: casteo de buffer-valor (casteo char* - u_int32_t)
+
+	char* payloadSerializado = serializarSolicitudEscritura(sol);
+	solicitudEscritura = crear_paquete(escritura, payloadSerializado, sizeof((t_puntero)*3 + strlen(buffer)));
+	enviar_paquete(solicitudEscritura, socketUMV);
+
+	respuesta = recibir_paquete(socketUMV);
+	//Verificar rta de UMV
+}
+
+t_valor_variable obtenerValorCompartida(t_nombre_compartida variable){
+	//TODO
+}
+t_valor_variable asignarValorCompartida(t_nombre_compartida variable, t_valor_variable valor){
+	//TODO
+}
+t_puntero_instruccion irAlLabel(t_nombre_etiqueta etiqueta){
+	//TODO
+}
