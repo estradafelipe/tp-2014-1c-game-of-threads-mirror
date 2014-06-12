@@ -12,38 +12,38 @@
 #include <commons/collections/list.h>
 #include "colas.h"
 
-typedef int32_t t_puntero;
+typedef int32_t t_pun;
 
 
 typedef struct{
-	t_puntero programid;
-	t_puntero size;
+	t_pun programid;
+	t_pun size;
 }__attribute__((packed)) t_crearSegmentoUMV;
 
 
 typedef struct{
-	t_puntero base;
-	t_puntero offset;
-	t_puntero tamanio;
+	t_pun base;
+	t_pun offset;
+	t_pun tamanio;
 }__attribute__((packed)) t_solicitudLectura;
 
 typedef struct{
-	t_puntero base;
-	t_puntero offset;
-	t_puntero tamanio;
+	t_pun base;
+	t_pun offset;
+	t_pun tamanio;
 	char* buffer;
 }__attribute__((packed)) t_solicitudEscritura;
 
 typedef struct{
-	t_puntero id;
-	t_puntero segmentoCodigo;
-	t_puntero segmentoStack;
-	t_puntero cursorStack;
-	t_puntero indiceCodigo;
-	t_puntero indiceEtiquetas;
-	t_puntero programcounter;
-	t_puntero sizeContext;
-	t_puntero sizeIndexLabel;
+	t_pun id;
+	t_pun segmentoCodigo;
+	t_pun segmentoStack;
+	t_pun cursorStack;
+	t_pun indiceCodigo;
+	t_pun indiceEtiquetas;
+	t_pun programcounter;
+	t_pun sizeContext;
+	t_pun sizeIndexLabel;
 }__attribute__((packed)) t_PCB;
 
 
