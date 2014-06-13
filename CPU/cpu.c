@@ -32,7 +32,7 @@ int main(int argc, char **argv){
 	t_ip kernelIP;
 	t_ip umvIP;
 	pcb = malloc(sizeof(t_PCB));
-	uint32_t programcounter, indiceCodigo, segmentoCodigo, sizeContext, cursorStack;
+	uint32_t programcounter, indiceCodigo, segmentoCodigo, sizeContext;
 	t_solicitudLectura *sol;
 	package* paquete, respuesta;
 
@@ -56,35 +56,7 @@ int main(int argc, char **argv){
 			pcb = desserializarPCB(packagePCB->payload);
 			int quantumPrograma = 0;
 
-			//recrear diccionario
-
-			uint32_t cant_var = pcb->sizeContext;
-
-			while(cant_var >0){
-				cursorStack = pcb->cursorStack;
-
-				sol->base = cursorStack;
-				sol->offset = (cant_var - 1) * 5;
-				sol->tamanio = TAMANIO_SEG; // aca leo el nombre de la variable.. nose si es TAMANIO_SEG
-
-				char* payloadSerializado = serializarSolicitudLectura(sol);
-				package* solicitudLectura;
-				solicitudLectura = crear_paquete(lectura,payloadSerializado,sizeof(t_puntero)*3);
-				enviar_paquete(solicitudLectura, socketUMV);
-
-				paquete = recibir_paquete(socketUMV);
-				bytesRecibidos = paquete->payloadLength;
-				tipo = paquete->type;
-
-				 char* var;
-				 t_puntero* puntero;
-
-				 var = desserializarSolicitudLectura(paquete->payload);
-				 puntero = sol->base + sol->offset;
-
-				dictionary_put(diccionario, var, puntero);
-				cant_var --;
-			}
+			recrearDiccionario();
 
 			while(quantumPrograma<20/*quantumKernel*/){ // falta obtener el quantum del kernel
 
@@ -136,6 +108,43 @@ int main(int argc, char **argv){
 	return 0;
 }
 
+void recrearDiccionario(){
+	uint32_t cant_var, cursorStack;
+	t_solicitudLectura *sol;
+	char* payloadSerializado;
+	package* solicitudLectura, paquete;
+	int bytesRecibidos;
+	char* var;
+	t_puntero* puntero;
+	t_paquete tipo;
+
+	cant_var = pcb->sizeContext;
+
+	while(cant_var >0){
+		cursorStack = pcb->cursorStack;
+
+		sol->base = cursorStack;
+		sol->offset = (cant_var - 1) * 5;
+		sol->tamanio = TAMANIO_SEG; // aca leo el nombre de la variable.. nose si es TAMANIO_SEG
+
+		payloadSerializado = serializarSolicitudLectura(sol);
+		solicitudLectura = crear_paquete(lectura,payloadSerializado,sizeof(t_puntero)*3);
+		enviar_paquete(solicitudLectura, socketUMV);
+
+		paquete = recibir_paquete(socketUMV);
+		bytesRecibidos = paquete->payloadLength;
+		tipo = paquete->type;
+
+
+		var = desserializarSolicitudLectura(paquete->payload);
+		puntero = sol->base + sol->offset;
+
+		dictionary_put(diccionario, var, puntero);
+		cant_var --;
+	}
+
+}
+
 t_puntero definirVariable(t_nombre_variable identificador_variable){
 	char* var = (char*)identificador_variable; //Aca casteamos.. verificar los tipos (es la key)
 	uint32_t sizeContext = pcb->sizeContext;
@@ -158,7 +167,7 @@ t_puntero definirVariable(t_nombre_variable identificador_variable){
 
 	recibir_paquete(respuesta,socketUMV);
 
-	if (respuesta->payload == "Segmentation Fault"){
+	if (respuesta->payload == -1){
 		printf("Fallo la escritura\n");
 		exit();
 		//TODO: ver como notificamos al kernel;
