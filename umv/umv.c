@@ -14,8 +14,9 @@
 int main(int argc, char **argv){
 
 	t_config *configUMV = config_create(argv[1]);
-/* Creo logger */
-	logger = log_create("loggerUMV.log", "UMV", false, LOG_LEVEL_DEBUG);
+/* Creo loggers */
+	logger = log_create("loggerUMV.log", "UMV", false, LOG_LEVEL_DEBUG);//loger comun
+	loggerConsola = log_create("loggerConsola.log", "UMV-Consola", false, LOG_LEVEL_DEBUG);//loger de la consola
 
 /* Creo la lista que va a tener un elemento por cada hilo lanzado */
 	hilos = list_create();
@@ -26,6 +27,8 @@ int main(int argc, char **argv){
 	int puerto = obtenerPuerto(configUMV);
 	algoritmo = obtenerAlgoritmoUMV(configUMV);
 	retardo = obtenerRetardo(configUMV)/1000;
+	logConsola = obtenerLogConsola(configUMV);
+
 /* Fin obtener datos */
 	printf("El tamaño de memoria es %d, el puerto es %d, el algoritmo es: %s y el retardo es: %d\n",tamanioMemoria,puerto,algoritmo==1?"FIRST-FIT":"WORST-FIT",retardo);
 	log_info(logger,"El tamaño de memoria es %d, el puerto es %d, el algoritmo es: %s y el retardo es: %d",tamanioMemoria,puerto,algoritmo==1?"FIRST-FIT":"WORST-FIT",retardo);

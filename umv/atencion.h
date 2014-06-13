@@ -23,9 +23,11 @@
 
 int retardo; // retardo en milisegundos que hay que esperar entre solicitudes
 int algoritmo; //algoritmo para ubicar los segmentos
+int logConsola; //0 si no hay que logear a archivo, 1 si hay que logear a archivo
 t_log* logger;
+t_log* loggerConsola;
 
-typedef u_int32_t t_puntero;
+typedef int32_t t_puntero;
 
 typedef struct{
 	int id_programa; //programa al que pertenece el segmento

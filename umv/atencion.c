@@ -44,6 +44,7 @@ void* atenderNuevaConexion(void* parametro){
 	} else if (bytesRecibidos==0) {	//Se desconecto
 		log_debug(logger, "Se desconecto y no se pudo realizar el handshake");
 	}
+	destruir_paquete(paquete);
 	return (void*)socketCliente;// para que no rompa las bolas con que la funcion no retorna un void*
 }
 
@@ -88,11 +89,10 @@ int atenderKernel(int fd){
 						memcpy(answer, &resultado, sizeof(t_puntero));
 						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
 						enviar_paquete(respuesta,fd);
-						destruir_paquete(respuesta);
 					} else {
 						log_debug(logger, "No hubo espacio suficiente, se realizara la compactacion y se volvera a intentar");
 						pthread_rwlock_wrlock(&lockSegmentos);
-						pthread_rwlock_rdlock(&lockMemoria);
+						pthread_rwlock_wrlock(&lockMemoria);
 						compactar();
 						pthread_rwlock_unlock(&lockMemoria);
 						pthread_rwlock_unlock(&lockSegmentos);
@@ -105,15 +105,14 @@ int atenderKernel(int fd){
 							memcpy(answer, &resultado, sizeof(t_puntero));
 							respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
 							enviar_paquete(respuesta,fd);
-							destruir_paquete(respuesta);
 						} else {
 							log_debug(logger, "No hubo espacio suficiente, Memory Overload!!");
 							memcpy(answer, &resultado, sizeof(t_puntero));
 							respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
 							enviar_paquete(respuesta,fd);
-							destruir_paquete(respuesta);
 						}
 					}
+					destruir_paquete(respuesta);
 					break;
 				case destruccionSegmentos:
 					sleep(retardo);
@@ -150,6 +149,7 @@ int atenderKernel(int fd){
 						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
 						enviar_paquete(respuesta,fd);
 					}
+					destruir_paquete(respuesta);
 					break;
 				case escritura:
 					sleep(retardo);
@@ -172,6 +172,7 @@ int atenderKernel(int fd){
 						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
 						enviar_paquete(respuesta,fd);
 					}
+					destruir_paquete(respuesta);
 					break;
 				default:
 					log_debug(logger, "Tipo de mensaje invalido");
@@ -185,6 +186,7 @@ int atenderKernel(int fd){
 			log_debug(logger, "Se desconecto el Kernel");
 			break;
 		}
+		destruir_paquete(paquete);
 	}
 	log_debug(logger, "Hilo que atiende al KERNEL termino");
 	free(answer);
@@ -238,8 +240,8 @@ int atenderCpu(int fd){
 						memcpy(answer, &resultado, sizeof(t_puntero));
 						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
 						enviar_paquete(respuesta,fd);
-						destruir_paquete(respuesta);
 					}
+					destruir_paquete(respuesta);
 					break;
 				case escritura:
 					sleep(retardo);
@@ -255,15 +257,14 @@ int atenderCpu(int fd){
 						memcpy(answer, &resultado, sizeof(t_puntero));
 						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
 						enviar_paquete(respuesta,fd);
-						destruir_paquete(respuesta);
 					} else {
 						log_debug(logger, "Violación de segmento!");
 						resultado = -1;
 						memcpy(answer, &resultado, sizeof(t_puntero));
 						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
 						enviar_paquete(respuesta,fd);
-						destruir_paquete(respuesta);
 					}
+					destruir_paquete(respuesta);
 					break;
 				default:
 					log_debug(logger, "Tipo de mensaje invalido");
@@ -277,6 +278,7 @@ int atenderCpu(int fd){
 			log_debug(logger, "Se desconecto una CPU");
 			break;
 		}
+		destruir_paquete(paquete);
 	}
 	log_debug(logger, "Hilo que atiende una CPU termino");
 	free(answer);
@@ -295,6 +297,9 @@ void* atenderConsola(){
 	t_solicitudLectura* reader;
 	t_solicitudEscritura* writer;
 	printf("Hilo que atiende la consola esperando entrada por teclado...\n");
+	if(logConsola){
+		log_info(loggerConsola,"Hilo que atiende la consola esperando entrada por teclado");
+	}
 	while(1){
 		printf("Ingrese un comando\n");
 		/* Leo que se ingreso por consola */
@@ -302,28 +307,45 @@ void* atenderConsola(){
 		char** palabras = string_split(buffer, " ");
 		/* la ultima palabra del comando queda con el salto de linea por eso hay que tener
 		 * en cuenta el \n si es la ultima palabra */
-
+		if(logConsola){
+			log_debug(loggerConsola,"Se ingreso un comando\n");
+		}
 		if(strcmp(palabras[0],"operacion")==0){
 			// validar  que operacion es
 			id_programa = atoi(palabras[2]);
 			if (strcmp(palabras[1],"lectura")==0){
 				// es un pedido de lectura
+				if(logConsola){
+					log_debug(loggerConsola,"Es un pedido de lectura");
+				}
 				reader = malloc(sizeof(t_solicitudLectura));
 				reader->base = atoi(palabras[3]);
 				reader->offset = atoi(palabras[4]);
 				reader->tamanio = atoi(palabras[5]);
 				printf("Leyendo %d bytes en el segmento del programa %d con base %d\n",reader->tamanio,id_programa,reader->base);
+				if(logConsola){
+					log_debug(loggerConsola,"Leyendo %d bytes en el segmento del programa %d con base %d",reader->tamanio,id_programa,reader->base);
+				}
 				pthread_rwlock_rdlock(&lockSegmentos);
 				datos = leer(id_programa,reader);
 				pthread_rwlock_unlock(&lockSegmentos);
 				if(datos!=NULL){
 					printf("Los datos obtenidos son: %s\n",datos);
+					if(logConsola){
+						log_debug(loggerConsola,"Los datos obtenidos son: %s\n",datos);
+					}
 				} else {
 					printf("Violación de segmento!!!\n");
+					if(logConsola){
+						log_debug(loggerConsola,"Violación de segmento!!!\n");
+					}
 				}
 				free(reader);
 			} else if (strcmp(palabras[1],"escritura")==0){
 				// es un pedido de escritura
+				if(logConsola){
+					log_debug(loggerConsola,"Es un pedido de escritura");
+				}
 				writer = malloc(sizeof(t_solicitudEscritura));
 				writer->base = atoi(palabras[3]);
 				writer->offset = atoi(palabras[4]);
@@ -331,54 +353,90 @@ void* atenderConsola(){
 				writer->buffer = malloc(writer->tamanio);
 				memcpy(writer->buffer,palabras[6],writer->tamanio);
 				printf("Escribiendo %d bytes en el segmento del programa %d con base %d\n",writer->tamanio,id_programa,writer->base);
-				printf("El buffer es %s\n",writer->buffer);
+				if(logConsola){
+					log_debug(loggerConsola,"Escribiendo %d bytes en el segmento del programa %d con base %d",writer->tamanio,id_programa,writer->base);
+				}
 				pthread_rwlock_rdlock(&lockSegmentos);
 				estado = escribir(id_programa,writer);
 				pthread_rwlock_unlock(&lockSegmentos);
 				if(estado >= 0){
 					printf("La operacion de escritura termino correctamente\n");
+					if(logConsola){
+						log_debug(loggerConsola,"La operacion de escritura termino correctamente\n");
+					}
 				} else {
 					printf("Violación de segmento!!!\n");
+					if(logConsola){
+						log_debug(loggerConsola,"Violación de segmento!!!\n");
+					}
 				}
 				free(writer);
 			} else if (strcmp(palabras[1],"crear_seg")==0){
 				// es un pedido de creacion de segmento
+				if(logConsola){
+					log_debug(loggerConsola,"Es un pedido de creación de segmento");
+				}
 				crear = malloc(sizeof(t_crearSegmentoUMV));
 				crear->programid = atoi(palabras[2]);
 				crear->size = atoi(palabras[3]);
 				pthread_rwlock_wrlock(&lockSegmentos);
 				estado = crear_segmento(crear);
 				pthread_rwlock_unlock(&lockSegmentos);
-				printf("Crear_seg devolvio %d\n",estado);
 				if(estado>=0){
 					printf("El segmento del %d de tamaño %d se creo correctamente\n",crear->programid,crear->size);
+					if(logConsola){
+						log_debug(loggerConsola,"El segmento del %d de tamaño %d se creo correctamente\n",crear->programid,crear->size);
+					}
 				} else {
 					printf("No hubo espacio suficiente, se realizara la compactacion y se volvera a intentar\n");
+					if(logConsola){
+						log_debug(loggerConsola,"No hubo espacio suficiente, se realizara la compactacion y se volvera a intentar");
+					}
 					pthread_rwlock_wrlock(&lockSegmentos);
+					pthread_rwlock_wrlock(&lockMemoria);
 					compactar();
+					pthread_rwlock_unlock(&lockMemoria);
 					pthread_rwlock_unlock(&lockSegmentos);
 					pthread_rwlock_wrlock(&lockSegmentos);
 					estado = crear_segmento(crear);
 					pthread_rwlock_unlock(&lockSegmentos);
 					if(estado>=0){
 						printf("El segmento del %d de tamaño %d se creo correctamente\n",crear->programid,crear->size);
+						if(logConsola){
+							log_debug(loggerConsola,"El segmento del %d de tamaño %d se creo correctamente\n",crear->programid,crear->size);
+						}
 					} else {
 						printf("Memory overload!!!\n");
+						if(logConsola){
+							log_debug(loggerConsola,"Memory overload!!!\n");
+						}
 					}
 				}
 			} else if (strcmp(palabras[1],"destruir_seg")==0){
 				// es un pedido de destruccion de segmentos
+				if(logConsola){
+					log_debug(loggerConsola,"Es un pedido de destrucción de segmentos");
+				}
 				id_programa = atoi(palabras[2]);
 				pthread_rwlock_wrlock(&lockSegmentos);
 				estado = destruir_segmentos(id_programa);
 				pthread_rwlock_unlock(&lockSegmentos);
 				if(estado >= 0){
 					printf("Los segmentos del programa %d se borraron correctamente\n",id_programa);
+					if(logConsola){
+						log_debug(loggerConsola,"Los segmentos del programa %d se borraron correctamente\n",id_programa);
+					}
 				} else {
 					printf("No habia segmentos del programa\n");
+					if(logConsola){
+						log_debug(loggerConsola,"No habia segmentos del programa\n");
+					}
 				}
 			} else {
 				printf("Comando no reconocido, intente de nuevo\n");
+				if(logConsola){
+					log_debug(loggerConsola,"Comando no reconocido, intente de nuevo\n");
+				}
 			}
 
 		} else if (strcmp(palabras[0],"retardo")==0){
@@ -387,6 +445,9 @@ void* atenderConsola(){
 				printf("El retardo paso de %d a ",retardo*1000);
 				retardo = atoi(palabras[1])/1000;
 				printf("%d milisegundos\n",retardo*1000);
+				if(logConsola){
+					log_debug(loggerConsola,"El retardo ha sido modificado, actualmente es %d milisegundos\n",retardo*1000);
+				}
 			}
 
 		} else if (strcmp(palabras[0],"algoritmo")==0){
@@ -399,12 +460,21 @@ void* atenderConsola(){
 					algoritmo = WORSTFIT;
 					pthread_rwlock_unlock(&lockAlgoritmo);
 					printf("Se modifico el algortimo correctamente. El algoritmo actual es Worst-Fit\n");
+					if(logConsola){
+						log_debug(loggerConsola,"Se modifico el algortimo correctamente. El algoritmo actual es Worst-Fit\n");
+					}
 				} else if (strcmp(palabras[1],"FIRSTFIT\n")==0){
 					algoritmo = FIRSTFIT;
 					pthread_rwlock_unlock(&lockAlgoritmo);
 					printf("Se modifico el algortimo correctamente. El algoritmo actual es First-Fit\n");
+					if(logConsola){
+						log_debug(loggerConsola,"Se modifico el algortimo correctamente. El algoritmo actual es First-Fit\n");
+					}
 				} else {
 					printf("Comando no reconocido, intente de nuevo\n");
+					if(logConsola){
+						log_debug(loggerConsola,"Comando no reconocido, intente de nuevo\n");
+					}
 				}
 			}
 
@@ -412,11 +482,14 @@ void* atenderConsola(){
 			// hacer compactacion
 			printf("Compactando...\n");
 			pthread_rwlock_wrlock(&lockSegmentos);
-			pthread_rwlock_rdlock(&lockMemoria);
+			pthread_rwlock_wrlock(&lockMemoria);
 			compactar();
 			pthread_rwlock_unlock(&lockMemoria);
 			pthread_rwlock_unlock(&lockSegmentos);
 			printf("Compactación terminada\n");
+			if(logConsola){
+				log_debug(loggerConsola,"Compactación realizada\n");
+			}
 
 		} else if (strcmp(palabras[0],"dump")==0){
 			// imprimir reporte
@@ -440,12 +513,18 @@ void* atenderConsola(){
 				pthread_rwlock_unlock(&lockMemoria);
 			} else {
 				printf("Comando no reconocido, intente de nuevo\n");
+				if(logConsola){
+					log_debug(loggerConsola,"Comando no reconocido, intente de nuevo\n");
+				}
 			}
 		} else if (strcmp(palabras[0],"script\n")==0){
 			scriptCreacionSegmentos();
 
 		} else {
 			printf("Comando no reconocido, intente de nuevo\n");
+			if(logConsola){
+				log_debug(loggerConsola,"Comando no reconocido, intente de nuevo\n");
+			}
 		}
 	}
 }
@@ -624,11 +703,12 @@ int compactar(){
 		aux->base = baseNueva;
 		offsetAcumulado += aux->tamanio;
 	}
+
 	log_debug(logger, "Offset acumulado %d",offsetAcumulado);
 	libre->base += offsetAcumulado;
-	log_debug(logger, "Bases fisicas actualizadas");
+	log_debug(logger, "Bases físicas actualizadas");
 	list_add(segmentos,libre);
-	log_debug(logger, "Segmento vacio agregado al final");
+	log_debug(logger, "Segmento vacío agregado al final");
 	return -1;
 }
 
@@ -771,6 +851,10 @@ int imprimir_estructuras(int id_programa){
 				printf("Base logica: %d\n", aux->base_logica);
 				printf("Base real: %p\n",aux->base);
 				printf("Tamaño: %d\n",aux->tamanio);
+
+				if(logConsola){
+					log_debug(loggerConsola,"Id_programa: %d, Base logica: %d, Base real: %p, Tamaño: %d",aux->id_programa, aux->base_logica,aux->base,aux->tamanio);
+				}
 			}
 		}
 	} else if (id_programa >= 0) { //de un proceso en particular
@@ -782,6 +866,10 @@ int imprimir_estructuras(int id_programa){
 				printf("Base logica: %d\n", aux->base_logica);
 				printf("Base real: %p\n",aux->base);
 				printf("Tamaño: %d\n",aux->tamanio);
+
+				if(logConsola){
+					log_debug(loggerConsola,"Id_programa: %d, Base logica: %d, Base real: %p, Tamaño: %d",aux->id_programa, aux->base_logica,aux->base,aux->tamanio);
+				}
 			}
 		}
 	}
@@ -804,6 +892,14 @@ int imprimir_segmentos_memoria(){
 		printf("Base logica: %d\n", aux->base_logica);
 		printf("Base real: %p\n",aux->base);
 		printf("Tamaño: %d\n",aux->tamanio);
+
+		if(logConsola){
+			if(aux->id_programa != -1){
+				log_debug(loggerConsola,"Id_programa: %d, Base logica: %d, Base real: %p, Tamaño: %d",aux->id_programa, aux->base_logica,aux->base,aux->tamanio);
+			} else {
+				log_debug(loggerConsola,"Id_programa: %d (VACÍO), Base logica: %d, Base real: %p, Tamaño: %d",aux->id_programa, aux->base_logica,aux->base,aux->tamanio);
+			}
+		}
 	}
 	return 0;
 }
@@ -814,6 +910,11 @@ int imprimir_contenido(int offset, int tamanio){
 	char* datos = malloc(tamanio);
 	memcpy(datos,bloqueDeMemoria+offset,tamanio);
 	printf("El contenido a partir de la posicion %d y tamaño %d es: %s\n", offset, tamanio,datos);//imprimir datos en hexa??
+
+	if(logConsola){
+		log_debug(loggerConsola,"El contenido a partir de la posicion %d y tamaño %d es: %s", offset, tamanio,datos);
+	}
+
 	return 0;
 }
 
