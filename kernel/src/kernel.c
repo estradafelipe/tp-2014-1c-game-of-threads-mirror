@@ -21,7 +21,7 @@
 #include "plp.h"
 #include "colas.h"
 #include "pcp.h"
-
+#include "hilos.h"
 
 t_kernel *kernel;
 sem_t *semaforo_fin;
@@ -81,70 +81,7 @@ void leerconfiguracion(char *path_config){
 	pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 	kernel->mutex_programas = mutex;
   }
-/* Crea las tablas de semaforos y de I/O */
-void crea_tablasSitema(){
-	int i;
-	semaforos = malloc(sizeof(t_dictionary));
-	entradasalida = malloc(sizeof(t_dictionary));
-	semaforos = dictionary_create();
-	entradasalida = dictionary_create();
-	int valorsem;
-	// Crea tabla de semaforos
-	i = 0;
-	while (1) {
-		if (kernel->semaforosid[i]!='\0'){
-			valorsem = atoi(kernel->semaforosvalor[i]);
-			dictionary_put(semaforos,kernel->semaforosid[i],&valorsem);
-			i++;
-		}else break;
 
-	}
-
-	// Crea tabla de IO
-	i = 0;
-	while (1) {
-		if (kernel->entradasalidaid[i]!='\0'){
-
-			t_entradasalida *IO = malloc(sizeof(t_entradasalida));
-			IO->id = kernel->entradasalidaid[i];
-			IO->retardo = atoi(kernel->entradasalidaret[i]);
-			IO->semaforo_IO = malloc(sizeof(sem_t));
-			IO->cola = cola_create();
-			sem_init(IO->semaforo_IO,0,0); //inicializo semaforo del hilo en 0
-			dictionary_put(entradasalida,IO->id,IO);
-			i++;
-		}else break;
-	}
-
-}
-
-void hiloIO(t_entradasalida *IO){
-	// hilo de entrada salida
-	while(1){
-		sem_wait(IO->semaforo_IO); // cuando deba ejecutar este hilo, darle signal
-		t_progIO *elemento = cola_pop(IO->cola);
-		int retardo = IO->retardo * elemento->unidadesTiempo;
-		usleep(retardo);
-		// cola de bloqueados intermedia para pasar de block->ready
-		cola_push(cola_block,elemento->PCB);
-		free(elemento);
-	}
-}
-
-void crea_hilosIO(char* key, t_entradasalida *IO){
-	int thr;
-	pthread_t * IOthr = malloc(sizeof(pthread_t));
-	thr = pthread_create( IOthr, NULL, (void*)hiloIO, IO);
-
-	if (thr== 0)
-		printf("Se creo el hilo de IO %s\n",IO->id);
-	else printf("no se pudo crear el hilo IO %s\n",IO->id);
-
-}
-
-void imprimepantalla(char * key, t_entradasalida *IO){
-	printf("%s: %d\n",key,IO->retardo);
-}
 
 int main(int argc, char**argv) {
 	ultimoid = 0;
@@ -167,29 +104,27 @@ int main(int argc, char**argv) {
 	printf("QUANTUM:%d\n",kernel->quantum);
 	printf("RETARDO:%d\n",kernel->retardo);
 	printf("MULTIPROGRAMACION:%d\n",kernel->multiprogramacion);
-	//printf("SEMAFOROS:\n");
-	//dictionary_iterator(semaforos,(void*)imprimepantalla);
-	//printf("\nENTRADA Y SALIDA:\n");
-	//dictionary_iterator(entradasalida,(void*)imprimepantalla);
-	// **
+
 
 	// Crea hilos I/O
 	dictionary_iterator(entradasalida,(void*)crea_hilosIO);
+
 	int thr;
 
 	pthread_t * plpthr = malloc(sizeof(pthread_t)); // hilo plp
-	pthread_t * pcpthr = malloc(sizeof(pthread_t)); // hilo pcp
+	//pthread_t * pcpthr = malloc(sizeof(pthread_t)); // hilo pcp
 
 	thr = pthread_create( plpthr, NULL, (void*)hiloPLP, NULL);
 
 	if (thr== 0)
 		printf("Se creo el hilo lo mas bien\n");//se pudo crear el hilo
 	else printf("no se pudo crear el hilo\n");//no se pudo crear el hilo
-
+/*
 	//dejo comentado para cuando este el PCP
 	thr = pthread_create( pcpthr, NULL, (void*)hiloPCP, NULL);
 	if (thr== 0)
 			printf("Se creo el hilo pcp lo mas bien\n");
+*/
 	/*
 		En vez de hacer el join de los threads me bloqueo con un semaforo
 		hasta que se termine todo.
