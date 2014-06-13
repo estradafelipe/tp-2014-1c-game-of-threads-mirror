@@ -235,18 +235,30 @@ void enviarMsgPrograma(int fd, char *msg){
 	enviar_paquete(paquete,fd);
 	free(paquete);
 }
-
+void finalizarPrograma(int pcbid, int fd, int exit_code){
+	//armamos payload con cod error
+	if (exit_code!=PROGRAM_DISCONNECT){
+		char *payload=malloc(sizeof(int));
+		memcpy(payload,&exit_code, sizeof(int));
+		package * paquete = crear_paquete(finPrograma,payload,sizeof(int));
+		enviar_paquete(paquete,fd);
+	}
+}
 void eliminarProgramaTabla(int id){
+	//#define FIN_SUCCESS 0
+	//#define SEG_FAULT -1
 	printf("Elimina programa de los dictionary\n");
 	char * key = string_from_format("%d",id);
 	if (dictionary_has_key(kernel->programas,key)){
 		pthread_mutex_lock(&kernel->mutex_programas);
 		t_programa *programa = dictionary_get(kernel->programas,key);
+		int exit_code = programa->exit_code;
+		int fd = programa->fd;
 		dictionary_remove(programasxfd,string_from_format("%d",programa->fd));
 		dictionary_remove(kernel->programas,key);
 		pthread_mutex_unlock(&kernel->mutex_programas);
+		finalizarPrograma(id,fd,exit_code);
 	}
-
 }
 
 
@@ -384,21 +396,7 @@ void gestionarDatos(int fd, package *paquete){
 			agregarProgramaNuevo(cola_new,PCB);
 			sem_post(sem_new);
 			loggeo(); // loguear: informar Programa X -> NEW
-			/*
-
-
-			sleep(10);
-			dictionary_put(bloqueados,string_from_format("%d",PCB->id),PCB);
-			t_progIO *IO = malloc(sizeof(t_progIO));
-			IO->id = PCB->id;
-			IO->unidadesTiempo = 5;
-			t_entradasalida *hiloIO = dictionary_get(entradasalida,"Disco");
-			cola_push(hiloIO->cola,IO);
-			sem_post(hiloIO->semaforo_IO);
-
-			*/
-
-		}
+					}
 		else {
 			eliminarProgramaTabla(PCB->id);
 			rechazarPrograma(fd); // informa por pantalla
@@ -424,6 +422,10 @@ void buscarEnColaDesconectado(int id){
 			pcb =list_get(cola_new,i);
 			if(pcb->id == id){
 				list_remove(cola_new,i);
+				pthread_mutex_lock(kernel->mutex_programas);
+				t_programa * programa =dictionary_get(kernel->programas);
+				programa->exit_code = PROGRAM_DISCONNECT;
+				pthread_mutex_unlock(kernel->mutex_programas);
 				pasarAExit(pcb);
 				sem_wait(sem_new);
 				break;

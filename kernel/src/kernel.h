@@ -9,6 +9,11 @@
 #define KERNEL_H_
 #include <semaphore.h>
 #include <sockets.h>
+#include <parser/parser.h>
+
+#define FIN_PROGRAM_SUCCESS 0
+#define PROGRAM_DISCONNECT -1
+#define PROGRAM_SEG_FAULT -2
 
 typedef struct
 {
@@ -31,11 +36,11 @@ typedef struct
 
 typedef struct
 {
-	int id; // el mismo que el del pcb
+	int id; 	   // el mismo que el del pcb
 	int peso;
-	int fd; // file descriptor para socket.
-	int estado; // estado 1 Activo, 0 Inactivo
-
+	int fd;        // file descriptor para socket.
+	int estado;    // estado 1 Activo, 0 Inactivo
+	int exit_code; // como termino?
 }t_programa;
 
 typedef struct
@@ -48,8 +53,15 @@ typedef struct
 
 typedef struct
 {
+	char *id; //nombre del semaforo
+	int valor;
+	t_cola *cola;
+}t_semaforo;
+typedef struct
+{
 	t_PCB *PCB;
 	int unidadesTiempo;
 }t_progIO;
+
 
 #endif /* KERNEL_H_ */
