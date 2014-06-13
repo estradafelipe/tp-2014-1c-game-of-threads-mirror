@@ -24,6 +24,7 @@ typedef enum nipc_type{
 	handshakeProgKernel,					//08
 	programaNuevo,							//09
 	rechazoPrograma,						//10 - respuesta del Kernel de rechazo al programa
+	finPrograma,
 }t_paquete;
 
 
