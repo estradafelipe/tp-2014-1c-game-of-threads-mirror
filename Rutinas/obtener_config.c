@@ -87,3 +87,11 @@ int obtenerTamanioStack(t_config* config){
 	return(tamanio);
 }
 
+int obtenerLogConsola(t_config* config){
+	char* key = "logConsola";
+	int booleano;
+	booleano = config_get_int_value(config,key);
+
+	return(booleano);
+}
+

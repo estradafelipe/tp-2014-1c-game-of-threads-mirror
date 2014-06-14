@@ -44,4 +44,5 @@ int obtenerAlgoritmoUMV(t_config* config);
 int obtenerTamanioMemoria(t_config* config);
 int obtenerPuerto(t_config* config);
 int obtenerTamanioStack(t_config* config);
+int obtenerLogConsola(t_config* config);
 #endif /* OBTENER_CONFIG_H_ */
