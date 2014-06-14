@@ -91,15 +91,19 @@ int atenderKernel(int fd){
 						enviar_paquete(respuesta,fd);
 					} else {
 						log_debug(logger, "No hubo espacio suficiente, se realizara la compactacion y se volvera a intentar");
+
 						pthread_rwlock_wrlock(&lockSegmentos);
 						pthread_rwlock_wrlock(&lockMemoria);
 						compactar();
 						pthread_rwlock_unlock(&lockMemoria);
 						pthread_rwlock_unlock(&lockSegmentos);
+
 						log_debug(logger, "Volviendo a intentar la creación del segmento");
+
 						pthread_rwlock_wrlock(&lockSegmentos);
 						resultado = crear_segmento(creacionSegmento);
 						pthread_rwlock_unlock(&lockSegmentos);
+
 						if(resultado>=0){//se creo el segmento correctamente
 							log_debug(logger, "El segmento del %d de tamaño %d se creo correctamente",creacionSegmento->programid,creacionSegmento->size);
 							memcpy(answer, &resultado, sizeof(t_puntero));
@@ -139,6 +143,7 @@ int atenderKernel(int fd){
 					//validar si hay segmentation fault
 					if(datos!=NULL){
 						log_debug(logger, "El pedido de lectura fue valido");
+						log_debug(logger, "Los datos obtenidos son: %x",*datos);
 						// responder a la cpu
 						respuesta = crear_paquete(respuestaUmv,datos,solicitudLectura->tamanio);
 						enviar_paquete(respuesta,fd);
@@ -155,7 +160,7 @@ int atenderKernel(int fd){
 					sleep(retardo);
 					//desserializar estructura con la base,offset,tamaño y buffer
 					solicitudEscritura = desserializarSolicitudEscritura(paquete->payload);
-					log_debug(logger, "Es un pedido de escritura con id_programa: %d, base: %d, offset: %d y tamaño: %d",procesoActivo,solicitudEscritura->base,solicitudEscritura->offset,solicitudEscritura->tamanio);
+					log_debug(logger, "Es un pedido de escritura con id_programa: %d, base: %d, offset: %d, tamaño: %d, buffer: %x",procesoActivo,solicitudEscritura->base,solicitudEscritura->offset,solicitudEscritura->tamanio,*solicitudEscritura->buffer);
 					pthread_rwlock_rdlock(&lockSegmentos);
 					resultado = escribir(procesoActivo,solicitudEscritura);
 					pthread_rwlock_unlock(&lockSegmentos);
@@ -231,6 +236,7 @@ int atenderCpu(int fd){
 					//validar si hay segmentation fault
 					if(datos!=NULL){
 						log_debug(logger, "El pedido de lectura fue valido");
+						log_debug(logger, "Los datos obtenidos son: %x",*datos);
 						// responder a la cpu
 						respuesta = crear_paquete(respuestaUmv,datos,solicitudLectura->tamanio);
 						enviar_paquete(respuesta,fd);
@@ -247,7 +253,7 @@ int atenderCpu(int fd){
 					sleep(retardo);
 					//desserializar estructura con la base,offset,tamaño y buffer
 					solicitudEscritura = desserializarSolicitudEscritura(paquete->payload);
-					log_debug(logger, "Es un pedido de escritura con id_programa: %d, base: %d, offset: %d y tamaño: %d",procesoActivo,solicitudEscritura->base,solicitudEscritura->offset,solicitudEscritura->tamanio);
+					log_debug(logger, "Es un pedido de escritura con id_programa: %d, base: %d, offset: %d, tamaño: %d, buffer: %x",procesoActivo,solicitudEscritura->base,solicitudEscritura->offset,solicitudEscritura->tamanio,*solicitudEscritura->buffer);
 					pthread_rwlock_rdlock(&lockSegmentos);
 					resultado = escribir(procesoActivo,solicitudEscritura);
 					pthread_rwlock_unlock(&lockSegmentos);
@@ -330,9 +336,9 @@ void* atenderConsola(){
 				datos = leer(id_programa,reader);
 				pthread_rwlock_unlock(&lockSegmentos);
 				if(datos!=NULL){
-					printf("Los datos obtenidos son: %s\n",datos);
+					printf("Los datos obtenidos son: %x\n",*datos);
 					if(logConsola){
-						log_debug(loggerConsola,"Los datos obtenidos son: %s\n",datos);
+						log_debug(loggerConsola,"Los datos obtenidos son: %x\n",*datos);
 					}
 				} else {
 					printf("Violación de segmento!!!\n");
@@ -397,9 +403,11 @@ void* atenderConsola(){
 					compactar();
 					pthread_rwlock_unlock(&lockMemoria);
 					pthread_rwlock_unlock(&lockSegmentos);
+
 					pthread_rwlock_wrlock(&lockSegmentos);
 					estado = crear_segmento(crear);
 					pthread_rwlock_unlock(&lockSegmentos);
+
 					if(estado>=0){
 						printf("El segmento del %d de tamaño %d se creo correctamente\n",crear->programid,crear->size);
 						if(logConsola){
@@ -418,9 +426,11 @@ void* atenderConsola(){
 					log_debug(loggerConsola,"Es un pedido de destrucción de segmentos");
 				}
 				id_programa = atoi(palabras[2]);
+
 				pthread_rwlock_wrlock(&lockSegmentos);
 				estado = destruir_segmentos(id_programa);
 				pthread_rwlock_unlock(&lockSegmentos);
+
 				if(estado >= 0){
 					printf("Los segmentos del programa %d se borraron correctamente\n",id_programa);
 					if(logConsola){
@@ -517,7 +527,7 @@ void* atenderConsola(){
 					log_debug(loggerConsola,"Comando no reconocido, intente de nuevo\n");
 				}
 			}
-		} else if (strcmp(palabras[0],"script\n")==0){
+		} else if (strcmp(palabras[0],"script\n")==0){// borrar estooo!!!!
 			scriptCreacionSegmentos();
 
 		} else {
@@ -606,7 +616,6 @@ int escribir(int id_programa,t_solicitudEscritura* solicitud){
 	if(segmentoBuscado!=NULL){
 		paraEscribir = solicitud->base + solicitud->offset + solicitud->tamanio - 1;
 		int maximo = segmentoBuscado->tamanio + segmentoBuscado->base_logica - 1;
-		printf("Para escribir hay %d y la base es %d y el limite es %d\n",paraEscribir,segmentoBuscado->base_logica,maximo);
 		if(segmentoBuscado->base_logica <= paraEscribir && paraEscribir <= maximo ){
 			pthread_rwlock_wrlock(&lockMemoria);
 			memcpy(segmentoBuscado->base+solicitud->offset,solicitud->buffer,solicitud->tamanio);
@@ -909,10 +918,10 @@ int imprimir_segmentos_memoria(){
 int imprimir_contenido(int offset, int tamanio){
 	char* datos = malloc(tamanio);
 	memcpy(datos,bloqueDeMemoria+offset,tamanio);
-	printf("El contenido a partir de la posicion %d y tamaño %d es: %s\n", offset, tamanio,datos);//imprimir datos en hexa??
+	printf("El contenido a partir de la posicion %d y tamaño %d es: %x\n", offset, tamanio, *datos);//imprimir datos en hexa??
 
 	if(logConsola){
-		log_debug(loggerConsola,"El contenido a partir de la posicion %d y tamaño %d es: %s", offset, tamanio,datos);
+		log_debug(loggerConsola,"El contenido a partir de la posicion %d y tamaño %d es: %x", offset, tamanio, *datos);
 	}
 
 	return 0;

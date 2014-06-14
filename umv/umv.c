@@ -30,8 +30,8 @@ int main(int argc, char **argv){
 	logConsola = obtenerLogConsola(configUMV);
 
 /* Fin obtener datos */
-	printf("El tamaño de memoria es %d, el puerto es %d, el algoritmo es: %s y el retardo es: %d\n",tamanioMemoria,puerto,algoritmo==1?"FIRST-FIT":"WORST-FIT",retardo);
-	log_info(logger,"El tamaño de memoria es %d, el puerto es %d, el algoritmo es: %s y el retardo es: %d",tamanioMemoria,puerto,algoritmo==1?"FIRST-FIT":"WORST-FIT",retardo);
+	printf("El tamaño de memoria es %d, el puerto es %d, el algoritmo es: %s y el retardo es: %d milisegundos\n",tamanioMemoria,puerto,algoritmo==1?"FIRST-FIT":"WORST-FIT",retardo*1000);
+	log_info(logger,"El tamaño de memoria es %d, el puerto es %d, el algoritmo es: %s y el retardo es: %d milisegundos",tamanioMemoria,puerto,algoritmo==1?"FIRST-FIT":"WORST-FIT",retardo*1000);
 /* Pido la memoria que va a tener disponible el sistema */
 	bloqueDeMemoria = malloc(tamanioMemoria);
 	printf("Se creo el bloque de memoria con direccion inicial %p\n",&bloqueDeMemoria);
