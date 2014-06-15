@@ -35,6 +35,17 @@ sem_t *sem_new;
 
 pthread_mutex_t mutex_new = PTHREAD_MUTEX_INITIALIZER;
 
+
+void actualizarExit_Code(int pcbid,int exit_code){
+	char *key = string_from_format("%d",pcbid);
+	if (dictionary_has_key(kernel->programas,key)){
+		pthread_mutex_lock(&kernel->mutex_programas);
+		t_programa * programa = dictionary_get(kernel->programas,key);
+		programa->exit_code = exit_code;
+		pthread_mutex_unlock(&kernel->mutex_programas);
+	}
+}
+
 void destruirSegmentos(int pcbid){
 
 	char *payload = malloc(sizeof(int));
@@ -237,7 +248,7 @@ void enviarMsgPrograma(int fd, char *msg){
 }
 void finalizarPrograma(int pcbid, int fd, int exit_code){
 	//armamos payload con cod error
-	if (exit_code!=PROGRAM_DISCONNECT){
+	if ((exit_code!=PROGRAM_DISCONNECT)&&(exit_code!=PROGRAM_SEGSIZE_FAULT)){
 		char *payload=malloc(sizeof(int));
 		memcpy(payload,&exit_code, sizeof(int));
 		package * paquete = crear_paquete(finPrograma,payload,sizeof(int));
@@ -398,6 +409,7 @@ void gestionarDatos(int fd, package *paquete){
 			loggeo(); // loguear: informar Programa X -> NEW
 					}
 		else {
+			actualizarExit_Code(PCB->id,PROGRAM_SEGSIZE_FAULT);
 			eliminarProgramaTabla(PCB->id);
 			rechazarPrograma(fd); // informa por pantalla
 		}
@@ -422,10 +434,6 @@ void buscarEnColaDesconectado(int id){
 			pcb =list_get(cola_new,i);
 			if(pcb->id == id){
 				list_remove(cola_new,i);
-				pthread_mutex_lock(kernel->mutex_programas);
-				t_programa * programa =dictionary_get(kernel->programas);
-				programa->exit_code = PROGRAM_DISCONNECT;
-				pthread_mutex_unlock(kernel->mutex_programas);
 				pasarAExit(pcb);
 				sem_wait(sem_new);
 				break;
@@ -442,11 +450,14 @@ void detectoDesconexion(int fd){
 	if (dictionary_has_key(programasxfd,string_from_format("%d",fd))){
 		int *id = dictionary_get(programasxfd,string_from_format("%d",fd));
 		char *key = string_from_format("%d",*id);
-		pthread_mutex_lock(&kernel->mutex_programas);
-		t_programa * programa = dictionary_get(kernel->programas,key);
-		programa->estado =0;
-		pthread_mutex_unlock(&kernel->mutex_programas);
-		buscarEnColaDesconectado(programa->id); // busca en cola de New
+		if (dictionary_has_key(kernel->programas,key)){
+			pthread_mutex_lock(&kernel->mutex_programas);
+			t_programa * programa = dictionary_get(kernel->programas,key);
+			programa->estado =0;
+			programa->exit_code = PROGRAM_DISCONNECT;
+			pthread_mutex_unlock(&kernel->mutex_programas);
+			buscarEnColaDesconectado(*id); // busca en cola de New
+		}
 	}
 }
 

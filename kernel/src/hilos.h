@@ -25,6 +25,6 @@ void crea_tablasSitema();
 void hiloIO(t_entradasalida *IO);
 void crea_hilosIO(char* key, t_entradasalida *IO);
 void imprimepantalla(char * key, t_entradasalida *IO);
-void wait_semaforo(char *semaforo,t_PCB *PCB);
+void wait_semaforo(char *semaforo,uint32_t fd);
 void signal_semaforo(char *semaforo);
 #endif /* HILOS_H_ */

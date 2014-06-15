@@ -32,8 +32,7 @@ t_cola *cola_ready;
 t_cola *cola_exit;
 t_cola *cola_block;
 char *pathconfig;
-t_dictionary *semaforos;
-t_dictionary *entradasalida;
+
 pthread_mutex_t mutex_ready = PTHREAD_MUTEX_INITIALIZER;
 
 void leerconfiguracion(char *path_config){
@@ -78,8 +77,10 @@ void leerconfiguracion(char *path_config){
 		kernel->entradasalidaret =	config_get_array_value(config,key);
 
 	kernel->programas = dictionary_create();
+	kernel->cpus = dictionary_create();
 	pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 	kernel->mutex_programas = mutex;
+	kernel->mutex_cpus = mutex;
   }
 
 
@@ -107,7 +108,7 @@ int main(int argc, char**argv) {
 
 
 	// Crea hilos I/O
-	dictionary_iterator(entradasalida,(void*)crea_hilosIO);
+	dictionary_iterator(kernel->entradasalida,(void*)crea_hilosIO);
 
 	int thr;
 

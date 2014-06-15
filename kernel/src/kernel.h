@@ -14,6 +14,7 @@
 #define FIN_PROGRAM_SUCCESS 0
 #define PROGRAM_DISCONNECT -1
 #define PROGRAM_SEG_FAULT -2
+#define PROGRAM_SEGSIZE_FAULT -3
 
 typedef struct
 {
@@ -31,7 +32,11 @@ typedef struct
 	int sizeStack; // en bytes
 	t_puntero fd_UMV;
 	t_dictionary *programas;
+	t_dictionary *cpus;
+	t_dictionary *semaforos;
+	t_dictionary *entradasalida;
 	pthread_mutex_t mutex_programas;
+	pthread_mutex_t mutex_cpus;
 }t_kernel;
 
 typedef struct
@@ -55,6 +60,7 @@ typedef struct
 {
 	char *id; //nombre del semaforo
 	int valor;
+	pthread_mutex_t *mutex;
 	t_cola *cola;
 }t_semaforo;
 typedef struct
@@ -63,5 +69,10 @@ typedef struct
 	int unidadesTiempo;
 }t_progIO;
 
+typedef struct
+{
+	uint32_t fd;     // file descriptor para socket del CPU
+	uint32_t id_pcb; // ID PCB
+}t_CPU;
 
 #endif /* KERNEL_H_ */
