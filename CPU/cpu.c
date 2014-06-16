@@ -23,20 +23,28 @@
 
 void *recuperar_diccionario(int32_t);
 
+
+//Defino variables globales a la CPU
 t_dictionary *diccionario;
 t_PCB *pcb;
 int socketKernel, socketUMV;
 
 int main(int argc, char **argv){
+
+	//Creo el diccionario de variables
 	diccionario = dictionary_create();
 
+	//Defino los paquetes y reservo la memoria
 	package* packagePCB = malloc(sizeof(package));
 	package* paq = malloc(sizeof(package));
 
+	//Defino variables locales
 	int32_t programcounter, segmentoCodigo, indiceCodigo;
 
+	//Defino solicitud de lectura y reservo espacio
 	t_solicitudLectura *sol = malloc(sizeof(t_solicitudLectura));
 
+	//Defino las estructuras para la configuracion del kernel y la UMV
 	t_config *configKernel = config_create((char*)argv[1]);
 	t_config *configUMV = config_create((char*)argv[1]);
 
@@ -45,23 +53,24 @@ int main(int argc, char **argv){
 
 	pcb = malloc(sizeof(t_PCB));
 
-
-
-
+	//levanto configuracion del kernel
 	kernel.ip = malloc((sizeof(char))*15);
 	kernel.port = obtenerPuerto(configKernel);
 	kernel.ip = obtenerIP(configKernel);
 	kernel.tamanioStack = obtenerTamanioStack(configKernel);
 
+	//levanto configuracion de la UMV
 	umvIP.ip = malloc((sizeof(char))*15);
 	umvIP.ip = obtenerIP(configUMV);
 	umvIP.port = obtenerPuerto(configKernel);
 
+	//me conecto al kernel (falta hacer el handshake)
 	socketKernel = abrir_socket();
-	conectar_socket(socketKernel, kernel.ip, (int)kernel.port); // me conecto al kernel (hacer handshake)
+	conectar_socket(socketKernel, kernel.ip, (int)kernel.port);
 
+	//me conecto a la UMV
 	socketUMV = abrir_socket();
-	conectar_socket(socketUMV,umvIP.ip, (int)umvIP.port); // me conecto a la UMV
+	conectar_socket(socketUMV,umvIP.ip, (int)umvIP.port);
 
 
 	while(1){ //para recibir los PCB
@@ -109,23 +118,25 @@ int main(int argc, char **argv){
 
 				quantumPrograma ++;
 		}
-			dictionary_clean(diccionario); //limpia el diccionario de variables
+			dictionary_clean(diccionario); //limpio el diccionario de variables
 	}
 	return 0;
 }
 
 t_puntero definirVariable(t_nombre_variable identificador_variable){
-	char* var = (char*)identificador_variable; //TODO: Preguntar si esta bien.
+
+	char* var = malloc(sizeof(t_nombre_variable)+1);
+	sprintf(var,"%c",identificador_variable);
 	uint32_t sizeContext = pcb->sizeContext;
 	t_solicitudEscritura *sol =  malloc(sizeof(t_solicitudEscritura));
 	package* package_escritura = malloc(sizeof(package));
 	package* package_respuesta = malloc(sizeof(package));
 	t_puntero puntero;
 
-	sol->base = pcb->segmentoStack;
-	sol->offset = pcb->cursorStack + sizeContext*5;
+	sol->base = pcb->segmentoStack + pcb->cursorStack;
+	sol->offset = sizeContext*5;
 	sol->tamanio = TAMANIO_ID_VAR;
-	memcpy(sol->buffer,var,strlen(var)); //TODO: Preguntar si esta bien
+	memcpy(sol->buffer,var,strlen(var)); //TODO: Preguntar
 
 	puntero = (uint32_t)sol->offset;
 
@@ -135,14 +146,16 @@ t_puntero definirVariable(t_nombre_variable identificador_variable){
 	enviar_paquete(package_escritura,socketUMV);
 
 	package_respuesta = recibir_paquete(socketUMV);
+	int payload;
+	memcpy(&payload, package_respuesta->payload, sizeof(package_respuesta->payload));
 
-	if (respuesta->payload == "Segmentation Fault"){
+	if ((payload) == -1){
 		printf("Fallo la escritura\n");
-		exit();
+		exit(1);
 		//TODO: ver como notificamos al kernel;
 	}
 
-	dictionary_put(diccionario, var, puntero);
+	dictionary_put(diccionario, var,(void*) puntero);
 
 	pcb->sizeContext++;
 
@@ -150,8 +163,9 @@ t_puntero definirVariable(t_nombre_variable identificador_variable){
 }
 
 t_puntero obtenerPosicionVariable(t_nombre_variable identificador_variable ){
-	char* key = (char*)identificador_variable; // TODO: Preguntar si esta bien.
-	t_puntero posicion = dictionary_get(diccionario, key);
+	char* key = malloc(sizeof(t_nombre_variable)+1);
+	sprintf(key,"%c",identificador_variable);
+	t_puntero posicion = (t_puntero) dictionary_get(diccionario, key);
 	return posicion;
 }
 
@@ -176,7 +190,7 @@ t_valor_variable dereferenciar(t_puntero direccion_variable){
 void asignar(t_puntero direccion_variable, t_valor_variable valor){
 	package* solicitudEscritura = malloc(sizeof(package));
 	package* respuesta = malloc(sizeof(package));
-	t_solicitudEscritura* sol = malloc(sizeof(t_solicitudLecutra));
+	t_solicitudEscritura* sol = malloc(sizeof(t_solicitudEscritura));
 
 	sol->base = pcb->segmentoStack;
 	sol->offset = direccion_variable + 1;
@@ -198,12 +212,9 @@ t_valor_variable asignarValorCompartida(t_nombre_compartida variable, t_valor_va
 	//TODO
 }
 t_puntero_instruccion irAlLabel(t_nombre_etiqueta etiqueta){
-
+	//TODO
 }
-
-
 void *recuperar_diccionario(int32_t cant_var){
-	diccionario = dictionary_create();
 	t_solicitudLectura *sol = malloc(sizeof(t_solicitudLectura));
 	int32_t cursorStack = pcb->cursorStack;
 	package* solicitudLectura = malloc(sizeof(package));
@@ -223,10 +234,9 @@ void *recuperar_diccionario(int32_t cant_var){
 				//TODO: Verificar que todo haya salido bien
 				char* var = paq->payload;
 				t_puntero puntero;
-				puntero = sol->base + sol->offset;
+				puntero = sol->offset;
 
 				dictionary_put(diccionario, var,(void*)puntero);
 				cant_var --;
-					}
-
-		}
+			}
+}
