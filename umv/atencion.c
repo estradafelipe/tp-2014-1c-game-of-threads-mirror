@@ -70,10 +70,6 @@ int atenderKernel(int fd){
 		if(bytesRecibidos>0){
 			log_debug(logger, "Se recibio algo del KERNEL");
 			switch(tipo){
-				case cambioProcesoActivo: // es posible que este de mas!!!
-					//deserializar para obtener el id_programa
-					//procesoActivo = id_programa;
-					break;
 				case creacionSegmentos:
 					sleep(retardo);
 					log_debug(logger, "Es un pedido de creacion de segmento");
@@ -223,7 +219,8 @@ int atenderCpu(int fd){
 			switch(tipo){
 				case cambioProcesoActivo:
 					//deserializar para obtener el id_programa
-					//procesoActivo = id_programa;
+					memcpy(&resultado,paquete->payload,sizeof(t_puntero));
+					procesoActivo = resultado;
 					break;
 				case lectura:
 					sleep(retardo);
