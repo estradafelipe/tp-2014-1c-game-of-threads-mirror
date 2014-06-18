@@ -16,6 +16,7 @@
 #include <parser/parser.h>
 #include <colas.h>
 #include <string.h>
+#include <signal.h>
 
 #define TAMANIO_SEG 8
 #define TAMANIO_ID_VAR 1
@@ -28,8 +29,19 @@ void *recuperar_diccionario(int32_t);
 t_dictionary *diccionario;
 t_PCB *pcb;
 int socketKernel, socketUMV;
+int desconectarse = false;
+
+//Defino el interrupt handler
+void rutina(int n){
+	switch(n){
+	 case SIGUSR1:
+		 desconectarse = true;
+	}
+}
 
 int main(int argc, char **argv){
+
+	signal(SIGUSR1, rutina);
 
 	//Creo el diccionario de variables
 	diccionario = dictionary_create();
@@ -119,6 +131,13 @@ int main(int argc, char **argv){
 				quantumPrograma ++;
 		}
 			dictionary_clean(diccionario); //limpio el diccionario de variables
+			//Devuelvo el pcb al kernel
+			if (desconectarse == true){
+				// Aviso al kernel que me desconecto
+					}
+			else{
+				// Aviso al kernel que estoy disponible
+			}
 	}
 	return 0;
 }
@@ -147,12 +166,12 @@ t_puntero definirVariable(t_nombre_variable identificador_variable){
 
 	package_respuesta = recibir_paquete(socketUMV);
 	int payload;
-	memcpy(&payload, package_respuesta->payload, sizeof(package_respuesta->payload));
+	memcpy(&payload, package_respuesta->payload, package_respuesta->payloadLength);
 
 	if ((payload) == -1){
-		printf("Fallo la escritura\n");
+		printf("Violacion de segmento\n");
 		exit(1);
-		//TODO: ver como notificamos al kernel;
+		//TODO: avisar al kernel que hubo violacion de segmento para que mate al programa
 	}
 
 	dictionary_put(diccionario, var,(void*) puntero);
@@ -202,7 +221,12 @@ void asignar(t_puntero direccion_variable, t_valor_variable valor){
 	enviar_paquete(solicitudEscritura, socketUMV);
 
 	respuesta = recibir_paquete(socketUMV);
-	//Verificar rta de UMV
+
+	if ((payload) == -1){
+		printf("Violacion de segmento\n");
+		exit(1);
+		//TODO: avisar al kernel que hubo violacion de segmento para que mate al programa
+	}
 }
 
 t_valor_variable obtenerValorCompartida(t_nombre_compartida variable){
