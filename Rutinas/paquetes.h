@@ -24,7 +24,12 @@ typedef enum nipc_type{
 	handshakeProgKernel,					//08
 	programaNuevo,							//09
 	rechazoPrograma,						//10 - respuesta del Kernel de rechazo al programa
-	finPrograma,
+	finPrograma,							//
+	handshakeKernelCPU,
+	wait,									// wait de la CPU al Kernel
+	signal,									// signal de la CPU al kernel
+	bloquearProgramaCPU,					// bloquear programa de kernel a CPU
+	semaforolibre,							// via libre kernel a CPU como respuesta a un wait
 }t_paquete;
 
 
