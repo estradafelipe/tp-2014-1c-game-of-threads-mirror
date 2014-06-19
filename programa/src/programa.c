@@ -99,6 +99,20 @@ int main(int argc, char **argv) {
 				// DEFINIR LOS != MENSAJES DE ERROR
 			}
 
+			if (paquete_nuevo->type==programaImprimir){
+				int *valor_mostrar = malloc(paquete_nuevo->payloadLength);
+				memcpy(&valor_mostrar,paquete_nuevo->payload,paquete_nuevo->payloadLength);
+				printf("%d",*valor_mostrar);
+
+			}
+			if (paquete_nuevo->type==programaImprimirTexto){
+				char *texto = malloc(paquete_nuevo->payloadLength);
+				memcpy(texto,paquete_nuevo->payload,paquete_nuevo->payloadLength);
+				printf("%s",texto);
+
+			}
+
+
 		}
 
 
