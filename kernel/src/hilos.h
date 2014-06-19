@@ -16,6 +16,7 @@
 #include <parser/metadata_program.h>
 #include <commons/collections/list.h>
 #include <commons/collections/dictionary.h>
+#include <commons/log.h>
 #include <commons/config.h>
 #include "kernel.h"
 #include "plp.h"
@@ -27,4 +28,5 @@ void crea_hilosIO(char* key, t_entradasalida *IO);
 void imprimepantalla(char * key, t_entradasalida *IO);
 void wait_semaforo(char *semaforo,uint32_t fd);
 void signal_semaforo(char *semaforo);
+
 #endif /* HILOS_H_ */

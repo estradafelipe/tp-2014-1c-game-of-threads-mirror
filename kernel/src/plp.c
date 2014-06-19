@@ -17,6 +17,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <commons/collections/dictionary.h>
+#include <commons/log.h>
 #include <sockets.h>
 #include <colas.h>
 #include <semaphore.h>
@@ -27,6 +28,7 @@ extern t_kernel *kernel;
 extern int ultimoid;
 extern t_cola *cola_ready;
 extern t_cola *cola_exit;
+extern t_log *logger;
 t_list *cola_new;
 t_dictionary *programasxfd;
 extern sem_t *sem_exit;
@@ -54,13 +56,14 @@ void destruirSegmentos(int pcbid){
 	enviar_paquete(paquete,kernel->fd_UMV);
 
 }
+
 t_puntero recibirSegmento(){
 	t_puntero segmento;
 	package *paquete_recibido = recibir_paquete(kernel->fd_UMV);
 	if (paquete_recibido->type == respuestaUmv){
 		memcpy(&segmento,paquete_recibido->payload, sizeof(t_puntero));
-		if (segmento!=-1) printf("Base del nuevo segmento: %d\n",segmento);
-		else printf("No hubo espacio suficiente para el segmento");
+		if (segmento!=-1) log_debug(logger,string_from_format("Base del nuevo segmento: %d\n",segmento));
+		else log_debug(logger,string_from_format("No hubo espacio suficiente para el segmento"));
 	}
 	free(paquete_recibido);
 	return segmento;
@@ -70,15 +73,15 @@ t_puntero recibirRespuestaEscritura(){
 	package *paquete_recibido = recibir_paquete(kernel->fd_UMV);
 	if (paquete_recibido->type == respuestaUmv){
 		memcpy(&bytesEscritos,paquete_recibido->payload, sizeof(t_puntero));
-		if (bytesEscritos==-1) printf("Error al escribir en el segmento (UMV)\n");
-		else printf("Escritura en el segmento: %d\n",bytesEscritos);
+		if (bytesEscritos==-1) log_debug(logger,string_from_format("Error al escribir en el segmento (UMV)\n"));
+		else log_debug(logger,string_from_format("Escritura en el segmento: %d\n",bytesEscritos));
 	}
 	free(paquete_recibido);
 	return bytesEscritos;
 }
 //base,offset,size,buffer
 int enviarBytesUMV(t_puntero base, t_puntero size, void * buffer){
-	printf("solicito escritura en segmento %d, tamanio: %d\n ",base,size);
+	log_debug(logger,string_from_format("solicito escritura en segmento %d, tamanio: %d\n ",base,size));
 	t_solicitudEscritura *envioBytes = malloc(sizeof(t_solicitudEscritura));
 	// Segmento de Codigo
 	envioBytes->base = base;
@@ -258,7 +261,7 @@ void finalizarPrograma(int pcbid, int fd, int exit_code){
 void eliminarProgramaTabla(int id){
 	//#define FIN_SUCCESS 0
 	//#define SEG_FAULT -1
-	printf("Elimina programa de los dictionary\n");
+	log_debug(logger,string_from_format("Elimina programa de los dictionary\n"));
 	char * key = string_from_format("%d",id);
 	if (dictionary_has_key(kernel->programas,key)){
 		pthread_mutex_lock(&kernel->mutex_programas);
@@ -279,9 +282,9 @@ void rechazarPrograma(int fd){
 
 t_medatada_program* preprocesar(char *buffer){
 	t_medatada_program *programa = metadata_desde_literal(buffer);
-	printf("Cantidad de Etiquetas:%d\n",programa->cantidad_de_etiquetas);
-	printf("Cantidad de Funciones:%d\n",programa->cantidad_de_funciones);
-	printf("Cantidad de Instrucciones:%d\n",(int)programa->instrucciones_size);
+	log_debug(logger,string_from_format("Cantidad de Etiquetas:%d\n",programa->cantidad_de_etiquetas));
+	log_debug(logger,string_from_format("Cantidad de Funciones:%d\n",programa->cantidad_de_funciones));
+	log_debug(logger,string_from_format("Cantidad de Instrucciones:%d\n",(int)programa->instrucciones_size));
 	return programa;
 }
 
@@ -363,7 +366,7 @@ void hiloSacaExit(){
 
 	while(1){
 		sem_wait(sem_exit);
-		printf("Hilo Exit, se libero el semaforo\n");
+		log_debug(logger,string_from_format("Hilo Exit, se libero el semaforo\n"));
 		t_PCB *programa = cola_pop(cola_exit);
 		liberarRecursosUMV(programa);
 		eliminarProgramaTabla(programa->id);
@@ -377,7 +380,7 @@ void hiloMultiprogramacion(){
 	while(1){
 		sem_wait(sem_multiprogramacion);
 		sem_wait(sem_new);
-		printf("paso el sem de multiprogramacion y de new\n");
+		log_debug(logger,string_from_format("paso el sem de multiprogramacion y de new\n"));
 		siguienteSJN(cola_new);
 		// informar NEW -> Programa X -> READY
 		loggeo();
@@ -394,7 +397,7 @@ void gestionarDatos(int fd, package *paquete){
 
 
 	if (paquete->type == handshakeProgKernel){
-		printf("Recibi handshake del progrmaa\n");
+		log_debug(logger,string_from_format("Recibi handshake del progrmaa\n"));
 		saludarPrograma(fd);
 	}
 
@@ -446,7 +449,7 @@ void buscarEnColaDesconectado(int id){
 /* Actualiza el estado de un programa que se desconecto*/
 void detectoDesconexion(int fd){
 
-	printf("detecto la desconexion, actualiza estado del programa\n");
+	log_debug(logger,string_from_format("detecto la desconexion, actualiza estado del programa\n"));
 	if (dictionary_has_key(programasxfd,string_from_format("%d",fd))){
 		int *id = dictionary_get(programasxfd,string_from_format("%d",fd));
 		char *key = string_from_format("%d",*id);
@@ -470,7 +473,7 @@ void recibirProgramas(void){
 	FD_ZERO(&master); // borra los conjuntos maestro y temporal
 	FD_ZERO(&read_fds);
 	struct sockaddr_in remoteaddr; // dirección del cliente
-	printf("HILO recibirProgramas\n");
+	log_debug(logger,string_from_format("HILO recibirProgramas\n"));
 
 	int listensocket = abrir_socket();
 	vincular_socket(listensocket,kernel->puertoprog);
@@ -520,9 +523,9 @@ void recibirProgramas(void){
 					else {
 
 						if (paquete->type == handshakeProgKernel)
-							printf("Handshake del socket %d, tamanio:%d\n",i,strlen(strdup(paquete->payload)));
+							log_debug(logger,string_from_format("Handshake del socket %d, tamanio:%d\n",i,strlen(strdup(paquete->payload))));
 						else
-							printf("Mensaje del socket %d, tamanio:%d\n",i,paquete->payloadLength);
+							log_debug(logger,string_from_format("Mensaje del socket %d, tamanio:%d\n",i,paquete->payloadLength));
 						gestionarDatos(i,paquete);
 					}
 					free(paquete);
@@ -549,20 +552,20 @@ void hiloPLP(){
 	pthread_t * progthr = malloc(sizeof(pthread_t)); // hilo q recibe programas
 	thr = pthread_create( progthr, NULL, (void*)recibirProgramas, NULL);
 	if (thr== 0)
-		printf("Se creo el hilo q recibe programas lo mas bien\n");//se pudo crear el hilo
-	else printf("no se pudo crear el hilo\n");//no se pudo crear el hilo
+		log_debug(logger,string_from_format("Se creo el hilo q recibe programas lo mas bien\n"));//se pudo crear el hilo
+	else log_debug(logger,string_from_format("no se pudo crear el hilo que recibe programas\n"));//no se pudo crear el hilo
 
 	pthread_t * multithr = malloc(sizeof(pthread_t)); // hilo q recibe programas
 	thr = pthread_create( multithr, NULL, (void*)hiloMultiprogramacion, NULL);
 	if (thr== 0)
-		printf("Se creo el hilo q controla multiprogramacion lo mas bien\n");
-	else printf("no se pudo crear el hilo\n");
+		log_debug(logger,string_from_format("Se creo el hilo q controla multiprogramacion lo mas bien\n"));
+	else log_debug(logger,string_from_format("no se pudo crear el hilo de multiprogramacion\n"));
 
 	pthread_t * exitthr = malloc(sizeof(pthread_t)); // hilo q recibe programas
 	thr = pthread_create( exitthr, NULL, (void*)hiloSacaExit, NULL);
 	if (thr== 0)
-		printf("Se creo el hilo q saca de exit lo mas bien\n");//se pudo crear el hilo
-	else printf("no se pudo crear el hilo\n");//no se pudo crear el hilo
+		log_debug(logger,string_from_format("Se creo el hilo q saca de exit lo mas bien\n"));//se pudo crear el hilo
+	else log_debug(logger,string_from_format("no se pudo crear el hilo que saca de exit\n"));//no se pudo crear el hilo
 
 
 }
