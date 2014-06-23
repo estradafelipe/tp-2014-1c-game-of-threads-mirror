@@ -186,3 +186,4 @@ t_solicitudEscritura* desserializarSolicitudEscritura(char* solicitud){
 	return solic;
 }
 
+

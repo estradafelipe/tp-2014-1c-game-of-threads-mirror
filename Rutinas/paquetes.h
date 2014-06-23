@@ -24,6 +24,11 @@ typedef enum nipc_type{
 	handshakeProgKernel,					//08
 	programaNuevo,							//09
 	rechazoPrograma,						//10 - respuesta del Kernel de rechazo al programa
+	handshakeKernelCpu,						//11
+	cpuDisponible,							//12
+	cpuDesconectada,						//13
+	solicitarValorVariableCompartida,
+	asignarValorVariableCompartida,
 	finPrograma,							//
 	handshakeKernelCPU,
 	wait,									// wait de la CPU al Kernel

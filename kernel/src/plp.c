@@ -144,12 +144,15 @@ bool solicitarSegmentosUMV(char *codigo, uint16_t codigoSize, t_medatada_program
 		return false;
 	} else pcb->segmentoStack = dirSegmento;
 
-	if (programa->etiquetas_size){
+	if (programa->etiquetas_size>0){
 		//Indice de Etiquetas
 		dirSegmento = solicitudSegmento(pcb->id,programa->etiquetas_size);
 		if(dirSegmento == -1){
 			return false;
-		} else pcb->indiceEtiquetas = dirSegmento;
+		} else {
+			pcb->indiceEtiquetas = dirSegmento;
+			pcb->sizeIndexLabel = programa->etiquetas_size;
+		}
 	}
 
 	//Indice de Codigo
@@ -213,6 +216,7 @@ void agregarProgramaNuevo(t_list *cola_new, t_PCB *element){
 
 void pasarAReady(t_PCB *element){
 	cola_push(cola_ready,element);
+	log_debug(logger,string_from_format("Pasa a READY: Programa %d\n",element->id));
 }
 
 void siguienteSJN(t_list *cola_new){
@@ -309,6 +313,7 @@ t_PCB *crearPCB(int fd, t_medatada_program *element){
 	dictionary_put(kernel->programas,key, programa);
 	pthread_mutex_unlock(&kernel->mutex_programas);
 	dictionary_put(programasxfd,string_from_format("%d",fd),&pcb->id);
+	log_debug(logger,string_from_format("Creo PCB: Programa %d, Peso %d\n",programa->id,programa->peso));
 	return pcb;
 }
 
@@ -371,7 +376,7 @@ void hiloSacaExit(){
 		liberarRecursosUMV(programa);
 		eliminarProgramaTabla(programa->id);
 		//free(programa);
-		//sem_post(sem_multiprogramacion); !!!!
+		//sem_post(sem_multiprogramacion); este semaforo se incrementa cuando pasa a Exit!!!!
 	}
 }
 
@@ -383,7 +388,7 @@ void hiloMultiprogramacion(){
 		log_debug(logger,string_from_format("paso el sem de multiprogramacion y de new\n"));
 		siguienteSJN(cola_new);
 		// informar NEW -> Programa X -> READY
-		loggeo();
+
 	}
 }
 void saludarPrograma(int fd){
@@ -409,9 +414,10 @@ void gestionarDatos(int fd, package *paquete){
 		if (solicitarSegmentosUMV(paquete->payload,paquete->payloadLength,programa,PCB)) {
 			agregarProgramaNuevo(cola_new,PCB);
 			sem_post(sem_new);
-			loggeo(); // loguear: informar Programa X -> NEW
-					}
+			log_debug(logger,string_from_format("Pasa a NEW: Programa %d\n",PCB->id));
+		}
 		else {
+			log_debug(logger,string_from_format("PROGRAMA RECHAZADO: Programa %d\n",PCB->id));
 			actualizarExit_Code(PCB->id,PROGRAM_SEGSIZE_FAULT);
 			eliminarProgramaTabla(PCB->id);
 			rechazarPrograma(fd); // informa por pantalla
@@ -423,7 +429,7 @@ void gestionarDatos(int fd, package *paquete){
 
 void pasarAExit(t_PCB *pcb){
 	cola_push(cola_exit,pcb);
-	loggeo();
+	log_debug(logger,string_from_format("Paso a EXIT: Programa %d\n",pcb->id));
 	sem_post(sem_exit);
 }
 
@@ -432,8 +438,9 @@ void buscarEnColaDesconectado(int id){
 	pthread_mutex_lock(&mutex_new);
 	int size = list_size(cola_new);
 	int i =0;
+
 	if (size > 0){
-		while(i<=size){
+		while(i<size){
 			pcb =list_get(cola_new,i);
 			if(pcb->id == id){
 				list_remove(cola_new,i);
@@ -452,6 +459,7 @@ void detectoDesconexion(int fd){
 	log_debug(logger,string_from_format("detecto la desconexion, actualiza estado del programa\n"));
 	if (dictionary_has_key(programasxfd,string_from_format("%d",fd))){
 		int *id = dictionary_get(programasxfd,string_from_format("%d",fd));
+		log_debug(logger,string_from_format("programa:%d\n",*id));
 		char *key = string_from_format("%d",*id);
 		if (dictionary_has_key(kernel->programas,key)){
 			pthread_mutex_lock(&kernel->mutex_programas);
