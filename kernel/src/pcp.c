@@ -21,12 +21,6 @@
 #include <semaphore.h>
 #include <pthread.h>
 
-#define ERROR_ESCRITURA_CPU -1
-#define EXITO_ENVIO_PCB_A_CPU 0
-#define ERROR_RESPUESTA_CPU -2
-#define CPU_NO_DISPONIBLE -1
-#define CPU_DISPONIBLE NULL
-
 /* Crear cola ejecutando y disponibles para CPUs*/
 
 t_dictionary *cpus;
@@ -35,12 +29,6 @@ extern t_cola *cola_exit;
 extern t_kernel *kernel;
 t_cola *cpus_disponibles=cola_create();
 //t_cola *cpus_en_ejecucion=cola_create();
-
-char * entero_a_cadena(uint32_t numero){
-        char *cadena=malloc(sizeof(uint32_t));
-        sprintf(cadena, "%d", numero);
-        return cadena;
-}
 
 /*  Hilo que recibe los cpu (select) */
 void recibirCPU(void){
@@ -107,7 +95,7 @@ void recibirCPU(void){
 							printf("Handshake del socket %d, tamanio:%d\n",i,strlen(strdup(paquete->payload)));
 						else
 							printf("Mensaje del socket %d, tamanio:%d\n",i,paquete->payloadLength);
-						(tabla_operaciones[paquete->type])(i,paquete->payload);
+						(tabla_operaciones[paquete->type])(i, paquete->payload, nbytes);
 					}
 					free(paquete);
 				}
@@ -146,114 +134,171 @@ void enviarQuantum(int fd){
 	free(paquete);
 }
 
-void opHandshakeKernelCPU(int fd){
-	printf("Recibi handshake de CPU\n");
+void imprimirMensajeDeCPU(char * payload, int longitud){
+	char * mensaje=malloc(longitud +1);
+	memcpy(mensaje, payload, longitud);
+	memcpy(mensaje+longitud, "\0", 1);
+	printf("Pedido inicio conexión CPU: %s\n", mensaje);
+	free(mensaje);
+}
+
+void opHandshakeKernelCPU(int fd, char * payload, int longitudMensaje){
+	printf("Mensaje de CPU: %d\n", fd);
+	imprimirMensajeDeCPU(payload, longitudMensaje);
 	saludarCPU(fd);
 	enviarQuantum(fd);
 }
 
 t_CPU *crearEstructuraCPU(int fd){
 	t_CPU *cpu=malloc(sizeof(t_CPU));
-/*	char * cadena=malloc(3+sizeof(uint32_t)+1);
-	strcat(cadena, "cpu");
-	strcat(cadena, entero_a_cadena(fd));
-	cpu->id=dictionary_hash(cadena, strlen(cadena));*/
 	cpu->fd=fd;
-	cpu->id_pcb=NULL;
+	poner_cpu_no_disponible(cpu);
 	return cpu;
 }
 
-void opRecibiACKDeCPU(int fd){
+void poner_cpu_no_disponible(t_CPU cpu){
+	cpu->pcb=NULL;
+	cpu->estado=CPU_NO_DISPONIBLE;
+}
+
+void opRecibiACKDeCPU(int fd, char * payload, int longitudMensaje){
 	printf("Recibi ACK de CPU\n");
+	imprimirMensajeDeCPU(payload, longitudMensaje);
 	t_CPU cpu=crearEstructuraCPU(fd);
 	char * clave = string_from_format("%d",cpu->fd);
-	cpu->id_pcb=CPU_NO_DISPONIBLE;
-	dictionary_put(cpus,clave, cpu);
+	dictionary_put(cpus, clave, cpu);
 }
 
 int enviar_pcb_a_cpu(t_PCB pcb, t_CPU cpu){
-	char * payload = serializar_pcb(pcb);
+	char * payload = serializar_datos_pcb_para_cpu(pcb);
 	int payload_size = sizeof(payload);
 	package *paquete = crear_paquete(enviarPCBACPU,payload,payload_size);
-	int resultado = enviar_paquete(paquete,cpu->fd);
-	free(paquete);
-	free(payload);
-	if (resultado==-1){
+	if (enviar_paquete(paquete,cpu->fd)==-1){
 		printf("Error en envio de PCB a CPU: %d", cpu->fd);
-		return ERROR_ESCRITURA_CPU;
+		return ERROR_ENVIO_CPU;
 	}
-	if (recibir_respuesta_envio_pcb_a_cpu(cpu)){
-		cpu->id_pcb=pcb->id;
-		//Poner en diccionario de PCBs que esta en ejecucion VER CON SILVINA
+	if (!recibir_respuesta_envio_pcb_a_cpu(cpu)){
+		cpu->pcb=pcb; //Poner en diccionario de PCBs que esta en ejecucion VER CON SILVINA
+		cpu->estado=1;
 		return EXITO_ENVIO_PCB_A_CPU;
 	}
+	free(paquete);
+	free(payload);
 	return ERROR_RESPUESTA_CPU;
 }
 
 int recibir_respuesta_envio_pcb_a_cpu(t_CPU cpu){
-	t_puntero respuesta;
 	package *paquete_recibido = recibir_paquete(cpu->fd);
+	int retorno;
 	if (paquete_recibido->type == respuestaCPU){
-		memcpy(&bytesEscritos,paquete_recibido->payload, sizeof(t_puntero));
-		if (respuesta==-1) printf("Error al enviar PCB a CPU: %d\n", cpu->fd);
-		else printf("Respuesta de CPU id %d: %d\n", cpu->fd, respuesta);
+		if (paquete_recibido->payloadLength){
+			printf("Error al enviar PCB a CPU: %d\n", cpu->fd); //Si tamaño de payload == 0 => ERROR
+			retorno = CPU_NO_CONFIRMA_RECEPCION_PCB;
+		}
+		else{
+			printf("Respuesta de CPU id %d\n", cpu->fd);
+			retorno = CPU_CONFIRMA_RECEPCION_PCB;
+		}
 	}
 	free(paquete_recibido);
-	return respuesta;
+	return retorno;
 }
 
-void opRetornoCPUQuantum(int fd, char *pcb){
+t_PCB * modificarPCB(t_PCB pcb, t_iPCBaCPU datosPCB){
+	pcb->indiceEtiquetas = datosPCB->indiceEtiquetas;
+	pcb->programcounter = datosPCB->programcounter;
+	return pcb;
+}
+
+void opRetornoCPUQuantum(int fd, char * payload, int longitudMensaje){
 	printf("Retorno de CPU por Quantum\n");
+	t_iPCBaCPU *datosPCB = deserializarRetornoPCBdeCPU(payload);
 	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
-	cpu->id_pcb=CPU_NO_DISPONIBLE;
-	//AGREGAR SEMAFOROS
+	t_PCB *pcb = modificarPCB(cpu->pcb, datosPCB);
+	poner_cpu_no_disponible(cpu);
+	//AGREGAR SEMAFOROS en version con varios threads
 	pasarACola(cola_ready, pcb);
 }
 
-void opEstoyDisponible(int fd){
+void opEstoyDisponible(int fd, char * payload, int longitudMensaje){
 	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
-	cpu->id_pcb=CPU_DISPONIBLE;
+	cpu->estado=CPU_DISPONIBLE;
 	pasarACola(cpus_disponibles, cpu);
 }
 
+t_iPCBaCPU * recibir_pcb_de_cpu(int fd){
+	package *paquete_recibido = recibir_paquete(fd);
+	int estado;
+	if (paquete_recibido->type == envioPCBES){
+		t_iPCBaCPU *datosPCB = deserializarRetornoPCBdeCPU(paquete_recibido->payload);
+		free(paquete_recibido);
+		return datosPCB;
+	}
+	free(paquete_recibido);
+	return ERROR_RECEPCION_PCB;
+}
 
+void mandarA_ES(t_entradasalida dispositivo, t_PCB * pcb, int tiempo){
+	t_progIO * es = malloc(t_progIO);
+	es->PCB = pcb;
+	es->unidadesTiempo = tiempo;
+	cola_push(dispositivo->cola, es);
+	sem_post(&dispositivo->semaforo_IO); // Despierto el hilo
+	free(es);
+}
 
-void opRetornoCPUPorES(int fd, char *pcb){
+void opRetornoCPUPorES(int fd, char * payload, int longitudMensaje){
 	printf("Retorno de CPU por E/S\n");
-	mandarA_ES(paquete);
+	t_iESdeCPU * datosES = deserializar_mensaje_ES(payload);
+	t_iPCBaCPU * datosPCB = recibir_pcb_de_cpu(fd);
+	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
+	t_PCB *pcb = modificarPCB(cpu->pcb, datosPCB);
+	poner_cpu_no_disponible(cpu);
+	t_entradasalida * ES = dictionary_get(kernel->entradasalida, datosES->id);
+	mandarA_ES(ES, pcb, datosES->tiempo);
 }
 
-void opRetornoCPUFin(int fd, char *pcb){
+void opRetornoCPUFin(int fd, char * payload, int longitudMensaje){
 	printf("Retorno de CPU por Finalizacion\n");
-	mandarAColaSalida(paquete);
+	t_iPCBaCPU * datosPCB = recibir_pcb_de_cpu(fd);
+	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
+	t_PCB *pcb = modificarPCB(cpu->pcb, datosPCB);
+	poner_cpu_no_disponible(cpu);
+	cola_push(cola_exit, pcb);
+	sem_post(sem_exit);
 }
 
-void opRetornoCPUExcepcion(int fd, char *pcb){
+void opRetornoCPUExcepcion(int fd, char * payload, int longitudMensaje){
 	printf("Retorno de CPU por Excepcion logica\n");
-	mandarAFinalizarProgramaExcLogica(paquete);
+	char * excepcion = deserializar_mensaje_excepcion(payload);
+	imprimir_mensaje_excepcion(excepcion);// DONDE se pone el mensaje de finalizacion de programa
+	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
+	poner_cpu_no_disponible(cpu);
+	cola_push(cola_exit, cpu->pcb);
+	sem_post(sem_exit);
 }
 
-void opExcepcionCPUHardware(int fd, char *pcb){
+void opExcepcionCPUHardware(int fd, char * payload, int longitudMensaje){
 	printf("Retorno de CPU por Excepcion Hardware\n");
 	mandarAFinalizarProgramaExcHardware(paquete);
 }
 
-void opImprimirValor(int fd, char *valor){
+void opImprimirValor(int fd, char * payload, int longitudMensaje){
 	printf("Retorno de CPU por Excepcion Hardware\n");
 	mandarAPLPImprimirValorEnConsola(valor);
 }
 
-void opImprimirTexto(int fd, char *texto){
+void opImprimirTexto(int fd, char * payload, int longitudMensaje){
 	printf("Retorno de CPU por Excepcion Hardware\n");
 	mandarAPLPImprimirTextoEnConsola(texto);
 }
 
-void opTomarSemaforo(int fd, char *semaforo){
+void opTomarSemaforo(int fd, char * payload, int longitudMensaje){
 	printf("Retorno de CPU por Excepcion Hardware\n");
 	mandarABloquearSemaforo(semaforo);
 }
 
-void opLiberarSemaforo(int fd, char *semaforo){
+void opLiberarSemaforo(int fd, char * payload, int longitudMensaje){
 	printf("Retorno de CPU por Excepcion Hardware\n");
 	mandarALiberarSemaforo(semaforo);
 }
