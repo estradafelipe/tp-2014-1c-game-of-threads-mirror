@@ -57,7 +57,7 @@ int main(int argc, char **argv){
 	socketEscucha = abrir_socket();
 	vincular_socket(socketEscucha, puerto);
 	printf("Socket creado\n");
-	log_debug(logger, "Socket creado, escuchando...");
+	log_info(logger, "Socket creado, escuchando...");
 	escuchar_socket(socketEscucha);
 /* Fin creacion socket */
 
@@ -68,7 +68,7 @@ int main(int argc, char **argv){
 /* Creo hilo que atendera la consola */
 	pthread_create(&nuevoHilo, NULL,(void*)atenderConsola,NULL);
 	list_add(hilos,(void*)nuevoHilo);
-	log_debug(logger, "Hilo que atiende la consola corriendo");
+	log_info(logger, "Hilo que atiende la consola corriendo");
 
 	while(1){
 		// Aceptar una nueva conexion entrante. Se genera un nuevo socket con la nueva conexion.
@@ -80,7 +80,7 @@ int main(int argc, char **argv){
 			pthread_create(&nuevoHilo, NULL,(void*)atenderNuevaConexion,(void*)socketNuevaConexion);
 		/* Agrego el identificador del hilo a la lista de hilos */
 			list_add(hilos,(void*)nuevoHilo);
-			log_debug(logger,"Se conecto alguien, lanzo hilo para atenderlo");
+			log_info(logger,"Se conecto alguien, lanzo hilo para atenderlo");
 		}
 	}
 
