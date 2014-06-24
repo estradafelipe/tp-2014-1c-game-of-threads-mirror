@@ -5,38 +5,30 @@
  *      Author: utnso
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <sockets.h>
-#include <commons/config.h>
-#include <obtener_config.h>
-#include <serializadores.h>
-#include <paquetes.h>
-#include <parser/sintax.h>
-#include <parser/parser.h>
-#include <colas.h>
-#include <string.h>
+#include "cpu.h"
 
-#define TAMANIO_SEG 8
-#define TAMANIO_ID_VAR 1
-#define TAMANIO_VAR 4
-
-void *recuperar_diccionario(int32_t);
-
-t_dictionary *diccionario;
-t_PCB *pcb;
-int socketKernel, socketUMV;
 
 int main(int argc, char **argv){
-	diccionario = dictionary_create();
+	signal(SIGUSR1, rutina);
 
+	//Creo el diccionario de variables
+	diccionarioVariables = dictionary_create();
+	diccionarioEtiquetas = dictionary_create();
+	//Defino los paquetes y reservo la memoria
 	package* packagePCB = malloc(sizeof(package));
 	package* paq = malloc(sizeof(package));
+	package* handshakeKernelCpu = malloc(sizeof(package));
+	package* quantum_package = malloc(sizeof(package));
+	package* cpuDisp = malloc(sizeof(package));
+	package* cpuDesconectar = malloc(sizeof(package));
 
-	int32_t programcounter, segmentoCodigo, indiceCodigo;
+	//Defino variables locales
+	int32_t programcounter, segmentoCodigo, indiceCodigo, quantumKernel;
 
+	//Defino solicitud de lectura y reservo espacio
 	t_solicitudLectura *sol = malloc(sizeof(t_solicitudLectura));
 
+	//Defino las estructuras para la configuracion del kernel y la UMV
 	t_config *configKernel = config_create((char*)argv[1]);
 	t_config *configUMV = config_create((char*)argv[1]);
 
@@ -45,33 +37,46 @@ int main(int argc, char **argv){
 
 	pcb = malloc(sizeof(t_PCB));
 
-
-
-
+	//levanto configuracion del kernel
 	kernel.ip = malloc((sizeof(char))*15);
 	kernel.port = obtenerPuerto(configKernel);
 	kernel.ip = obtenerIP(configKernel);
 	kernel.tamanioStack = obtenerTamanioStack(configKernel);
 
+	//levanto configuracion de la UMV
 	umvIP.ip = malloc((sizeof(char))*15);
 	umvIP.ip = obtenerIP(configUMV);
 	umvIP.port = obtenerPuerto(configKernel);
 
+	//me conecto al kernel
 	socketKernel = abrir_socket();
-	conectar_socket(socketKernel, kernel.ip, (int)kernel.port); // me conecto al kernel (hacer handshake)
+	conectar_socket(socketKernel, kernel.ip, (int)kernel.port);
+	//TODO:Modularizar
+	handshakeKernelCpu = crear_paquete(handshakeKernelCPU,"SOY UNA CPU",strlen("SOY UNA CPU")+1);
+	enviar_paquete(handshakeKernelCpu,socketKernel);
+	handshakeKernelCpu =  recibir_paquete(socketKernel);
+	quantum_package = recibir_paquete(socketKernel);
+	memcpy(&quantumKernel,quantum_package->payload,sizeof(t_pun));
+	handshakeKernelCpu = crear_paquete(handshakeKernelCPU,"RECIBIDO OK",strlen("RECIBIDO OK")+1);
+	enviar_paquete(handshakeKernelCpu,socketKernel);
 
+	//me conecto a la UMV
 	socketUMV = abrir_socket();
-	conectar_socket(socketUMV,umvIP.ip, (int)umvIP.port); // me conecto a la UMV
+	conectar_socket(socketUMV,umvIP.ip, (int)umvIP.port);
 
 
 	while(1){ //para recibir los PCB
-
+		//Notificamos al kernel que esta una cpu disponible;
+			cpuDisp = crear_paquete(cpuDisponible,"ESTOY DISPONIBLE",strlen("ESTOY DISPONIBLE")+1);
 			packagePCB = recibir_paquete(socketKernel);
 			pcb = desserializarPCB(packagePCB->payload);
 			int quantumPrograma = 0;
-			recuperar_diccionario(pcb->sizeContext);
+			cargar_diccionarioVariables(pcb->sizeContext);
 
-			while(quantumPrograma<20/*quantumKernel*/){ // falta obtener el quantum del kernel
+			cargar_diccionarioEtiquetas(pcb->indiceEtiquetas);
+
+
+			while(quantumPrograma<quantumKernel){
 
 				programcounter = pcb->programcounter;
 				programcounter++;
@@ -109,24 +114,46 @@ int main(int argc, char **argv){
 
 				quantumPrograma ++;
 		}
-			dictionary_clean(diccionario); //limpia el diccionario de variables
+			dictionary_clean(diccionarioVariables); //limpio el diccionario de variables
+
+
+			//TODO: Enviar PCB completo o Enviar lo modificado???? Preguntar Silvina y Pablo
+
+
+
+			if (desconectarse == true){
+				cpuDesconectar =  crear_paquete(cpuDesconectada,"Me Desconecto",strlen("Me Desconecto")+1);
+				enviar_paquete(cpuDesconectar,socketKernel);
+				exit(1);
+					}
 	}
 	return 0;
 }
 
+
+//Defino el interrupt handler
+void rutina(int n){
+	switch(n){
+	 case SIGUSR1:
+		 desconectarse = true;
+	}
+}
+
+
 t_puntero definirVariable(t_nombre_variable identificador_variable){
-	char* var = (char*)identificador_variable; //TODO: Preguntar si esta bien.
+
+	char* var = malloc(sizeof(t_nombre_variable)+1);
+	sprintf(var,"%c",identificador_variable);
 	uint32_t sizeContext = pcb->sizeContext;
 	t_solicitudEscritura *sol =  malloc(sizeof(t_solicitudEscritura));
 	package* package_escritura = malloc(sizeof(package));
 	package* package_respuesta = malloc(sizeof(package));
 	t_puntero puntero;
 
-	sol->base = pcb->segmentoStack;
-	sol->offset = pcb->cursorStack + sizeContext*5;
+	sol->base = pcb->segmentoStack + pcb->cursorStack;
+	sol->offset = sizeContext*5;
 	sol->tamanio = TAMANIO_ID_VAR;
-	memcpy(sol->buffer,var,strlen(var)); //TODO: Preguntar si esta bien
-
+	memcpy(sol->buffer,var,strlen(var));
 	puntero = (uint32_t)sol->offset;
 
 	char* payloadSerializado = serializarSolicitudEscritura(sol);
@@ -135,14 +162,16 @@ t_puntero definirVariable(t_nombre_variable identificador_variable){
 	enviar_paquete(package_escritura,socketUMV);
 
 	package_respuesta = recibir_paquete(socketUMV);
+	int payload;
+	memcpy(&payload, package_respuesta->payload, package_respuesta->payloadLength);
 
-	if (respuesta->payload == "Segmentation Fault"){
-		printf("Fallo la escritura\n");
-		exit();
-		//TODO: ver como notificamos al kernel;
+	if ((payload) == -1){
+		printf("Violacion de segmento\n");
+		exit(1);
+		//TODO: avisar al kernel que hubo violacion de segmento para que mate al programa
 	}
 
-	dictionary_put(diccionario, var, puntero);
+	dictionary_put(diccionarioVariables, var,(void*) puntero);
 
 	pcb->sizeContext++;
 
@@ -150,8 +179,9 @@ t_puntero definirVariable(t_nombre_variable identificador_variable){
 }
 
 t_puntero obtenerPosicionVariable(t_nombre_variable identificador_variable ){
-	char* key = (char*)identificador_variable; // TODO: Preguntar si esta bien.
-	t_puntero posicion = dictionary_get(diccionario, key);
+	char* key = malloc(sizeof(t_nombre_variable)+1);
+	sprintf(key,"%c",identificador_variable);
+	t_puntero posicion = (t_puntero) dictionary_get(diccionarioVariables, key);
 	return posicion;
 }
 
@@ -176,7 +206,7 @@ t_valor_variable dereferenciar(t_puntero direccion_variable){
 void asignar(t_puntero direccion_variable, t_valor_variable valor){
 	package* solicitudEscritura = malloc(sizeof(package));
 	package* respuesta = malloc(sizeof(package));
-	t_solicitudEscritura* sol = malloc(sizeof(t_solicitudLecutra));
+	t_solicitudEscritura* sol = malloc(sizeof(t_solicitudEscritura));
 
 	sol->base = pcb->segmentoStack;
 	sol->offset = direccion_variable + 1;
@@ -188,22 +218,42 @@ void asignar(t_puntero direccion_variable, t_valor_variable valor){
 	enviar_paquete(solicitudEscritura, socketUMV);
 
 	respuesta = recibir_paquete(socketUMV);
-	//Verificar rta de UMV
+
+	if ((payload) == -1){
+		printf("Violacion de segmento\n");
+		exit(1);
+		//TODO: avisar al kernel que hubo violacion de segmento para que mate al programa
+	}
 }
 
 t_valor_variable obtenerValorCompartida(t_nombre_compartida variable){
-	//TODO
+	package *solicitud = malloc(sizeof(package));
+	package *respuesta = malloc(sizeof(package));
+	t_valor_variable val;
+	char * payload = malloc(sizeof(t_nombre_compartida));
+	memcpy(payload,variable,sizeof(t_nombre_compartida));
+	solicitud = crear_paquete(solicitarValorVariableCompartida,payload,sizeof(t_nombre_compartida));
+	enviar_paquete(solicitud,socketKernel);
+	respuesta = recibir_paquete(socketKernel);
+	memcpy(&val,respuesta->payload,sizeof(t_nombre_compartida));
+	return val;
 }
 t_valor_variable asignarValorCompartida(t_nombre_compartida variable, t_valor_variable valor){
-	//TODO
+	package *solicitud = malloc(sizeof(package));
+	asignacion *asig;
+
+	asig->valor = valor;
+	asig->variable = variable;
+
+	char* payload = serializarAsignacionVariable(asig);
+	solicitud =  crear_paquete(asignarValorVariableCompartida,payload,sizeof(t_nombre_compartida)+sizeof(t_valor_variable));
+	enviar_paquete(solicitud,socketKernel);
+	return valor;
 }
 t_puntero_instruccion irAlLabel(t_nombre_etiqueta etiqueta){
-
+	//TODO
 }
-
-
-void *recuperar_diccionario(int32_t cant_var){
-	diccionario = dictionary_create();
+void *cargar_diccionarioVariables(int32_t cant_var){
 	t_solicitudLectura *sol = malloc(sizeof(t_solicitudLectura));
 	int32_t cursorStack = pcb->cursorStack;
 	package* solicitudLectura = malloc(sizeof(package));
@@ -223,10 +273,13 @@ void *recuperar_diccionario(int32_t cant_var){
 				//TODO: Verificar que todo haya salido bien
 				char* var = paq->payload;
 				t_puntero puntero;
-				puntero = sol->base + sol->offset;
+				puntero = sol->offset;
 
-				dictionary_put(diccionario, var,(void*)puntero);
+				dictionary_put(diccionarioVariables, var,(void*)puntero);
 				cant_var --;
-					}
+			}
+}
 
-		}
+void cargar_diccionarioEtiquetas(int32_t dir){
+
+}

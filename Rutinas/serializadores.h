@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <commons/collections/list.h>
 #include "colas.h"
-
+#include <parser/parser.h>
 typedef int32_t t_pun;
 
 
@@ -46,7 +46,10 @@ typedef struct{
 	t_pun sizeIndexLabel;
 }__attribute__((packed)) t_PCB;
 
-
+typedef struct{
+	t_nombre_compartida variable;
+	t_valor_variable valor;
+}__attribute__((packed)) t_asignacion;
 
 char* serializarPCB(t_PCB * PCB);
 t_PCB *desserializarPCB(char* PCBSerializada);
@@ -60,5 +63,9 @@ t_solicitudEscritura* desserializarSolicitudEscritura(char* solicitud);
 
 char* serializarSolicitudSegmento(t_crearSegmentoUMV *segmento);
 t_crearSegmentoUMV *deserializarSolicitudSegmento(char *solicitud);
+
+char* serializarAsignacionVariable(t_asignacion *asig);
+t_asignacion desserializarAsignacionVariable(char* asignacion);
+
 
 #endif /* SERIALIZADORES_H_ */

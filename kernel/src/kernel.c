@@ -16,6 +16,7 @@
 #include <parser/metadata_program.h>
 #include <commons/collections/list.h>
 #include <commons/collections/dictionary.h>
+#include <commons/log.h>
 #include <commons/config.h>
 #include "kernel.h"
 #include "plp.h"
@@ -31,9 +32,9 @@ int ultimoid;
 t_cola *cola_ready;
 t_cola *cola_exit;
 t_cola *cola_block;
+t_log *logger;
 char *pathconfig;
-t_dictionary *semaforos;
-t_dictionary *entradasalida;
+
 pthread_mutex_t mutex_ready = PTHREAD_MUTEX_INITIALIZER;
 
 void leerconfiguracion(char *path_config){
@@ -78,8 +79,10 @@ void leerconfiguracion(char *path_config){
 		kernel->entradasalidaret =	config_get_array_value(config,key);
 
 	kernel->programas = dictionary_create();
+	kernel->cpus = dictionary_create();
 	pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 	kernel->mutex_programas = mutex;
+	kernel->mutex_cpus = mutex;
   }
 
 
@@ -96,29 +99,26 @@ int main(int argc, char**argv) {
 	char * path = argv[1]; // path del archivo de configuracion
 	leerconfiguracion(path);
 	crea_tablasSitema();
-
+	/* Creo loggers */
+	logger = log_create("loggerKERNEL.log", "KERNEL", true, LOG_LEVEL_DEBUG);
 	// ** codigo debug para ver que levanto el archivo de config
-	printf("**MOSTRANDO CONFIGURACION**\n");
-	printf("PUERTO_PROG:%d\n",kernel->puertoprog);
-	printf("PUERTO_CPU:%d\n",kernel->puertocpu);
-	printf("QUANTUM:%d\n",kernel->quantum);
-	printf("RETARDO:%d\n",kernel->retardo);
-	printf("MULTIPROGRAMACION:%d\n",kernel->multiprogramacion);
-
+	log_debug(logger, string_from_format("\nCONFIGURACION:\nPUERTO_PROG:%d\nPUERTO_CPU:%d\nQUANTUM:%d\nRETARDO:%d\nMULTIPROGRAMACION:%d\n",kernel->puertoprog,kernel->puertocpu,kernel->quantum,kernel->retardo,kernel->multiprogramacion));
 
 	// Crea hilos I/O
-	dictionary_iterator(entradasalida,(void*)crea_hilosIO);
+	dictionary_iterator(kernel->entradasalida,(void*)crea_hilosIO);
 
 	int thr;
 
 	pthread_t * plpthr = malloc(sizeof(pthread_t)); // hilo plp
 	//pthread_t * pcpthr = malloc(sizeof(pthread_t)); // hilo pcp
 
+
 	thr = pthread_create( plpthr, NULL, (void*)hiloPLP, NULL);
 
 	if (thr== 0)
-		printf("Se creo el hilo lo mas bien\n");//se pudo crear el hilo
-	else printf("no se pudo crear el hilo\n");//no se pudo crear el hilo
+		log_debug(logger,"Se creo el hilo lo mas bien\n");//se pudo crear el hilo
+	else log_debug(logger,"no se pudo crear el hilo\n");//no se pudo crear el hilo
+
 /*
 	//dejo comentado para cuando este el PCP
 	thr = pthread_create( pcpthr, NULL, (void*)hiloPCP, NULL);
@@ -130,7 +130,6 @@ int main(int argc, char**argv) {
 		hasta que se termine todo.
 	*/
 	sem_wait(semaforo_fin);
-	printf("Esperando a que se termine todo\n");
 	// Libero recursos
 	free(plpthr);
 	free(semaforo_fin);

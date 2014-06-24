@@ -3,8 +3,7 @@
 	<name>CPU</name>
 	<comment></comment>
 	<projects>
-		<project>Rutinas</project>
-		<project>commons</project>
+		<project>parser</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
