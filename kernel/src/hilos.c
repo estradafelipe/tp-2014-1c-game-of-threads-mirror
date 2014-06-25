@@ -77,15 +77,31 @@ void wait_semaforo(char *semaforo,uint32_t fd){
 	if (dictionary_has_key(kernel->semaforos,semaforo)){
 		t_semaforo *SEM = dictionary_get(kernel->semaforos,semaforo);
 		t_CPU *cpu = dictionary_get(kernel->cpus,string_from_format("%d",fd));
-		t_PCB *PCB = dictionary_get(kernel->programas,string_from_format("%d",cpu->id_pcb));
 		pthread_mutex_lock(SEM->mutex);
 		log_debug(logger, string_from_format("El semaforo %s tenia el valor %d ",semaforo,SEM->valor));
 		SEM->valor --;
 		log_debug(logger, string_from_format(" y ahora pasa a tener el valor %d ",SEM->valor));
 		if (SEM->valor<0){
-			cola_push(SEM->cola,PCB);
 			bloqueo_por_semaforo(cpu);
-		}else  semaforo_libre(cpu);
+			package *paquete_recibido = recibir_paquete(cpu->fd);
+			int retorno;
+			if (paquete_recibido->type == respuestaCPU){
+				if (paquete_recibido->payloadLength){
+					printf("Error al enviar PCB a CPU: %d\n", cpu->fd); //Si tamaño de payload == 0 => ERROR
+					retorno = CPU_NO_CONFIRMA_RECEPCION_PCB;
+				}
+				else{
+					printf("Respuesta de CPU id %d\n", cpu->fd);
+					retorno = CPU_CONFIRMA_RECEPCION_PCB;
+				}
+			}
+			t_iPCBaCPU *datosPCB = deserializarRetornoPCBdeCPU(paquete_recibido->payload);
+			t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
+			t_PCB *pcb = modificarPCB(cpu->pcb, datosPCB);
+			poner_cpu_no_disponible(cpu);
+			cola_push(SEM->cola, cpu->pcb);
+			free(paquete_recibido);
+		}else semaforo_libre(cpu);
 
 		pthread_mutex_unlock(SEM->mutex);
 	}
@@ -99,7 +115,7 @@ void signal_semaforo(char *semaforo){
 	log_debug(logger, string_from_format("signal al semaforo %s, valor final: %d",semaforo,SEM->valor));
 	if (SEM->valor<=0){
 		t_PCB *PCB = cola_pop(SEM->cola);
-		cola_push(cola_block,PCB);	// sacar a un programa de la cola
+		cola_push(cola_ready, PCB);	// sacar a un programa de la cola
 		// envia una confirmacion?
 	}
 

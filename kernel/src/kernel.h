@@ -10,6 +10,7 @@
 #include <semaphore.h>
 #include <sockets.h>
 #include <parser/parser.h>
+#include "varcom.h"
 
 #define FIN_PROGRAM_SUCCESS 0
 #define PROGRAM_DISCONNECT -1
@@ -35,6 +36,7 @@ typedef struct
 	t_dictionary *cpus;
 	t_dictionary *semaforos;
 	t_dictionary *entradasalida;
+	t_dictionary *variables_compartidas;
 	pthread_mutex_t mutex_programas;
 	pthread_mutex_t mutex_cpus;
 }t_kernel;
@@ -63,6 +65,7 @@ typedef struct
 	pthread_mutex_t *mutex;
 	t_cola *cola;
 }t_semaforo;
+
 typedef struct
 {
 	t_PCB *PCB;
@@ -72,7 +75,8 @@ typedef struct
 typedef struct
 {
 	uint32_t fd;     // file descriptor para socket del CPU
-	uint32_t id_pcb; // ID PCB
+	uint16_t estado;	// 0 Disponible 1 Ocupada -1 No Disponible
+	t_PCB * pcb; // PCB
 }t_CPU;
 
 #endif /* KERNEL_H_ */
