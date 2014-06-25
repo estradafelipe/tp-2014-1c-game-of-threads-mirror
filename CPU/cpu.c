@@ -409,13 +409,32 @@ char* serializado = malloc(sizeof(t_pun)*3);
 void GameOfThread_retornar(t_valor_variable retorno){
 	package* paquete = malloc(sizeof(package));
 	t_pun base,offset_tmp,tamanio;
+	t_puntero dirRetorno;
+
 	base = pcb->segmentoStack;
 	offset_tmp = pcb->cursorStack;
 	tamanio = 4;
 
 	//Obtengo Donde Retornar;
-	paquete = Leer(base,offset_tmp - 4 , tamanio);
 
+	paquete = Leer(base,offset_tmp - 4 , tamanio);
+	memcpy(&dirRetorno,paquete->payload,sizeof(int32_t));
+	destruir_paquete(paquete);
+
+	//Escribo en dirRetorno el valor de retorno t_valor_variable
+	char* buffer = malloc(sizeof(t_valor_variable));
+	memcpy(buffer,&retorno,sizeof(t_valor_variable));
+	paquete = Escribir(base,dirRetorno,tamanio,buffer);
+	destruir_paquete(paquete);
+	//Obtengo la proxima instruccion (Program Counter)
+	paquete = Leer(base,offset_tmp - 8, tamanio);
+	memcpy(&pcb->programcounter,paquete->payload,sizeof(t_pun));
+	destruir_paquete(paquete);
+	//Cambio de Contexto
+	paquete = Leer(base,offset_tmp - 12, tamanio);
+	memcpy(&pcb->cursorStack,paquete->payload,sizeof(t_pun));
+
+//TODO: Creo que falta hacer algunas cosillas...
 
 }
 
@@ -545,15 +564,25 @@ package *Leer(t_pun base,t_pun offset,t_pun tamanio){
 	return solicitud;
 }
 
-package *Esccribir(t_pun base, t_pun offset, t_pun tamanio, char* buffer){
+package *Escribir(t_pun base, t_pun offset, t_pun tamanio, char* buffer){
 	t_solicitudEscritura *sol = malloc(sizeof(t_solicitudEscritura));
 	package *paquete = malloc(sizeof(package));
-
+	int32_t err;
 	sol->base = base;
 	sol->offset = offset;
 	sol->tamanio = tamanio;
-	sol->buffer = malloc(strlen(buffer));
+	sol->buffer = malloc(strlen(buffer)+1);
 	memcpy(sol->buffer, buffer,strlen(buffer));
 
+	char* payload = serializarSolicitudEscritura(sol);
+
+	paquete = crear_paquete(escritura,payload,sizeof(t_pun)*3 + strlen(sol->buffer));
+	enviar_paquete(paquete,socketUMV);
+	destruir_paquete(paquete);
+	paquete = recibir_paquete(socketUMV);
+	memcpy(&err,paquete->payload,sizeof(int32_t));
+	if(err == -1)
+		notificar_kernel(violacionSegmento);
+		exit(1);
 	return paquete;
 }
