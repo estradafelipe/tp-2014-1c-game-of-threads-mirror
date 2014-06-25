@@ -27,13 +27,13 @@ int logConsola; //0 si no hay que logear a archivo, 1 si hay que logear a archiv
 t_log* logger;
 t_log* loggerConsola;
 
-typedef int32_t t_puntero;
+typedef int32_t t_pun;
 
 typedef struct{
 	int id_programa; //programa al que pertenece el segmento
 	char* base; //base fisica (solo para la umv)
 	int tamanio; // tamaño del segmento
-	t_puntero base_logica; //base para el kernel y cpus
+	t_pun base_logica; //base para el kernel y cpus
 }t_segmento;
 
 pthread_rwlock_t lockSegmentos, lockMemoria, lockAlgoritmo;
@@ -56,8 +56,10 @@ int _mayor_tamanio(t_segmento *seg, t_segmento *segMayor);
 int _esta_vacio(t_segmento* seg);
 t_segmento* _existe_algun_seg(int id_programa);
 
-int validarBaseLogica(int id, int tamanio,t_puntero aleatorio);
-t_puntero calcularBaseLogica(int id_programa, int tamanio);
+char* generarHexa(char* buffer,int tamanio);
+
+int validarBaseLogica(int id, int tamanio,t_pun aleatorio);
+t_pun calcularBaseLogica(int id_programa, int tamanio);
 
 int first_fit(t_list* lista,int id_programa,int tamanio);
 int worst_fit(t_list* lista,int id_programa,int tamanio);

@@ -1,3 +1,8 @@
+Requisitos:
+===========
+- Tener instaladas las commons
+- Tener instalado el parser
+
 Instalación:
 ============
 - Ubicados en la carpeta Rutinas:

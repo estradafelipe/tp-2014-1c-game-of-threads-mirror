@@ -18,7 +18,7 @@ void* atenderNuevaConexion(void* parametro){
 		printf("Se recibio algo\n");
 		switch(tipo){
 			case handshakeKernelUmv:
-				log_debug(logger, "Bienvenido KERNEL");
+				log_info(logger, "Bienvenido KERNEL");
 				respuesta = crear_paquete(handshakeKernelUmv,"Hola Kernel",strlen("Hola Kernel")+1);
 				enviar_paquete(respuesta,socketCliente);
 				destruir_paquete(respuesta);
@@ -26,8 +26,8 @@ void* atenderNuevaConexion(void* parametro){
 				break;
 			
 			case handshakeCpuUmv:
-				log_debug(logger, "Bienvenida CPU");
-				respuesta = crear_paquete(handshakeKernelUmv,"Hola Cpu",strlen("Hola Cpu")+1);
+				log_info(logger, "Bienvenida CPU");
+				respuesta = crear_paquete(handshakeCpuUmv,"Hola Cpu",strlen("Hola Cpu")+1);
 				enviar_paquete(respuesta,socketCliente);
 				destruir_paquete(respuesta);
 				atenderCpu(socketCliente);
@@ -53,7 +53,7 @@ void* atenderNuevaConexion(void* parametro){
 int atenderKernel(int fd){
 	package* paquete;
 	package* respuesta;
-	char* answer = malloc(sizeof(t_puntero));
+	char* answer = malloc(sizeof(t_pun));
 	int bytesRecibidos;
 	t_paquete tipo;
 	int procesoActivo;
@@ -70,13 +70,9 @@ int atenderKernel(int fd){
 		if(bytesRecibidos>0){
 			log_debug(logger, "Se recibio algo del KERNEL");
 			switch(tipo){
-				case cambioProcesoActivo: // es posible que este de mas!!!
-					//deserializar para obtener el id_programa
-					//procesoActivo = id_programa;
-					break;
 				case creacionSegmentos:
 					sleep(retardo);
-					log_debug(logger, "Es un pedido de creacion de segmento");
+					log_info(logger, "Es un pedido de creacion de segmento");
 					//desserializar estructura con id_programa y tamaño del segmento
 					creacionSegmento = deserializarSolicitudSegmento(paquete->payload);
 					//guardo el proceso activo (para la escritura de los segmentos)
@@ -85,12 +81,12 @@ int atenderKernel(int fd){
 					resultado = crear_segmento(creacionSegmento);
 					pthread_rwlock_unlock(&lockSegmentos);
 					if(resultado>=0){ // se creo el segmento correctamente
-						log_debug(logger, "El segmento del %d de tamaño %d se creo correctamente",creacionSegmento->programid,creacionSegmento->size);
-						memcpy(answer, &resultado, sizeof(t_puntero));
-						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
+						log_info(logger, "El segmento del %d de tamaño %d se creo correctamente",creacionSegmento->programid,creacionSegmento->size);
+						memcpy(answer, &resultado, sizeof(t_pun));
+						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_pun));
 						enviar_paquete(respuesta,fd);
 					} else {
-						log_debug(logger, "No hubo espacio suficiente, se realizara la compactacion y se volvera a intentar");
+						log_info(logger, "No hubo espacio suficiente, se realizara la compactacion y se volvera a intentar");
 
 						pthread_rwlock_wrlock(&lockSegmentos);
 						pthread_rwlock_wrlock(&lockMemoria);
@@ -105,14 +101,14 @@ int atenderKernel(int fd){
 						pthread_rwlock_unlock(&lockSegmentos);
 
 						if(resultado>=0){//se creo el segmento correctamente
-							log_debug(logger, "El segmento del %d de tamaño %d se creo correctamente",creacionSegmento->programid,creacionSegmento->size);
-							memcpy(answer, &resultado, sizeof(t_puntero));
-							respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
+							log_info(logger, "El segmento del %d de tamaño %d se creo correctamente",creacionSegmento->programid,creacionSegmento->size);
+							memcpy(answer, &resultado, sizeof(t_pun));
+							respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_pun));
 							enviar_paquete(respuesta,fd);
 						} else {
-							log_debug(logger, "No hubo espacio suficiente, Memory Overload!!");
-							memcpy(answer, &resultado, sizeof(t_puntero));
-							respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
+							log_info(logger, "No hubo espacio suficiente, Memory Overload!!");
+							memcpy(answer, &resultado, sizeof(t_pun));
+							respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_pun));
 							enviar_paquete(respuesta,fd);
 						}
 					}
@@ -121,13 +117,13 @@ int atenderKernel(int fd){
 				case destruccionSegmentos:
 					sleep(retardo);
 					//obtengo id_programa del paquete
-					memcpy(&id_programa,paquete->payload,sizeof(t_puntero));
-					log_debug(logger, "Es un pedido de destruccion de segmentos del programa %d",id_programa);
+					memcpy(&id_programa,paquete->payload,sizeof(t_pun));
+					log_info(logger, "Es un pedido de destruccion de segmentos del programa %d",id_programa);
 					pthread_rwlock_wrlock(&lockSegmentos);
 					resultado = destruir_segmentos(id_programa);
 					pthread_rwlock_unlock(&lockSegmentos);
-					memcpy(answer, &resultado, sizeof(t_puntero));
-					respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
+					memcpy(answer, &resultado, sizeof(t_pun));
+					respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_pun));
 					enviar_paquete(respuesta,fd);
 					destruir_paquete(respuesta);
 
@@ -136,22 +132,22 @@ int atenderKernel(int fd){
 					sleep(retardo);
 					//desserializar estructura con la base,offset y tamaño
 					solicitudLectura = desserializarSolicitudLectura(paquete->payload);
-					log_debug(logger, "Es un pedido de lectura con id_programa: %d, base: %d, offset: %d y tamaño: %d",procesoActivo,solicitudLectura->base,solicitudLectura->offset,solicitudLectura->tamanio);
+					log_info(logger, "Es un pedido de lectura con id_programa: %d, base: %d, offset: %d y tamaño: %d",procesoActivo,solicitudLectura->base,solicitudLectura->offset,solicitudLectura->tamanio);
 					pthread_rwlock_rdlock(&lockSegmentos);
 					datos = leer(procesoActivo,solicitudLectura);
 					pthread_rwlock_unlock(&lockSegmentos);
 					//validar si hay segmentation fault
 					if(datos!=NULL){
-						log_debug(logger, "El pedido de lectura fue valido");
-						log_debug(logger, "Los datos obtenidos son: %x",*datos);
+						log_info(logger, "El pedido de lectura fue valido");
+						log_debug(logger, "Los datos obtenidos son: %s",generarHexa(datos,solicitudLectura->tamanio));
 						// responder a la cpu
 						respuesta = crear_paquete(respuestaUmv,datos,solicitudLectura->tamanio);
 						enviar_paquete(respuesta,fd);
 					} else {
-						log_debug(logger, "Violación de segmento!");
+						log_info(logger, "Violación de segmento!");
 						resultado = -1;
-						memcpy(answer, &resultado, sizeof(t_puntero));
-						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
+						memcpy(answer, &resultado, sizeof(t_pun));
+						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_pun));
 						enviar_paquete(respuesta,fd);
 					}
 					destruir_paquete(respuesta);
@@ -160,21 +156,21 @@ int atenderKernel(int fd){
 					sleep(retardo);
 					//desserializar estructura con la base,offset,tamaño y buffer
 					solicitudEscritura = desserializarSolicitudEscritura(paquete->payload);
-					log_debug(logger, "Es un pedido de escritura con id_programa: %d, base: %d, offset: %d, tamaño: %d, buffer: %x",procesoActivo,solicitudEscritura->base,solicitudEscritura->offset,solicitudEscritura->tamanio,*solicitudEscritura->buffer);
+					log_info(logger, "Es un pedido de escritura con id_programa: %d, base: %d, offset: %d, tamaño: %d, buffer: %x",procesoActivo,solicitudEscritura->base,solicitudEscritura->offset,solicitudEscritura->tamanio,*solicitudEscritura->buffer);
 					pthread_rwlock_rdlock(&lockSegmentos);
 					resultado = escribir(procesoActivo,solicitudEscritura);
 					pthread_rwlock_unlock(&lockSegmentos);
 					//validar si hay segmentation fault
 					if(resultado >= 0){
-						log_debug(logger, "La operacion de escritura termino correctamente");
-						memcpy(answer, &resultado, sizeof(t_puntero));
-						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
+						log_info(logger, "La operacion de escritura termino correctamente");
+						memcpy(answer, &resultado, sizeof(t_pun));
+						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_pun));
 						enviar_paquete(respuesta,fd);
 					} else {
-						log_debug(logger, "Violación de segmento!");
+						log_info(logger, "Violación de segmento!");
 						resultado = -1;
-						memcpy(answer, &resultado, sizeof(t_puntero));
-						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
+						memcpy(answer, &resultado, sizeof(t_pun));
+						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_pun));
 						enviar_paquete(respuesta,fd);
 					}
 					destruir_paquete(respuesta);
@@ -188,7 +184,7 @@ int atenderKernel(int fd){
 			printf("BytesRecibidos == -1\n ");
 			perror("Error al recibir datos");
 		} else if (bytesRecibidos==0) {	//Se desconecto
-			log_debug(logger, "Se desconecto el Kernel");
+			log_info(logger, "Se desconecto el Kernel");
 			break;
 		}
 		destruir_paquete(paquete);
@@ -206,7 +202,7 @@ int atenderKernel(int fd){
 int atenderCpu(int fd){
 	package* paquete;
 	package* respuesta;
-	char* answer = malloc(sizeof(t_puntero));
+	char* answer = malloc(sizeof(t_pun));
 	int bytesRecibidos;
 	t_paquete tipo;
 	int procesoActivo = -1;
@@ -223,7 +219,8 @@ int atenderCpu(int fd){
 			switch(tipo){
 				case cambioProcesoActivo:
 					//deserializar para obtener el id_programa
-					//procesoActivo = id_programa;
+					memcpy(&resultado,paquete->payload,sizeof(t_pun));
+					procesoActivo = resultado;
 					break;
 				case lectura:
 					sleep(retardo);
@@ -236,15 +233,15 @@ int atenderCpu(int fd){
 					//validar si hay segmentation fault
 					if(datos!=NULL){
 						log_debug(logger, "El pedido de lectura fue valido");
-						log_debug(logger, "Los datos obtenidos son: %x",*datos);
+						log_debug(logger, "Los datos obtenidos son: %s",generarHexa(datos,solicitudLectura->tamanio));
 						// responder a la cpu
 						respuesta = crear_paquete(respuestaUmv,datos,solicitudLectura->tamanio);
 						enviar_paquete(respuesta,fd);
 					} else {
 						log_debug(logger, "Violación de segmento!");
 						resultado = -1;
-						memcpy(answer, &resultado, sizeof(t_puntero));
-						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
+						memcpy(answer, &resultado, sizeof(t_pun));
+						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_pun));
 						enviar_paquete(respuesta,fd);
 					}
 					destruir_paquete(respuesta);
@@ -260,14 +257,14 @@ int atenderCpu(int fd){
 					//validar si hay segmentation fault
 					if(resultado >= 0){
 						log_debug(logger, "La operacion de escritura termino correctamente");
-						memcpy(answer, &resultado, sizeof(t_puntero));
-						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
+						memcpy(answer, &resultado, sizeof(t_pun));
+						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_pun));
 						enviar_paquete(respuesta,fd);
 					} else {
 						log_debug(logger, "Violación de segmento!");
 						resultado = -1;
-						memcpy(answer, &resultado, sizeof(t_puntero));
-						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_puntero));
+						memcpy(answer, &resultado, sizeof(t_pun));
+						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_pun));
 						enviar_paquete(respuesta,fd);
 					}
 					destruir_paquete(respuesta);
@@ -336,9 +333,9 @@ void* atenderConsola(){
 				datos = leer(id_programa,reader);
 				pthread_rwlock_unlock(&lockSegmentos);
 				if(datos!=NULL){
-					printf("Los datos obtenidos son: %x\n",*datos);
+					printf("Los datos obtenidos son: %s\n",generarHexa(datos,reader->tamanio));
 					if(logConsola){
-						log_debug(loggerConsola,"Los datos obtenidos son: %x\n",*datos);
+						log_debug(loggerConsola,"Los datos obtenidos son: %s",generarHexa(datos,reader->tamanio));
 					}
 				} else {
 					printf("Violación de segmento!!!\n");
@@ -509,11 +506,13 @@ void* atenderConsola(){
 				pthread_rwlock_rdlock(&lockSegmentos);
 				imprimir_estructuras(id_programa);
 				pthread_rwlock_unlock(&lockSegmentos);
+				printf("Revisar archivo loggerConsola.log\n");
 			} else if (strcmp(palabras[1],"memoria\n")==0){
 			// imprimir segmentos de la memoria incluyendo espacios libres
 				pthread_rwlock_rdlock(&lockSegmentos);
 				imprimir_segmentos_memoria();
 				pthread_rwlock_unlock(&lockSegmentos);
+				printf("Revisar archivo loggerConsola.log\n");
 			} else if (strcmp(palabras[1],"contenido")==0){
 			// imprimir contenido dado un offset y una cantidad de bytes
 				offset = atoi(palabras[2]);
@@ -521,6 +520,7 @@ void* atenderConsola(){
 				pthread_rwlock_rdlock(&lockMemoria);
 				imprimir_contenido(offset,tamanio);
 				pthread_rwlock_unlock(&lockMemoria);
+				printf("Revisar archivo loggerConsola.log\n");
 			} else {
 				printf("Comando no reconocido, intente de nuevo\n");
 				if(logConsola){
@@ -803,9 +803,9 @@ int worst_fit(t_list* lista,int id_programa,int tamanio){
 }
 
 /* Calcula la base logica del segmento aleatoriamente */
-t_puntero calcularBaseLogica(int id_programa, int tamanio){
+t_pun calcularBaseLogica(int id_programa, int tamanio){
 	int validacion = -1;
-	t_puntero resultado;
+	t_pun resultado;
 	while(validacion == -1){
 		resultado = rand()%1000000;
 		validacion = validarBaseLogica(id_programa,tamanio, resultado);
@@ -814,7 +814,7 @@ t_puntero calcularBaseLogica(int id_programa, int tamanio){
 }
 
 /* Verifica si la base calculada es valida */
-int validarBaseLogica(int id, int tamanio, t_puntero aleatorio){
+int validarBaseLogica(int id, int tamanio, t_pun aleatorio){
 	int i;
 	int retorno = -1;
 	t_segmento* aux;
@@ -855,30 +855,14 @@ int imprimir_estructuras(int id_programa){
 		for(i=0;i<cant_seg;i++){
 			aux = list_get(listaOrdenada,i);
 			if(!_esta_vacio(aux)){
-				printf("***********************************\n");
-				printf("Id_programa: %d\n",aux->id_programa);
-				printf("Base logica: %d\n", aux->base_logica);
-				printf("Base real: %p\n",aux->base);
-				printf("Tamaño: %d\n",aux->tamanio);
-
-				if(logConsola){
-					log_debug(loggerConsola,"Id_programa: %d, Base logica: %d, Base real: %p, Tamaño: %d",aux->id_programa, aux->base_logica,aux->base,aux->tamanio);
-				}
+				log_debug(loggerConsola,"Id_programa: %d, Base logica: %d, Base real: %p, Tamaño: %d",aux->id_programa, aux->base_logica,aux->base,aux->tamanio);
 			}
 		}
 	} else if (id_programa >= 0) { //de un proceso en particular
 		for(i=0;i<cant_seg;i++){
 			aux = list_get(segmentos,i);
 			if(aux->id_programa == id_programa){
-				printf("***********************************\n");
-				printf("Id_programa: %d\n",aux->id_programa);
-				printf("Base logica: %d\n", aux->base_logica);
-				printf("Base real: %p\n",aux->base);
-				printf("Tamaño: %d\n",aux->tamanio);
-
-				if(logConsola){
-					log_debug(loggerConsola,"Id_programa: %d, Base logica: %d, Base real: %p, Tamaño: %d",aux->id_programa, aux->base_logica,aux->base,aux->tamanio);
-				}
+				log_debug(loggerConsola,"Id_programa: %d, Base logica: %d, Base real: %p, Tamaño: %d",aux->id_programa, aux->base_logica,aux->base,aux->tamanio);
 			}
 		}
 	}
@@ -892,22 +876,10 @@ int imprimir_segmentos_memoria(){
 	int cant_seg=list_size(segmentos);
 	for(i=0;i<cant_seg;i++){
 		aux = list_get(segmentos,i);
-		printf("***********************************\n");
 		if(aux->id_programa != -1){
-			printf("Id_programa: %d\n",aux->id_programa);
+			log_debug(loggerConsola,"Id_programa: %d, Base logica: %d, Base real: %p, Tamaño: %d",aux->id_programa, aux->base_logica,aux->base,aux->tamanio);
 		} else {
-			printf("Id_programa: %d (VACÍO)\n",aux->id_programa);
-		}
-		printf("Base logica: %d\n", aux->base_logica);
-		printf("Base real: %p\n",aux->base);
-		printf("Tamaño: %d\n",aux->tamanio);
-
-		if(logConsola){
-			if(aux->id_programa != -1){
-				log_debug(loggerConsola,"Id_programa: %d, Base logica: %d, Base real: %p, Tamaño: %d",aux->id_programa, aux->base_logica,aux->base,aux->tamanio);
-			} else {
-				log_debug(loggerConsola,"Id_programa: %d (VACÍO), Base logica: %d, Base real: %p, Tamaño: %d",aux->id_programa, aux->base_logica,aux->base,aux->tamanio);
-			}
+			log_debug(loggerConsola,"Id_programa: %d (VACÍO), Base logica: %d, Base real: %p, Tamaño: %d",aux->id_programa, aux->base_logica,aux->base,aux->tamanio);
 		}
 	}
 	return 0;
@@ -918,13 +890,29 @@ int imprimir_segmentos_memoria(){
 int imprimir_contenido(int offset, int tamanio){
 	char* datos = malloc(tamanio);
 	memcpy(datos,bloqueDeMemoria+offset,tamanio);
-	printf("El contenido a partir de la posicion %d y tamaño %d es: %x\n", offset, tamanio, *datos);//imprimir datos en hexa??
+	printf("El contenido a partir de la posicion %d y tamaño %d es: %s\n", offset, tamanio, generarHexa(datos,tamanio));//imprimir datos en hexa??
 
 	if(logConsola){
-		log_debug(loggerConsola,"El contenido a partir de la posicion %d y tamaño %d es: %x", offset, tamanio, *datos);
+		log_debug(loggerConsola,"El contenido a partir de la posicion %d y tamaño %d es: %s", offset, tamanio, generarHexa(datos,tamanio));
 	}
 
 	return 0;
+}
+
+char* generarHexa(char* buffer,int tamanio){
+	int i;
+	char* logueo = malloc(16);
+	char* hexa = malloc(4);
+
+	for(i=0;i<tamanio;i++){
+		hexa = string_from_format("%x ", (unsigned char)buffer[i]);
+		if(i==0){
+			strcpy(logueo,hexa);
+		} else {
+			strcat(logueo,hexa);
+		}
+	}
+	return logueo;
 }
 
 
