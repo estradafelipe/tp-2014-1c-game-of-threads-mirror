@@ -1,0 +1,28 @@
+
+[INFO] 21:23:06:538 UMV/(2306:2306): El tamaño de memoria es 128, el puerto es 5021, el algoritmo es: WORST-FIT y el retardo es: 1000 milisegundos
+[INFO] 21:23:06:571 UMV/(2306:2306): Se creo el bloque de memoria con direccion inicial 0x804f140
+[INFO] 21:23:06:571 UMV/(2306:2306): Socket creado, escuchando...
+[INFO] 21:23:06:571 UMV/(2306:2306): Hilo que atiende la consola corriendo
+[DEBUG] 21:23:09:428 UMV/(2306:2307): Creando segmento del programa 0 con tamaño 4 con algoritmo Worst-Fit
+[DEBUG] 21:23:09:428 UMV/(2306:2307): Creando segmento del programa 2 con tamaño 6 con algoritmo Worst-Fit
+[DEBUG] 21:23:09:428 UMV/(2306:2307): Creando segmento del programa 1 con tamaño 8 con algoritmo Worst-Fit
+[DEBUG] 21:23:12:428 UMV/(2306:2307): Segmento del programa 2 encontrado de un tamaño 6
+[DEBUG] 21:23:15:429 UMV/(2306:2307): Creando segmento del programa 1 con tamaño 5 con algoritmo Worst-Fit
+[INFO] 21:31:40:576 UMV/(2542:2542): El tamaño de memoria es 128, el puerto es 5021, el algoritmo es: WORST-FIT y el retardo es: 1000 milisegundos
+[INFO] 21:31:40:576 UMV/(2542:2542): Se creo el bloque de memoria con direccion inicial 0x804f140
+[INFO] 21:31:40:576 UMV/(2542:2542): Socket creado, escuchando...
+[INFO] 21:31:40:576 UMV/(2542:2542): Hilo que atiende la consola corriendo
+[DEBUG] 21:31:42:781 UMV/(2542:2543): Creando segmento del programa 0 con tamaño 4 con algoritmo Worst-Fit
+[DEBUG] 21:31:42:782 UMV/(2542:2543): Creando segmento del programa 2 con tamaño 6 con algoritmo Worst-Fit
+[DEBUG] 21:31:42:782 UMV/(2542:2543): Creando segmento del programa 1 con tamaño 8 con algoritmo Worst-Fit
+[DEBUG] 21:31:45:782 UMV/(2542:2543): Segmento del programa 2 encontrado de un tamaño 6
+[DEBUG] 21:31:48:785 UMV/(2542:2543): Creando segmento del programa 1 con tamaño 5 con algoritmo Worst-Fit
+[INFO] 21:32:51:415 UMV/(2603:2603): El tamaño de memoria es 128, el puerto es 5021, el algoritmo es: WORST-FIT y el retardo es: 1000 milisegundos
+[INFO] 21:32:51:415 UMV/(2603:2603): Se creo el bloque de memoria con direccion inicial 0x804f140
+[INFO] 21:32:51:415 UMV/(2603:2603): Socket creado, escuchando...
+[INFO] 21:32:51:415 UMV/(2603:2603): Hilo que atiende la consola corriendo
+[DEBUG] 21:32:53:593 UMV/(2603:2604): Creando segmento del programa 0 con tamaño 4 con algoritmo Worst-Fit
+[DEBUG] 21:32:53:593 UMV/(2603:2604): Creando segmento del programa 2 con tamaño 6 con algoritmo Worst-Fit
+[DEBUG] 21:32:53:593 UMV/(2603:2604): Creando segmento del programa 1 con tamaño 8 con algoritmo Worst-Fit
+[DEBUG] 21:32:56:594 UMV/(2603:2604): Segmento del programa 2 encontrado de un tamaño 6
+[DEBUG] 21:32:59:594 UMV/(2603:2604): Creando segmento del programa 1 con tamaño 5 con algoritmo Worst-Fit
