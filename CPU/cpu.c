@@ -20,19 +20,20 @@ int main(int argc, char **argv){
 	package* packagePCB = malloc(sizeof(package));
 	package* paq = malloc(sizeof(package));
 	package* respuesta = malloc(sizeof(package));
+
 	//Defino variables locales
 	int32_t programcounter, segmentoCodigo, indiceCodigo=0;
+
+
 	char* solicitudEscritura = malloc(sizeof(t_pun)*3);
 	t_datoSentencia *datos = malloc(sizeof(t_datoSentencia));
+
 	//Defino solicitud de lectura y reservo espacio
 	t_solicitudLectura *sol = malloc(sizeof(t_solicitudLectura));
 
 	//Defino las estructuras para la configuracion del kernel y la UMV
 	t_config *configKernel = config_create((char*)argv[1]);
 	t_config *configUMV = config_create((char*)argv[1]);
-
-
-
 
 	t_confKernel kernel;
 	t_ip umvIP;
@@ -65,27 +66,26 @@ int main(int argc, char **argv){
 			if(handShakeUMV_CPU->type != handshakeCpuUmv){
 					//TODO: notificar_kernel();
 				}
+
 	char *pay = malloc(sizeof(t_pun));
-	memcpy(pay,&pcb->id,sizeof(t_pun));
+	memcpy(pay,&pcb->id,sizeof(t_pun)); // pay no iria con & ???
 	handShakeUMV_CPU = crear_paquete(cambioProcesoActivo, pay,sizeof(t_pun));
-	log_debug(logger,"BIENVENIDA UMV\n");
+	log_debug(logger,"CONECTADO A LA UMV\n");
+
 	while(1){ //para recibir los PCB
 
 			notificar_kernel(cpuDisponible);
 			packagePCB = recibir_paquete(socketKernel);
 			pcb = desserializarPCB(packagePCB->payload);
 			log_debug(logger,"RECIBIDA UNA PCB. Su program id es: %d\n",pcb->id);
-			int quantumPrograma = 0;
 			cargar_diccionarioVariables(pcb->sizeContext);
-
+			quantumPrograma = 0;
 
 			while(quantumPrograma<quantumKernel){
 
 				programcounter = pcb->programcounter;
 				programcounter++;
 				indiceCodigo = pcb->indiceCodigo;
-
-
 
 				sol->base = pcb->indiceCodigo;
 				sol->offset = programcounter*8;
@@ -101,7 +101,7 @@ int main(int argc, char **argv){
 				memcpy(&datos->inicio,paq->payload,sizeof(int32_t));
 				memcpy(&datos->longitud,paq->payload + sizeof(int32_t),sizeof(int32_t));
 
-				sol->base = pcb->indiceCodigo;
+				sol->base = pcb->segmentoCodigo; // TODO: Verificar, estaba pcb->indiceCodigo
 				sol->offset = datos->inicio;
 				sol->tamanio = datos->longitud;
 
@@ -120,10 +120,7 @@ int main(int argc, char **argv){
 		}
 			dictionary_clean(diccionarioVariables); //limpio el diccionario de variables
 
-
 			//TODO: Enviar PCB completo o Enviar lo modificado???? Preguntar Silvina y Pablo
-
-
 
 			if (desconectarse == true){
 				notificar_kernel(cpuDesconectada);
@@ -381,7 +378,10 @@ t_solicitudLectura *sol = malloc(sizeof(t_solicitudLectura));
 package *paquete = malloc(sizeof(package));
 char* serializado = malloc(sizeof(t_pun)*3);
 	if(pcb->cursorStack == pcb->segmentoCodigo){
-		//TODO: Finalizar La Ejecucion del Programa
+		dictionary_clean(diccionarioVariables);
+		notificar_kernel(finPrograma);
+		free(pcb);
+		quantumPrograma = quantumKernel;
 		}
 	else{
 		//Obtengo el Program Counter (Instruccion Siguiente)
@@ -397,12 +397,17 @@ char* serializado = malloc(sizeof(t_pun)*3);
 		sol->base = pcb->segmentoStack;
 		sol->offset = pcb->cursorStack - 8;
 		sol->tamanio = 4;
+
 		serializado = serializarSolicitudLectura(sol);
 		paquete = crear_paquete(lectura,serializado,sizeof(t_pun)*3);
 		enviar_paquete(paquete,socketUMV);
 		paquete = recibir_paquete(socketUMV);
 		memcpy(&pcb->cursorStack,paquete->payload,sizeof(t_pun));
 
+		//Limpio el diccionario y lo cargo
+		dictionary_clean(diccionarioVariables);
+		int32_t cant_var = (sol->offset - pcb->cursorStack)/5;
+		cargar_diccionario(cant_var);
 		}
 }
 
@@ -434,14 +439,17 @@ void GameOfThread_retornar(t_valor_variable retorno){
 	paquete = Leer(base,offset_tmp - 12, tamanio);
 	memcpy(&pcb->cursorStack,paquete->payload,sizeof(t_pun));
 
-//TODO: Creo que falta hacer algunas cosillas...
-
+	//Limpio el diccionario y lo cargo
+	dictionary_clean(diccionarioVariables);
+	int32_t cant_var = ((offset_tmp - 12) - pcb->cursorStack)/5;
+	cargar_diccionario(cant_var);
 }
 
 void GameOfThread_imprimirTexto(char* texto){
 	package* paquete = malloc(sizeof(package));
 	paquete = crear_paquete(programaImprimirTexto,texto,strlen(texto));
 	enviar_paquete(paquete,socketKernel);
+	destruir_paquete(paquete);
 }
 
 void GameOfThread_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
@@ -452,6 +460,9 @@ void GameOfThread_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
 	char* payload = serializarEntradaSalida(es);
 	paquete = crear_paquete(entrada_salida,payload,sizeof(t_nombre_dispositivo)+sizeof(uint32_t));
 	enviar_paquete(paquete,socketKernel);
+	destruir_paquete(paquete);
+	quantumPrograma = quantumKernel;
+	notificar_kernel(bloquearProgramaCPU);
 }
 
 void GameOfThread_wait(t_nombre_semaforo identificador_semaforo){
@@ -469,10 +480,6 @@ void GameOfThread_signal(t_nombre_semaforo identificador_semaforo){
 	paquete = crear_paquete(signalPrograma,payload,sizeof(t_nombre_semaforo));
 	enviar_paquete(paquete,socketKernel);
 }
-
-
-
-
 
 void *cargar_diccionarioVariables(int32_t cant_var){
 	t_solicitudLectura *sol = malloc(sizeof(t_solicitudLectura));
@@ -518,7 +525,11 @@ void notificar_kernel(t_paquete pa){
 				enviar_paquete(paquete,socketKernel);
 				break;
 			case error_label:
-				paquete = crear_paquete(error_label,"Error Label Instruccion",strlen("Error Label Instruccion"));
+				paquete = crear_paquete(error_label,"Error Label Instruccion",strlen("Error Label Instruccion")+1);
+				enviar_paquete(paquete,socketKernel);
+				break;
+			case bloquearProgramaCPU:
+				paquete = crear_paquete(bloquearProgramaCPU,"Bloquear programa", strlen("Bloquear programa")+1);
 				enviar_paquete(paquete,socketKernel);
 				break;
 
@@ -539,7 +550,7 @@ void handshake_kernel(void){
 	memcpy(&quantumKernel,quantum_package->payload,sizeof(t_pun));
 	handshake= crear_paquete(handshakeKernelCPU,"RECIBIDO OK",strlen("RECIBIDO OK")+1);
 	enviar_paquete(handshake,socketKernel);
-	log_debug(logger,"BIENVENIDO KERNEL");
+	log_debug(logger,"CONECTADO AL KERNEL");
 }
 
 
