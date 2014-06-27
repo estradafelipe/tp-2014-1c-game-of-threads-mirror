@@ -47,6 +47,18 @@ typedef struct{
 }__attribute__((packed)) t_PCB;
 
 typedef struct{
+        t_pun id;
+        t_pun indiceEtiquetas;
+        t_pun programcounter;
+}__attribute__((packed)) t_iPCBaCPU;
+
+typedef struct{
+        t_pun tamanioID;
+        t_pun id;
+        t_pun tiempo;
+}__attribute__((packed)) t_iESdeCPU;
+
+typedef struct{
 	t_nombre_compartida variable;
 	t_valor_variable valor;
 }__attribute__((packed)) t_asignacion;

@@ -186,4 +186,58 @@ t_solicitudEscritura* desserializarSolicitudEscritura(char* solicitud){
 	return solic;
 }
 
+char * serializar_datos_pcb_para_cpu(t_PCB pcb){
+        char *stream = malloc(sizeof(t_pun)*3);
+        int size=0, offset=0;
+        size = sizeof(t_pun);
+        memcpy(stream, &pcb->id, size);
+        offset += size;
+        size = sizeof(t_pun);
+        memcpy (stream + offset, &pcb->indiceEtiquetas, size);
+        offset += size;
+        size = sizeof(t_pun);
+        memcpy (stream + offset, &pcb->programcounter, size);
+
+        return stream;
+}
+
+t_iPCBaCPU * deserializarRetornoPCBdeCPU(char * payload){
+        int offset = 0, tmp_size = 0;
+        t_iPCBaCPU * datosPCB;
+        datosPCB = malloc(sizeof(t_iPCBaCPU));
+
+        tmp_size = sizeof(t_pun);
+        memcpy(&datosPCB->id,payload+offset,tmp_size);
+
+        offset += tmp_size;
+        tmp_size = sizeof(t_pun);
+        memcpy(&datosPCB->indiceEtiquetas,payload+offset,tmp_size);
+
+        offset += tmp_size;
+        tmp_size = sizeof(t_pun);
+        memcpy(&datosPCB->programcounter,payload+offset,tmp_size);
+
+        return datosPCB;
+}
+
+t_iESdeCPU deserializar_mensaje_ES(char * payload){
+        int offset = 0, tmp_size = 0;
+        t_iESdeCPU * datosES;
+        datosES = malloc(sizeof(t_iESdeCPU));
+
+        tmp_size = sizeof(t_pun);
+        memcpy(&datosES->tamanioID, payload+offset, tmp_size);
+
+        offset += tmp_size;
+        tmp_size = datosES->tamanioID;
+        memcpy(datosES->id, payload+offset, tmp_size);
+        memcpy((datosES->id)+datosES->tamanioID,"\0",1);
+
+        offset += tmp_size;
+        tmp_size = sizeof(t_pun);
+        memcpy(&datosES->tiempo, payload+offset, tmp_size);
+
+        return datosES;
+}
+
 
