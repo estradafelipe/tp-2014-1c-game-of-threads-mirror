@@ -4,29 +4,23 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../src/hilos.c \
-../src/kernel.c \
-../src/pcp.c \
-../src/plp.c \
-../src/pruebas.c 
+../commons/collections/dictionary.c \
+../commons/collections/list.c \
+../commons/collections/queue.c 
 
 OBJS += \
-./src/hilos.o \
-./src/kernel.o \
-./src/pcp.o \
-./src/plp.o \
-./src/pruebas.o 
+./commons/collections/dictionary.o \
+./commons/collections/list.o \
+./commons/collections/queue.o 
 
 C_DEPS += \
-./src/hilos.d \
-./src/kernel.d \
-./src/pcp.d \
-./src/plp.d \
-./src/pruebas.d 
+./commons/collections/dictionary.d \
+./commons/collections/list.d \
+./commons/collections/queue.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
-src/%.o: ../src/%.c
+commons/collections/%.o: ../commons/collections/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C Compiler'
 	gcc -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"

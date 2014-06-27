@@ -4,29 +4,38 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../src/hilos.c \
-../src/kernel.c \
-../src/pcp.c \
-../src/plp.c \
-../src/pruebas.c 
+../commons/bitarray.c \
+../commons/config.c \
+../commons/error.c \
+../commons/log.c \
+../commons/process.c \
+../commons/string.c \
+../commons/temporal.c \
+../commons/txt.c 
 
 OBJS += \
-./src/hilos.o \
-./src/kernel.o \
-./src/pcp.o \
-./src/plp.o \
-./src/pruebas.o 
+./commons/bitarray.o \
+./commons/config.o \
+./commons/error.o \
+./commons/log.o \
+./commons/process.o \
+./commons/string.o \
+./commons/temporal.o \
+./commons/txt.o 
 
 C_DEPS += \
-./src/hilos.d \
-./src/kernel.d \
-./src/pcp.d \
-./src/plp.d \
-./src/pruebas.d 
+./commons/bitarray.d \
+./commons/config.d \
+./commons/error.d \
+./commons/log.d \
+./commons/process.d \
+./commons/string.d \
+./commons/temporal.d \
+./commons/txt.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
-src/%.o: ../src/%.c
+commons/%.o: ../commons/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C Compiler'
 	gcc -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"

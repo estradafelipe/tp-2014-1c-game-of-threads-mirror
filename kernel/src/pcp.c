@@ -17,7 +17,7 @@
 #include <arpa/inet.h>
 #include <commons/collections/dictionary.h>
 #include <sockets.h>
-#include <colas.h>
+#include "colas.h"
 #include <semaphore.h>
 #include <pthread.h>
 
@@ -242,7 +242,7 @@ void mandarA_ES(t_entradasalida dispositivo, t_PCB * pcb, int tiempo){
 	t_progIO * es = malloc(t_progIO);
 	es->PCB = pcb;
 	es->unidadesTiempo = tiempo;
-	cola_push(dispositivo->cola, es);
+	pasarACola(dispositivo->cola, es);
 	sem_post(&dispositivo->semaforo_IO); // Despierto el hilo
 	free(es);
 }
@@ -264,49 +264,89 @@ void opRetornoCPUFin(int fd, char * payload, int longitudMensaje){
 	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
 	t_PCB *pcb = modificarPCB(cpu->pcb, datosPCB);
 	poner_cpu_no_disponible(cpu);
-	cola_push(cola_exit, pcb);
+	pasarACola(cola_exit, pcb);
 	sem_post(sem_exit);
 }
 
 void opRetornoCPUExcepcion(int fd, char * payload, int longitudMensaje){
 	printf("Retorno de CPU por Excepcion logica\n");
 	char * excepcion = deserializar_mensaje_excepcion(payload);
-	imprimir_mensaje_excepcion(excepcion);// DONDE se pone el mensaje de finalizacion de programa
-	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
+	imprimir_mensaje_excepcion(excepcion);// DONDE se pone el mensaje de finalizacion de programa SILVINA
 	poner_cpu_no_disponible(cpu);
-	cola_push(cola_exit, cpu->pcb);
+	pasarACola(cola_exit, cpu->pcb);
 	sem_post(sem_exit);
 }
 
-void opExcepcionCPUHardware(int fd, char * payload, int longitudMensaje){
+void opExcepcionCPUHardware(int fd){
 	printf("Retorno de CPU por Excepcion Hardware\n");
-	mandarAFinalizarProgramaExcHardware(paquete);
+	char * excepcion = "Error CPU";
+	imprimir_mensaje_excepcion(excepcion);// DONDE se pone el mensaje de finalizacion de programa SILVINA
+	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
+	poner_cpu_no_disponible(cpu);
+	pasarACola(cola_exit, cpu->pcb);
+	sem_post(sem_exit);
+}
+
+void pasar_valor_a_imprimir(char * valor, int longitudValor, int fd){
+	package *paquete = crear_paquete(imprimirValor,valor,longitudValor); //agregar a enum de tipos de mensaje
+	if (enviar_paquete(paquete,fd)==-1){
+		printf("Error en envio de Valor a imprimir: %d", fd);
+	}
+	free(paquete);
+}
+
+void pasar_valor_a_imprimir(char * texto, int longitudTexto, int fd){
+	package *paquete = crear_paquete(imprimirTexto,texto,longitudTexto); //agregar a enum de tipos de mensaje
+	if (enviar_paquete(paquete,fd)==-1){
+		printf("Error en envio de Texto a imprimir: %d", fd);
+	}
+	free(paquete);
 }
 
 void opImprimirValor(int fd, char * payload, int longitudMensaje){
-	printf("Retorno de CPU por Excepcion Hardware\n");
-	mandarAPLPImprimirValorEnConsola(valor);
+	printf("Imprimir Valor\n");
+	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
+	t_PCB *pcb = cpu->pcb;
+	t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",pcb->id));
+	pasar_valor_a_imprimir(payload, longitudMensaje, programa->fd);// VER Con Silvina ¿imprime el PCP?
 }
 
 void opImprimirTexto(int fd, char * payload, int longitudMensaje){
-	printf("Retorno de CPU por Excepcion Hardware\n");
-	mandarAPLPImprimirTextoEnConsola(texto);
+	printf("Imprimir Texto\n");
+	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
+	t_PCB *pcb = cpu->pcb;
+	t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",pcb->id));
+	pasar_mensaje_a_imprimir(payload, longitudMensaje, programa->fd);// VER Con Silvina ¿imprime el PCP?
 }
 
 void opTomarSemaforo(int fd, char * payload, int longitudMensaje){
-	printf("Retorno de CPU por Excepcion Hardware\n");
-	mandarABloquearSemaforo(semaforo);
+	printf("Tomar semaforo\n");
+	char * nombre_semaforo = deserializar_nombre_semaforo(payload, longitudMensaje);
+	wait_semaforo(nombre_semaforo, fd);
+}
+
+char * deserializar_nombre_semaforo(char * mensaje, int longitud){
+	char * semaforo = malloc(longitud);
+	memcpy(semaforo, mensaje, longitud);
+	free(semaforo);
+	return semaforo;
 }
 
 void opLiberarSemaforo(int fd, char * payload, int longitudMensaje){
-	printf("Retorno de CPU por Excepcion Hardware\n");
-	mandarALiberarSemaforo(semaforo);
+	printf("Liberar semaforo\n");
+	char * semaforo = deserializar_nombre_semaforo(payload, longitudMensaje);
+	signal_semaforo(semaforo);
 }
 
-void mandarAColaSalida(package *paquete){
-	desserializarPCB;
-	pasarA(EXIT, element);
-	sem_post(sem_exit);
+void opObtenerVariable(int fd, char * payload, int longitudMensaje){
+	printf("Solicitud de variable\n");
+
+
+}
+
+void opGrabarVariable(int fd, char * payload, int longitudMensaje){
+	printf("Guardar valor en variable\n");
+
 }
 
 void pasarACola(t_cola* cola, t_PCB *element){
