@@ -37,14 +37,17 @@ void* atenderNuevaConexion(void* parametro){
 				printf("No anda el tipo de paquete :(\n");
 				break;
 		}
+		destruir_paquete(paquete);
 	}
 	if (bytesRecibidos==-1) {
 		log_debug(logger, "BytesRecibidos == -1, Error al recibir datos");
 		perror("Error al recibir datos");
+		destruir_paquete(paquete);
 	} else if (bytesRecibidos==0) {	//Se desconecto
 		log_debug(logger, "Se desconecto y no se pudo realizar el handshake");
+		destruir_paquete(paquete);
+		exit(0);
 	}
-	destruir_paquete(paquete);
 	return (void*)socketCliente;// para que no rompa las bolas con que la funcion no retorna un void*
 }
 
@@ -179,15 +182,17 @@ int atenderKernel(int fd){
 					log_debug(logger, "Tipo de mensaje invalido");
 					//notificar al kernel que el mensaje es invalido???
 			}
+			destruir_paquete(paquete);
 		}
 		if (bytesRecibidos==-1) {
 			printf("BytesRecibidos == -1\n ");
 			perror("Error al recibir datos");
+			destruir_paquete(paquete);
 		} else if (bytesRecibidos==0) {	//Se desconecto
 			log_info(logger, "Se desconecto el Kernel");
-			break;
+			destruir_paquete(paquete);
+			exit(0);
 		}
-		destruir_paquete(paquete);
 	}
 	log_debug(logger, "Hilo que atiende al KERNEL termino");
 	free(answer);
@@ -221,6 +226,10 @@ int atenderCpu(int fd){
 					//deserializar para obtener el id_programa
 					memcpy(&resultado,paquete->payload,sizeof(t_pun));
 					procesoActivo = resultado;
+					log_debug(logger, "Cambio de proceso activo. Ahora es el programa %d",procesoActivo);
+					respuesta = crear_paquete(respuestaUmv,"Cambio ok",strlen("Cambio ok") + 1);
+					enviar_paquete(respuesta,fd);
+					destruir_paquete(respuesta);
 					break;
 				case lectura:
 					sleep(retardo);
@@ -272,16 +281,18 @@ int atenderCpu(int fd){
 				default:
 					log_debug(logger, "Tipo de mensaje invalido");
 					//notificar a la cpu que el mensaje es invalido???
-			}	
+			}
+			destruir_paquete(paquete);
 		}
 		if (bytesRecibidos==-1) {
 			printf("BytesRecibidos == -1\n ");
 			perror("Error al recibir datos");
+			destruir_paquete(paquete);
 		} else if (bytesRecibidos==0) {	//Se desconecto
 			log_debug(logger, "Se desconecto una CPU");
-			break;
+			destruir_paquete(paquete);
+			exit(0);
 		}
-		destruir_paquete(paquete);
 	}
 	log_debug(logger, "Hilo que atiende una CPU termino");
 	free(answer);
@@ -631,7 +642,7 @@ int escribir(int id_programa,t_solicitudEscritura* solicitud){
 }
 
 /* Dado un id_programa y un tamaño debe validar que haya espacio suficiente segun el algoritmo actual
- * Si hay espacio debe crear el segmento y retornar un valor >= 0
+ * Si hay espacio debe crear el segmento y retornar la dir logica del segmento
  * Caso contrario devuelve -1
  */
 int crear_segmento(t_crearSegmentoUMV* datos){
@@ -723,7 +734,7 @@ int compactar(){
 
 /* Crea un nuevo segmento con el algoritmo FIRST-FIT
  * Devuelve -1 en caso de no encontrar espacio suficiente para el segmento
- * Caso contrario devuelve la posicion en la lista
+ * Caso contrario devuelve la dir logica del segmento
  */
 int first_fit(t_list* lista,int id_programa,int tamanio){
 	int i;
@@ -759,7 +770,7 @@ int first_fit(t_list* lista,int id_programa,int tamanio){
 
 /* Crea un nuevo segmento con el algoritmo WORST-FIT
  * Devuelve -1 en caso de no encontrar espacio suficiente para el segmento
- * Caso contrario devuelve la posicion en la lista
+ * Caso contrario devuelve la dir logica del segmento
  */
 int worst_fit(t_list* lista,int id_programa,int tamanio){
 	t_list* listaOrdenada = list_take(lista,list_size(segmentos));
@@ -849,8 +860,9 @@ int imprimir_estructuras(int id_programa){
 	int i;
 	t_segmento* aux;
 	int cant_seg=list_size(segmentos);
+	log_debug(loggerConsola,"**********************************************");
 	if(id_programa < 0){ //todos los procesos
-		t_list* listaOrdenada = segmentos; // lista ordenada por id_programa
+		t_list* listaOrdenada = list_take(segmentos,list_size(segmentos)); // lista ordenada por id_programa
 		list_sort(listaOrdenada,(void*)_menor_id_programa);
 		for(i=0;i<cant_seg;i++){
 			aux = list_get(listaOrdenada,i);
@@ -866,6 +878,7 @@ int imprimir_estructuras(int id_programa){
 			}
 		}
 	}
+	log_debug(loggerConsola,"**********************************************\n");
 	return 0;
 }
 
@@ -874,6 +887,7 @@ int imprimir_segmentos_memoria(){
 	int i;
 	t_segmento* aux;
 	int cant_seg=list_size(segmentos);
+	log_debug(loggerConsola,"**********************************************");
 	for(i=0;i<cant_seg;i++){
 		aux = list_get(segmentos,i);
 		if(aux->id_programa != -1){
@@ -882,6 +896,7 @@ int imprimir_segmentos_memoria(){
 			log_debug(loggerConsola,"Id_programa: %d (VACÍO), Base logica: %d, Base real: %p, Tamaño: %d",aux->id_programa, aux->base_logica,aux->base,aux->tamanio);
 		}
 	}
+	log_debug(loggerConsola,"**********************************************\n");
 	return 0;
 }
 
@@ -891,17 +906,16 @@ int imprimir_contenido(int offset, int tamanio){
 	char* datos = malloc(tamanio);
 	memcpy(datos,bloqueDeMemoria+offset,tamanio);
 	printf("El contenido a partir de la posicion %d y tamaño %d es: %s\n", offset, tamanio, generarHexa(datos,tamanio));//imprimir datos en hexa??
-
-	if(logConsola){
-		log_debug(loggerConsola,"El contenido a partir de la posicion %d y tamaño %d es: %s", offset, tamanio, generarHexa(datos,tamanio));
-	}
-
+	log_debug(loggerConsola,"**********************************************");
+	log_debug(loggerConsola,"El contenido a partir de la posicion %d y tamaño %d es: %s", offset, tamanio, generarHexa(datos,tamanio));
+	log_debug(loggerConsola,"**********************************************\n");
 	return 0;
 }
 
+/*Genera un string con el valor en hexa de cada byte */
 char* generarHexa(char* buffer,int tamanio){
 	int i;
-	char* logueo = malloc(16);
+	char* logueo = malloc((3 * tamanio) + 1);
 	char* hexa = malloc(4);
 
 	for(i=0;i<tamanio;i++){
@@ -917,19 +931,169 @@ char* generarHexa(char* buffer,int tamanio){
 
 
 /* Para facilitar las pruebas ACORDATE DE BORRARLO DESPUES!!!!! */
+/* Prueba los algoritmos de creacion de segmentos */
+/* Funcionan OK ;) */
 int scriptCreacionSegmentos(){
-	t_crearSegmentoUMV* datos = malloc(sizeof(t_crearSegmentoUMV));
-	datos->programid = 0;
-	datos->size = 24;
-	crear_segmento(datos);
-	datos->programid = 1;
-	datos->size = 16;
-	crear_segmento(datos);
-	datos->programid = 0;
-	datos->size = 14;
-	crear_segmento(datos);
 
+	t_crearSegmentoUMV* datos = malloc(sizeof(t_crearSegmentoUMV));
+
+	datos->programid = 0;
+	datos->size = 4;
+	int dir1 = crear_segmento(datos);
+	printf("Segmento programa 0 y tamaño 4, dir logica: %d\n",dir1);
+	datos->programid = 2;
+	datos->size = 6;
+	int dir3 = crear_segmento(datos);
+	printf("Segmento programa 2 y tamaño 6, dir logica: %d\n",dir3);
+	datos->programid = 1;
+	datos->size = 8;
+	int dir2 = crear_segmento(datos);
+	printf("Segmento programa 1 y tamaño 8, dir logica: %d\n",dir2);
+
+
+	printf("Imprimiendo lista de segmentos\n");
+	imprimir_segmentos_memoria();
+
+	sleep(3);
+
+	printf("Destruyendo segmentos del programa 2\n");
+	destruir_segmentos(2);
+
+
+	printf("Imprimiendo lista de segmentos\n");
+	imprimir_segmentos_memoria();
+
+	sleep(3);
+
+	datos->programid = 1;
+	datos->size = 5;
+	int dir4 = crear_segmento(datos);
+	printf("Segmento programa 1 y tamaño 8, dir logica: %d\n",dir4);
+
+	printf("Imprimiendo lista de segmentos\n");
+	imprimir_segmentos_memoria();
 
 	return 0;
 }
+
+/* Prueba la compactacion, lectura y escritura */
+/* funcionan OK ;) */
+/*
+int scriptCreacionSegmentos(){
+	int entero;
+	int resultado;
+	char* buffer;
+	t_crearSegmentoUMV* datos = malloc(sizeof(t_crearSegmentoUMV));
+	t_solicitudEscritura* sol = malloc(sizeof(t_solicitudEscritura));
+	t_solicitudLectura* soli = malloc(sizeof(t_solicitudLectura));
+	sol->buffer = malloc(sizeof(int));
+
+	datos->programid = 0;
+	datos->size = 4;
+	int dir1 = crear_segmento(datos);
+	printf("Segmento programa 0 y tamaño 4, dir logica: %d\n",dir1);
+	datos->programid = 2;
+	datos->size = 6;
+	int dir3 = crear_segmento(datos);
+	printf("Segmento programa 2 y tamaño 6, dir logica: %d\n",dir3);
+	datos->programid = 1;
+	datos->size = 8;
+	int dir2 = crear_segmento(datos);
+	printf("Segmento programa 1 y tamaño 8, dir logica: %d\n",dir2);
+
+
+	printf("Imprimiendo lista de segmentos\n");
+	imprimir_segmentos_memoria();
+
+	sleep(3);
+
+	printf("Escrituras\n");
+	entero = 15;
+	sol->base = dir1;
+	memcpy(sol->buffer,&entero,sizeof(int));
+	sol->offset = 0;
+	sol->tamanio = sizeof(int);
+	printf("Escribiendo en seg %d el entero %s (hexa)\n",dir1,generarHexa(sol->buffer,sizeof(int)));
+	resultado = escribir(0,sol);
+	printf("Resultado de escritura: %d\n",resultado);
+
+	entero = 78;
+	sol->base = dir2;
+	memcpy(sol->buffer,&entero,sizeof(int));
+	printf("Escribiendo en seg %d el entero %s (hexa)\n",dir2,generarHexa(sol->buffer,sizeof(int)));
+	resultado = escribir(1,sol);
+	printf("Resultado de escritura: %d\n",resultado);
+
+	sleep(3);
+
+	printf("Lecturas\n");
+	soli->base = dir1;
+	soli->offset = 0;
+	soli->tamanio = sizeof(int);
+	printf("Lectura completa del seg %d\n",dir1);
+	buffer = leer(0,soli);
+	if(buffer != NULL){
+		printf("Los datos son: %s\n",generarHexa(buffer,sizeof(int)));
+	} else {
+		printf("NULL?????\n");
+	}
+
+	soli->base = dir2;
+	soli->offset = 0;
+	soli->tamanio = sizeof(int);
+	printf("Lectura completa del seg %d\n",dir2);
+	buffer = leer(1,soli);
+	if(buffer != NULL){
+		printf("Los datos son: %s\n",generarHexa(buffer,sizeof(int)));
+	} else {
+		printf("NULL?????\n");
+	}
+
+	sleep(3);
+
+	printf("Destruyendo segmentos del programa 2\n");
+	destruir_segmentos(2);
+
+
+	printf("Imprimiendo lista de segmentos\n");
+	imprimir_segmentos_memoria();
+
+	sleep(3);
+
+	printf("Compactando\n");
+	compactar();
+	printf("Compactacion terminada\n");
+
+	printf("Imprimiendo lista de segmentos\n");
+	imprimir_segmentos_memoria();
+
+
+	sleep(3);
+
+	printf("Lecturas otra vez\n");
+	soli->base = dir1;
+	soli->offset = 0;
+	soli->tamanio = sizeof(int);
+	printf("Lectura completa del seg %d\n",dir1);
+	buffer = leer(0,soli);
+	if(buffer != NULL){
+		printf("Los datos son: %s\n",generarHexa(buffer,sizeof(int)));
+	} else {
+		printf("NULL?????\n");
+	}
+
+	soli->base = dir2;
+	soli->offset = 0;
+	soli->tamanio = sizeof(int);
+	printf("Lectura completa del seg %d\n",dir2);
+	buffer = leer(1,soli);
+	if(buffer != NULL){
+		printf("Los datos son: %s\n",generarHexa(buffer,sizeof(int)));
+	} else {
+		printf("NULL?????\n");
+	}
+
+
+	return 0;
+}*/
 
