@@ -11,8 +11,14 @@
 typedef struct
 {
 	char *valor;
-	pthread_mutex_t* mutex;;
+	pthread_mutex_t * mutex;
 }t_variable_compartida;
 
+
+typedef struct
+{
+	char * nombre;
+	char *valor;
+}t_iVARCOM;
 
 #endif /* VARCOM_H_ */

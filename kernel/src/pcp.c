@@ -321,32 +321,58 @@ void opImprimirTexto(int fd, char * payload, int longitudMensaje){
 
 void opTomarSemaforo(int fd, char * payload, int longitudMensaje){
 	printf("Tomar semaforo\n");
-	char * nombre_semaforo = deserializar_nombre_semaforo(payload, longitudMensaje);
+	char * nombre_semaforo = deserializar_nombre_recurso(payload, longitudMensaje);
 	wait_semaforo(nombre_semaforo, fd);
 }
 
-char * deserializar_nombre_semaforo(char * mensaje, int longitud){
-	char * semaforo = malloc(longitud);
-	memcpy(semaforo, mensaje, longitud);
-	free(semaforo);
-	return semaforo;
+char * deserializar_nombre_recurso(char * mensaje, int longitud){
+	char * recurso = malloc(longitud);
+	memcpy(recurso, mensaje, longitud);
+	free(recurso);
+	return recurso;
 }
 
 void opLiberarSemaforo(int fd, char * payload, int longitudMensaje){
 	printf("Liberar semaforo\n");
-	char * semaforo = deserializar_nombre_semaforo(payload, longitudMensaje);
+	char * nombre_semaforo = deserializar_nombre_recurso(payload, longitudMensaje);
 	signal_semaforo(semaforo);
+}
+
+char * serializar_valor_variable_compartida(char * , longitudMensaje){
+
 }
 
 void opObtenerVariable(int fd, char * payload, int longitudMensaje){
 	printf("Solicitud de variable\n");
-
-
+	char * nombre_variable = deserializar_nombre_recurso(payload, longitudMensaje);
+	t_variable_compartida * variable_compartida = dictionary_get(kernel->variables_compartidas, string_from_format("%d",nombre_variable));
+	pthread_mutex_lock(variable_compartida->mutex);
+	char * valor_variable_compartida = serializar_valor_variable_compartida(variable_compartida->valor, strlen(variable_compartida->valor));
+	package *paquete = crear_paquete(variableCompartida, valor_variable_compartida, strlen(variable_compartida->valor)); //agregar a enum de tipos de mensaje
+	if (enviar_paquete(paquete,fd)==-1){
+		printf("Error en envio de Valor a imprimir: %d", fd);
+	} else {
+		printf("Envio de Valor a imprimir: %d", fd);
+	}
+	pthread_mutex_lock(variable_compartida->mutex);
+	free(paquete);
 }
 
 void opGrabarVariable(int fd, char * payload, int longitudMensaje){
 	printf("Guardar valor en variable\n");
-
+	t_iVARCOM * variable = deserializar_nombre_recurso(payload, longitudMensaje);
+	t_variable_compartida * variable_compartida = dictionary_get(kernel->variables_compartidas, string_from_format("%d",variable->nombre));
+	pthread_mutex_lock(variable_compartida->mutex);
+	variable_compartida->valor = variable->valor;
+	char * valor_variable_compartida = serializar_valor_variable_compartida(variable_compartida->valor, strlen(variable_compartida->valor));
+	package *paquete = crear_paquete(variableCompartida, valor_variable_compartida, strlen(variable_compartida->valor)); //agregar a enum de tipos de mensaje
+	if (enviar_paquete(paquete,fd)==-1){
+		printf("Error en envio de Valor a imprimir: %d", fd);
+	} else {
+		printf("Envio de Valor a imprimir: %d", fd);
+	}
+	pthread_mutex_lock(variable_compartida->mutex);
+	free(paquete);
 }
 
 void pasarACola(t_cola* cola, t_PCB *element){

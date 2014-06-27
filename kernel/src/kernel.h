@@ -36,6 +36,7 @@ typedef struct
 	t_dictionary *cpus;
 	t_dictionary *semaforos;
 	t_dictionary *entradasalida;
+	t_dictionary *variables_compartidas;
 	pthread_mutex_t mutex_programas;
 	pthread_mutex_t mutex_cpus;
 }t_kernel;
