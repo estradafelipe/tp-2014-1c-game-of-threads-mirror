@@ -24,9 +24,7 @@ int main(int argc, char **argv){
 
 	//Defino variables locales
 	int32_t programcounter, segmentoCodigo, indiceCodigo;
-
-
-	char* solicitudEscritura = malloc(sizeof(t_pun)*3);
+	char* solicitudLectura = malloc(sizeof(t_pun)*3);
 	t_datoSentencia *datos = malloc(sizeof(t_datoSentencia));
 
 	//Defino solicitud de lectura y reservo espacio
@@ -61,24 +59,26 @@ int main(int argc, char **argv){
 	//me conecto a la UMV
 	socketUMV = abrir_socket();
 	conectar_socket(socketUMV,umvIP.ip, (int)umvIP.port);
-	package* handShakeUMV_CPU = crear_paquete(handshakeCpuUmv,"Hola",strlen("Hola"));
-	enviar_paquete(handShakeUMV_CPU, socketUMV);
-	handShakeUMV_CPU = recibir_paquete(socketUMV);
-			if(handShakeUMV_CPU->type != handshakeCpuUmv){
-					//TODO: notificar_kernel();
-				}
-
-	char *pay = malloc(sizeof(t_pun));
-	memcpy(pay,&pcb->id,sizeof(t_pun)); // pay no iria con & ???
-	handShakeUMV_CPU = crear_paquete(cambioProcesoActivo, pay,sizeof(t_pun));
-	log_debug(logger,"CONECTADO A LA UMV\n");
+	handshake(handshakeCpuUmv);
 
 	while(1){ //para recibir los PCB
 
+
+			/* Recibo PCB */
 			notificar_kernel(cpuDisponible);
 			packagePCB = recibir_paquete(socketKernel);
 			pcb = desserializarPCB(packagePCB->payload);
 			log_debug(logger,"RECIBIDA UNA PCB. Su program id es: %d\n",pcb->id);
+			destruir_paquete(packagePCB);
+			/* Envio PCB.id A Pipe */
+			char* payload = malloc(sizeof(t_pun));
+			memcpy(payload,&pcb->id,sizeof(t_pun));
+			paq = crear_paquete(pcbIDaUMV,payload,sizeof(t_pun));
+			enviar_paquete(paq,socketUMV);
+			free(payload);
+			destruir_paquete(paq);
+
+
 			cargar_diccionarioVariables(pcb->sizeContext);
 			quantumPrograma = 0;
 
@@ -92,31 +92,43 @@ int main(int argc, char **argv){
 				sol->offset = programcounter*8;
 				sol->tamanio = TAMANIO_INSTRUCCION;
 
-				solicitudEscritura = serializarSolicitudLectura(sol);
-
-				paq = crear_paquete(lectura,solicitudEscritura,sizeof(t_pun)*3);
+				solicitudLectura = serializarSolicitudLectura(sol);
+				paq = crear_paquete(lectura,solicitudLectura,sizeof(t_pun)*3);
 				enviar_paquete(paq,socketUMV);
-
+				destruir_paquete(paq);
+				free(solicitudLectura);
+				free(sol);
 				paq = recibir_paquete(socketUMV);
+				if(paq->type != respuestaUmv){
+					//TODO: notificar_kernel();
+					exit(1);
+				}
+
 
 				memcpy(&datos->inicio,paq->payload,sizeof(int32_t));
 				memcpy(&datos->longitud,paq->payload + sizeof(int32_t),sizeof(int32_t));
+				destruir_paquete(paq);
 
 				sol->base = pcb->segmentoCodigo; // TODO: Verificar, estaba pcb->indiceCodigo
 				sol->offset = datos->inicio;
 				sol->tamanio = datos->longitud;
+				solicitudLectura = serializarSolicitudLectura(sol);
+				free(sol);
 
-				solicitudEscritura = serializarSolicitudLectura(sol);
-				paq = crear_paquete(lectura,solicitudEscritura,sizeof(t_pun)*3);
+				paq = crear_paquete(lectura,solicitudLectura,sizeof(t_pun)*3);
 				enviar_paquete(paq, socketUMV);
+				destruir_paquete(paq);
+				free(solicitudLectura);
 				respuesta = recibir_paquete(socketUMV);
 				if(respuesta->type != respuestaUmv){
 					//TODO: notificar_kernel()
 					exit(1);
 				}
 
-				// Ejecutar parser
-				//TODO: Destruir paquete antes de volver a crear otro;
+				// TODO: analizadorLinea();
+
+				destruir_paquete(respuesta);
+
 				quantumPrograma ++;
 		}
 			dictionary_clean(diccionarioVariables); //limpio el diccionario de variables
@@ -146,13 +158,17 @@ void rutina(int n){
 
 void *cargar_diccionarioVariables(int32_t cant_var){
 	t_solicitudLectura *sol = malloc(sizeof(t_solicitudLectura));
-	int32_t cursorStack = pcb->cursorStack;
 	package* solicitudLectura = malloc(sizeof(package));
 	package* paq = malloc(sizeof(package));
+	t_puntero puntero;
+
+
+			dictionary_clean(diccionarioVariables);
+
 
 			while(cant_var >0){
 
-				sol->base = cursorStack;
+				sol->base = pcb->cursorStack;
 				sol->offset = (cant_var - 1) * 5;
 				sol->tamanio = TAMANIO_ID_VAR;
 
@@ -160,13 +176,22 @@ void *cargar_diccionarioVariables(int32_t cant_var){
 
 				solicitudLectura = crear_paquete(lectura,payloadSerializado,sizeof(t_puntero)*3);
 				enviar_paquete(solicitudLectura, socketUMV);
+				destruir_paquete(solicitudLectura);
+				free(payloadSerializado);
 				paq = recibir_paquete(socketUMV);
-				//TODO: Verificar que todo haya salido bien
-				char* var = paq->payload;
-				t_puntero puntero;
+				if(paq->type != respuestaUmv){
+					//TODO: notificar_kernel()
+					exit(1);
+				}
+				char* var = malloc(strlen(paq->payload)+1);
+				memcpy(var,paq->payload,strlen(paq->payload)+1);
+
 				puntero = sol->offset;
 
 				dictionary_put(diccionarioVariables, var,(void*)puntero);
+				destruir_paquete(paq);
+				free(var);
+
 				cant_var--;
 			}
 }
@@ -178,22 +203,27 @@ void notificar_kernel(t_paquete pa){
 			case cpuDisponible:
 				paquete = crear_paquete(cpuDisponible,"ESTOY DISPONIBLE",strlen("ESTOY DISPONIBLE")+1);
 				enviar_paquete(paquete,socketKernel);
+				destuir_paquete(paquete);
 				break;
 			case cpuDesconectada:
 				paquete =  crear_paquete(cpuDesconectada,"Me Desconecto",strlen("Me Desconecto")+1);
 				enviar_paquete(paquete,socketKernel);
+				destuir_paquete(paquete);
 				break;
 			case violacionSegmento:
 				paquete = crear_paquete(violacionSegmento,"Violacion Segmento", strlen("Violacion Segmento")+1);
 				enviar_paquete(paquete,socketKernel);
+				destuir_paquete(paquete);
 				break;
 			case error_label:
 				paquete = crear_paquete(error_label,"Error Label Instruccion",strlen("Error Label Instruccion")+1);
 				enviar_paquete(paquete,socketKernel);
+				destuir_paquete(paquete);
 				break;
 			case bloquearProgramaCPU:
 				paquete = crear_paquete(bloquearProgramaCPU,"Bloquear programa", strlen("Bloquear programa")+1);
 				enviar_paquete(paquete,socketKernel);
+				destuir_paquete(paquete);
 				break;
 
 			default:
@@ -216,25 +246,30 @@ void handshake(t_paquete pa){
 					handshake =  recibir_paquete(socketKernel);
 					quantum_package = recibir_paquete(socketKernel);
 					memcpy(&quantumKernel,quantum_package->payload,sizeof(t_pun));
+					destruir_paquete(handshake);
 					handshake= crear_paquete(handshakeKernelCPU,"RECIBIDO OK",strlen("RECIBIDO OK")+1);
 					enviar_paquete(handshake,socketKernel);
 					destruir_paquete(handshake);
 					destruir_paquete(quantum_package);
 					log_debug(logger,"CONECTADO AL KERNEL");
 					log_debug(logger,"El Quantum es:%d",quantumKernel);
+					break;
 
 
 		case handshakeCpuUmv:
 			handshake = crear_paquete(handshakeCpuUmv,"HOLA UMV",strlen("HOLA UMV")+1);
 			enviar_paquete(handshake,socketUMV);
 			destruir_paquete(handshake);
-			handshake =  recibir_paquete(socketKernel);
+			handshake =  recibir_paquete(socketUMV);
 			if(handshake->type != handshakeCpuUmv){
 				notificar_kernel(cpuDesconectada);
 				log_debug(logger,"CPU DESCONECTADA ,PROBLEMA CON LA UMV");
 				exit(1);
-			destruir_paquete(handshake);
+				destruir_paquete(handshake);
 						}
+				break;
+
+
 		default: break;
 				}
 
@@ -246,13 +281,18 @@ package *Leer(t_pun base,t_pun offset,t_pun tamanio){
 	int32_t err;
 	package *solicitud = malloc(sizeof(package));
 	char* payload = malloc(sizeof(t_pun)*3);
+
+
 	sol->base = base;
 	sol->offset = offset;
 	sol->tamanio = tamanio;
+
 	payload = serializarSolicitudLectura(sol);
-	solicitud = crear_paquete(lectura,payload,sizeof(t_pun));
+	solicitud = crear_paquete(lectura,payload,sizeof(t_pun)*3);
 	enviar_paquete(solicitud,socketUMV);
 	destruir_paquete(solicitud);
+	free(payload);
+
 	solicitud = recibir_paquete(socketUMV);
 	memcpy(&err,solicitud->payload,sizeof(int32_t));
 	if(err == -1){
@@ -260,24 +300,26 @@ package *Leer(t_pun base,t_pun offset,t_pun tamanio){
 		exit(1);
 	}
 
-	destruir_paquete(solicitud);
 	free(payload);
 	return solicitud;
+	destruir_paquete(solicitud);
 }
 
 package *Escribir(t_pun base, t_pun offset, t_pun tamanio, char* buffer){
 	t_solicitudEscritura *sol = malloc(sizeof(t_solicitudEscritura));
 	package *paquete = malloc(sizeof(package));
 	int32_t err;
+
+
 	sol->base = base;
 	sol->offset = offset;
 	sol->tamanio = tamanio;
 	sol->buffer = malloc(strlen(buffer)+1);
-	memcpy(sol->buffer, buffer,strlen(buffer));
+	memcpy(sol->buffer, buffer,strlen(buffer)+1);
 
 	char* payload = serializarSolicitudEscritura(sol);
 
-	paquete = crear_paquete(escritura,payload,sizeof(t_pun)*3 + strlen(sol->buffer));
+	paquete = crear_paquete(escritura,payload,sizeof(t_pun)*3 + strlen(sol->buffer)+1);
 	enviar_paquete(paquete,socketUMV);
 	destruir_paquete(paquete);
 	paquete = recibir_paquete(socketUMV);
@@ -285,5 +327,7 @@ package *Escribir(t_pun base, t_pun offset, t_pun tamanio, char* buffer){
 	if(err == -1)
 		notificar_kernel(violacionSegmento);
 		exit(1);
+
+	free(payload);
 	return paquete;
 }
