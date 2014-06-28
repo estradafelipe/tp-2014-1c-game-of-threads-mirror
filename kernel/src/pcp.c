@@ -17,6 +17,7 @@
 #include <arpa/inet.h>
 #include <commons/collections/dictionary.h>
 #include <sockets.h>
+#include <paquetes.h>
 #include "colas.h"
 #include <semaphore.h>
 #include <pthread.h>
@@ -129,7 +130,8 @@ void saludarCPU(int fd){
 }
 
 void enviarQuantum(int fd){
-	package *paquete = crear_paquete(handshakeKernelCPU,kernel->quantum,sizeof(kernel->quantum));
+	char * quantum_cadena = string_from_format("%d",kernel->quantum);
+	package *paquete = crear_paquete(handshakeKernelCPU,quantum_cadena,strlen(quantum_cadena)+1);
 	enviar_paquete(paquete,fd);
 	free(paquete);
 }
@@ -172,7 +174,7 @@ void opRecibiACKDeCPU(int fd, char * payload, int longitudMensaje){
 int enviar_pcb_a_cpu(t_PCB pcb, t_CPU cpu){
 	char * payload = serializar_datos_pcb_para_cpu(pcb);
 	int payload_size = sizeof(payload);
-	package *paquete = crear_paquete(enviarPCBACPU,payload,payload_size);
+	package *paquete = crear_paquete(enviarPCBACPU, payload, payload_size);
 	if (enviar_paquete(paquete,cpu->fd)==-1){
 		printf("Error en envio de PCB a CPU: %d", cpu->fd);
 		return ERROR_ENVIO_CPU;
@@ -335,11 +337,22 @@ char * deserializar_nombre_recurso(char * mensaje, int longitud){
 void opLiberarSemaforo(int fd, char * payload, int longitudMensaje){
 	printf("Liberar semaforo\n");
 	char * nombre_semaforo = deserializar_nombre_recurso(payload, longitudMensaje);
-	signal_semaforo(semaforo);
+	signal_semaforo(nombre_semaforo);
 }
 
-char * serializar_valor_variable_compartida(char * , longitudMensaje){
+char * serializar_valor_variable_compartida(char * valor, int longitudMensaje){
+    char *stream = malloc(longitudMensaje);
+    int size=0, offset=0;
+    size = sizeof(t_pun);
+    memcpy(stream, &pcb->id, size);
+    offset += size;
+    size = sizeof(t_pun);
+    memcpy (stream + offset, &pcb->indiceEtiquetas, size);
+    offset += size;
+    size = sizeof(t_pun);
+    memcpy (stream + offset, &pcb->programcounter, size);
 
+    return stream;
 }
 
 void opObtenerVariable(int fd, char * payload, int longitudMensaje){

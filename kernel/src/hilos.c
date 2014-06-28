@@ -84,19 +84,15 @@ void wait_semaforo(char *semaforo,uint32_t fd){
 		if (SEM->valor<0){
 			bloqueo_por_semaforo(cpu);
 			package *paquete_recibido = recibir_paquete(cpu->fd);
-			int retorno;
 			if (paquete_recibido->type == respuestaCPU){
 				if (paquete_recibido->payloadLength){
 					printf("Error al enviar PCB a CPU: %d\n", cpu->fd); //Si tamaño de payload == 0 => ERROR
-					retorno = CPU_NO_CONFIRMA_RECEPCION_PCB;
 				}
 				else{
 					printf("Respuesta de CPU id %d\n", cpu->fd);
-					retorno = CPU_CONFIRMA_RECEPCION_PCB;
 				}
 			}
 			t_iPCBaCPU *datosPCB = deserializarRetornoPCBdeCPU(paquete_recibido->payload);
-			t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
 			t_PCB *pcb = modificarPCB(cpu->pcb, datosPCB);
 			poner_cpu_no_disponible(cpu);
 			cola_push(SEM->cola, cpu->pcb);
