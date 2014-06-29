@@ -186,7 +186,7 @@ t_solicitudEscritura* desserializarSolicitudEscritura(char* solicitud){
 	return solic;
 }
 
-char * serializar_datos_pcb_para_cpu(t_PCB pcb){
+char* serializarPCBCPUKernel(t_PCB *pcb){
         char *stream = malloc(sizeof(t_pun)*3);
         int size=0, offset=0;
         size = sizeof(t_pun);
@@ -201,7 +201,7 @@ char * serializar_datos_pcb_para_cpu(t_PCB pcb){
         return stream;
 }
 
-t_iPCBaCPU * deserializarRetornoPCBdeCPU(char * payload){
+t_iPCBaCPU* desserializarPCBCPUKernel(char * payload){
         int offset = 0, tmp_size = 0;
         t_iPCBaCPU * datosPCB;
         datosPCB = malloc(sizeof(t_iPCBaCPU));
@@ -220,7 +220,7 @@ t_iPCBaCPU * deserializarRetornoPCBdeCPU(char * payload){
         return datosPCB;
 }
 
-t_iESdeCPU deserializar_mensaje_ES(char * payload){
+t_iESdeCPU* deserializar_mensaje_ES(char * payload){
         int offset = 0, tmp_size = 0;
         t_iESdeCPU * datosES;
         datosES = malloc(sizeof(t_iESdeCPU));

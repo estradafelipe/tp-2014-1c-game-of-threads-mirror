@@ -66,6 +66,8 @@ typedef struct{
 char* serializarPCB(t_PCB * PCB);
 t_PCB *desserializarPCB(char* PCBSerializada);
 
+char* serializarSolicitudSegmento(t_crearSegmentoUMV *segmento);
+t_crearSegmentoUMV *deserializarSolicitudSegmento(char *solicitud);
 
 char* serializarSolicitudLectura(t_solicitudLectura* solicitud);
 t_solicitudLectura* desserializarSolicitudLectura(char* solicitud);
@@ -73,11 +75,9 @@ t_solicitudLectura* desserializarSolicitudLectura(char* solicitud);
 char* serializarSolicitudEscritura(t_solicitudEscritura* solicitud);
 t_solicitudEscritura* desserializarSolicitudEscritura(char* solicitud);
 
-char* serializarSolicitudSegmento(t_crearSegmentoUMV *segmento);
-t_crearSegmentoUMV *deserializarSolicitudSegmento(char *solicitud);
+char* serializarPCBCPUKernel(t_PCB *pcb);
+t_iPCBaCPU* desserializarPCBCPUKernel(char *payload);
 
-char* serializarAsignacionVariable(t_asignacion *asig);
-t_asignacion desserializarAsignacionVariable(char* asignacion);
-
+t_iESdeCPU* deserializar_mensaje_ES(char * payload);
 
 #endif /* SERIALIZADORES_H_ */

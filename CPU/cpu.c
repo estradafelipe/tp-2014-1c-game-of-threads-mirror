@@ -63,13 +63,14 @@ int main(int argc, char **argv){
 
 	while(1){ //para recibir los PCB
 
+			notificar_kernel(cpuDisponible);
 
 			/* Recibo PCB */
-			notificar_kernel(cpuDisponible);
 			packagePCB = recibir_paquete(socketKernel);
 			pcb = desserializarPCB(packagePCB->payload);
-			log_debug(logger,"RECIBIDA UNA PCB. Su program id es: %d\n",pcb->id);
 			destruir_paquete(packagePCB);
+			log_debug(logger,"RECIBIDA UN PCB. Su program id es: %d\n",pcb->id);
+
 			/* Envio PCB.id A Pipe */
 			char* payload = malloc(sizeof(t_pun));
 			memcpy(payload,&pcb->id,sizeof(t_pun));
@@ -77,7 +78,6 @@ int main(int argc, char **argv){
 			enviar_paquete(paq,socketUMV);
 			free(payload);
 			destruir_paquete(paq);
-
 
 			cargar_diccionarioVariables(pcb->sizeContext);
 			quantumPrograma = 0;
@@ -162,9 +162,7 @@ void *cargar_diccionarioVariables(int32_t cant_var){
 	package* paq = malloc(sizeof(package));
 	t_puntero puntero;
 
-
 			dictionary_clean(diccionarioVariables);
-
 
 			while(cant_var >0){
 
