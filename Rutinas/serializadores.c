@@ -256,3 +256,38 @@ t_iESdeCPU* desserializar_mensaje_ES(char* payload){
 }
 
 
+char* serializarAsignacionVariable(t_asignacion *asig){
+
+	char *stream = malloc(sizeof(int)+ sizeof(int32_t) + asig->tamanio);
+	int size=0, offset=0;
+	size = sizeof(int);
+	memcpy(stream, &asig->valor, size);
+	offset += size;
+	size = sizeof(int32_t);
+	memcpy (stream + offset, &asig->tamanio, size);
+	offset += size;
+	size = asig->tamanio;
+	memcpy (stream + offset, asig->variable, size);
+	return stream;
+}
+
+
+t_asignacion * desserializarAsignacionVariable(char* payload){
+		int offset = 0, tmp_size = 0;
+		t_asignacion * asig ;
+		asig = malloc(sizeof(t_asignacion));
+
+		tmp_size = sizeof(int);
+		memcpy(&asig->valor,payload+offset,tmp_size);
+
+		offset += tmp_size;
+		tmp_size = sizeof(int32_t);
+		memcpy(&asig->tamanio,payload+offset,tmp_size);
+
+		offset += tmp_size;
+		tmp_size = asig->tamanio;
+		asig->variable = malloc (tmp_size);
+		memcpy(asig->variable, payload+offset, tmp_size);
+
+		return asig;
+}

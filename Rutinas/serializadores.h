@@ -61,6 +61,7 @@ typedef struct{
 typedef struct{
 	t_nombre_compartida variable;
 	t_valor_variable valor;
+	int32_t tamanio;
 }__attribute__((packed)) t_asignacion;
 
 char* serializarPCB(t_PCB * PCB);
@@ -80,5 +81,9 @@ t_iPCBaCPU* desserializarPCBCPUKernel(char *payload);
 
 char* serializar_mensaje_Es(t_iESdeCPU* datosES);
 t_iESdeCPU* desserializar_mensaje_ES(char * payload);
+
+char* serializarAsignacionVariable(t_asignacion *asig);
+t_asignacion * desserializarAsignacionVariable(char* payload);
+
 
 #endif /* SERIALIZADORES_H_ */
