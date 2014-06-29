@@ -31,12 +31,15 @@ typedef enum nipc_type{
 	asignarValorVariableCompartida,
 	finPrograma,							//
 	handshakeKernelCPU,
-	wait,									// wait de la CPU al Kernel
-	signal,									// signal de la CPU al kernel
+	waitPrograma,									// wait de la CPU al Kernel
+	signalPrograma,									// signal de la CPU al kernel
 	bloquearProgramaCPU,					// bloquear programa de kernel a CPU
 	semaforolibre,							// via libre kernel a CPU como respuesta a un wait
 	programaImprimir,
 	programaImprimirTexto,
+	violacionSegmento,
+	entrada_salida,
+	error_label,							//No se encuentra la instruccion asociada a la etiqueta
 }t_paquete;
 
 
