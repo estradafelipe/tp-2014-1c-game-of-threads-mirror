@@ -12,35 +12,17 @@ t_puntero GameOfThread_definirVariable(t_nombre_variable identificador_variable)
 
 	char* var = malloc(sizeof(t_nombre_variable)+1);
 	sprintf(var,"%c",identificador_variable);
-	uint32_t sizeContext = pcb->sizeContext;
-	t_solicitudEscritura *sol =  malloc(sizeof(t_solicitudEscritura));
-	package* package_escritura = malloc(sizeof(package));
-	package* package_respuesta = malloc(sizeof(package));
 	t_puntero puntero;
+	t_pun offset;
+	char* id = malloc(sizeof(char));
+	offset = pcb->sizeContext*5 + (pcb->cursorStack - pcb->segmentoStack);
 
-	sol->base = pcb->segmentoStack;
-	sol->offset = sizeContext*5 + (pcb->cursorStack - pcb->segmentoStack);
-	sol->tamanio = TAMANIO_ID_VAR;
-	memcpy(sol->buffer,var,strlen(var));
-	puntero = (uint32_t)sol->offset;
+	memcpy(id,var,strlen(var));
 
-	char* payloadSerializado = serializarSolicitudEscritura(sol);
+	memcpy(&puntero,&offset,sizeof(t_pun));
 
-	package_escritura = crear_paquete(escritura,payloadSerializado,sizeof(t_puntero)*3 + strlen(sol->buffer));
-	enviar_paquete(package_escritura,socketUMV);
-
-	package_respuesta = recibir_paquete(socketUMV);
-	int payload;
-	memcpy(&payload, package_respuesta->payload, package_respuesta->payloadLength);
-
-	if ((payload) == -1){
-		printf("Violacion de segmento\n");
-		notificar_kernel(violacionSegmento);
-		exit(1);
-	}
-
+	Escribir(pcb->segmentoStack,offset,1,id);
 	dictionary_put(diccionarioVariables, var,(void*) puntero);
-
 	pcb->sizeContext++;
 
 	return puntero;
@@ -50,61 +32,48 @@ t_puntero GameOfThread_definirVariable(t_nombre_variable identificador_variable)
 t_puntero GameOfThread_obtenerPosicionVariable(t_nombre_variable identificador_variable ){
 	char* key = malloc(sizeof(t_nombre_variable)+1);
 	sprintf(key,"%c",identificador_variable);
-	t_puntero posicion = (t_puntero) dictionary_get(diccionarioVariables, key);
+	t_puntero posicion;
+	memcpy(&posicion, dictionary_get(diccionarioVariables, key),sizeof(t_puntero)); //Probar , porque get() devuelve void*
 	return posicion;
 }
 
 t_valor_variable GameOfThread_dereferenciar(t_puntero direccion_variable){
 	t_valor_variable valorVariable;
-	package* solicitudLectura = malloc(sizeof(package));;
-	package* respuesta = malloc(sizeof(package));;
-	t_solicitudLectura* sol = malloc(sizeof(t_solicitudLectura));
-	sol->base = pcb->segmentoStack;
-	sol->offset = direccion_variable;
-	sol->tamanio = TAMANIO_VAR;
+	package* paquete = malloc(sizeof(package));
 
-	char* payloadSerializado = serializarSolicitudLectura(sol);
-	solicitudLectura = crear_paquete(lectura,payloadSerializado,sizeof(t_puntero)*3);
-	enviar_paquete(solicitudLectura, socketUMV);
 
-	respuesta = recibir_paquete(socketUMV);
-	valorVariable = (t_valor_variable)respuesta->payload;
+	paquete = Leer(pcb->segmentoStack,direccion_variable,4);
+
+	memcpy(&valorVariable,paquete->payload,sizeof(t_valor_variable));
 	return valorVariable;
 }
 
 void GameOfThread_asignar(t_puntero direccion_variable, t_valor_variable valor){
-	package* solicitudEscritura = malloc(sizeof(package));
-	package* respuesta = malloc(sizeof(package));
-	t_solicitudEscritura* sol = malloc(sizeof(t_solicitudEscritura));
-	int32_t error;
-	sol->base = pcb->segmentoStack;
-	sol->offset = direccion_variable + 1;
-	sol->tamanio = TAMANIO_VAR;
-	memcpy(sol->buffer,&valor,sizeof(t_valor_variable)); //TODO: Preguntar si esta bien
 
-	char* payloadSerializado = serializarSolicitudEscritura(sol);
-	solicitudEscritura = crear_paquete(escritura, payloadSerializado, (sizeof(t_pun)*3 + strlen(sol->buffer)));
-	enviar_paquete(solicitudEscritura, socketUMV);
+	t_pun offset;
+	char* buffer = malloc(sizeof(int32_t));
 
-	respuesta = recibir_paquete(socketUMV);
-	memcpy(&error,respuesta->payload,sizeof(int32_t));
-	if (error == -1){
-		printf("Violacion de segmento\n");
-		notificar_kernel(violacionSegmento);
-		exit(1);
+
+	offset = direccion_variable + 1;
+
+	memcpy(buffer,&valor,sizeof(t_valor_variable));
+
+	Escribir(pcb->segmentoStack,offset,4,buffer);
+
 	}
-}
 
 t_valor_variable GameOfThread_obtenerValorCompartida(t_nombre_compartida variable){
-	package *solicitud = malloc(sizeof(package));
-	package *respuesta = malloc(sizeof(package));
+	package *paquete = malloc(sizeof(package));
 	t_valor_variable val;
 	char * payload = malloc(sizeof(t_nombre_compartida));
 	memcpy(payload,variable,sizeof(t_nombre_compartida));
-	solicitud = crear_paquete(solicitarValorVariableCompartida,payload,sizeof(t_nombre_compartida));
-	enviar_paquete(solicitud,socketKernel);
-	respuesta = recibir_paquete(socketKernel);
-	memcpy(&val,respuesta->payload,sizeof(t_nombre_compartida));
+	paquete = crear_paquete(solicitarValorVariableCompartida,payload,sizeof(t_nombre_compartida));
+	enviar_paquete(paquete,socketKernel);
+	destruir_paquete(paquete);
+	paquete = recibir_paquete(socketKernel);
+	memcpy(&val,paquete->payload,sizeof(t_nombre_compartida));
+
+	//TODO: Habria que ver que pasa si hay algun error.
 	return val;
 }
 
@@ -114,9 +83,10 @@ t_valor_variable GameOfThread_asignarValorCompartida(t_nombre_compartida variabl
 
 	asig->valor = valor;
 	asig->variable = variable;
+	asig->tamanio = strlen(variable);
 
 	char* payload = serializarAsignacionVariable(asig);
-	solicitud =  crear_paquete(asignarValorVariableCompartida,payload,sizeof(t_nombre_compartida)+sizeof(t_valor_variable));
+	solicitud =  crear_paquete(asignarValorVariableCompartida,payload,sizeof(t_nombre_compartida)+sizeof(t_valor_variable)+sizeof(int32_t));
 	enviar_paquete(solicitud,socketKernel);
 	return valor;
 }
@@ -134,147 +104,86 @@ t_puntero_instruccion GameOfThread_irAlLabel(t_nombre_etiqueta etiqueta){
 }
 
 void GameOfThread_llamarSinRetorno(t_nombre_etiqueta etiqueta){
-	t_solicitudEscritura *sol = malloc(sizeof(t_solicitudEscritura));
-	package* solicitudEscritura = malloc(sizeof(package));
-	package* respuesta = malloc(sizeof(package));
-	int32_t error;
 	t_pun pc;
-	char* serializarEscritura = malloc(sizeof(t_pun)*3 + strlen(sol->buffer)+1);
-	sol->base = pcb->segmentoStack;
-	sol->offset =  pcb->sizeContext*5 + (pcb->cursorStack - pcb->segmentoStack);
-	sol->tamanio = 4;
-	memcpy(sol->buffer,&pcb->cursorStack,sizeof(t_pun));
+	t_pun offset;
+	char* buffer = malloc(sizeof(int32_t));
 
 	//Guardamos el Contexto de Ejecucion Anterior;
-	serializarEscritura = serializarSolicitudEscritura(sol);
-	solicitudEscritura = crear_paquete(escritura,serializarEscritura,sizeof(sizeof(t_pun)*3 + strlen(sol->buffer)+1));
-	enviar_paquete(solicitudEscritura,socketUMV);
-	respuesta = recibir_paquete(socketUMV);
-	memcpy(&error,respuesta->payload,sizeof(int32_t));
-	if(error == -1){
-		notificar_kernel(violacionSegmento);
-		exit(1);
-	}
+	offset =  pcb->sizeContext*5 + (pcb->cursorStack - pcb->segmentoStack);
+	memcpy(buffer,&pcb->cursorStack,sizeof(t_pun));
+	Escribir(pcb->segmentoStack,offset,4,buffer);
 
 	//Guardamos el Program Counter siguiente;
-	sol->base = pcb->segmentoStack;
-	sol->offset =  pcb->sizeContext*5 + (pcb->cursorStack - pcb->segmentoStack) + 4; //Son los 4 del Contexto Anterior
-	sol->tamanio = 4;
+	offset =  pcb->sizeContext*5 + (pcb->cursorStack - pcb->segmentoStack) + 4; //Son los 4 del Contexto Anterior
 	pc = pcb->programcounter;
 	pc++;
-	memcpy(sol->buffer,&pc,sizeof(t_pun));
-	serializarEscritura = serializarSolicitudEscritura(sol);
-	solicitudEscritura = crear_paquete(escritura,serializarEscritura,sizeof(sizeof(t_pun)*3 + strlen(sol->buffer)+1));
-		enviar_paquete(solicitudEscritura,socketUMV);
-		respuesta = recibir_paquete(socketUMV);
-		memcpy(&error,respuesta->payload,sizeof(int32_t));
-		if(error == -1){
-			notificar_kernel(violacionSegmento);
-			exit(1);
-		}
+	memcpy(buffer,&pc,sizeof(t_pun));
+	Escribir(pcb->segmentoStack,offset,4,buffer);
 
-	pcb->cursorStack = sol->offset + 4;
+	//Cambio de Contexto
+	pcb->cursorStack = offset + 4;
 	dictionary_clean(diccionarioVariables);
-
 	GameOfThread_irAlLabel(etiqueta); //Me lleva al procedimiento que debo ejecutar;
 
 }
 
 void GameOfThread_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar){
-	t_solicitudEscritura *sol = malloc(sizeof(t_solicitudEscritura));
-	package* solicitudEscritura = malloc(sizeof(package));
-	package* respuesta = malloc(sizeof(package));
-	char* serializarEscritura = malloc(sizeof(t_pun)*3 + strlen(sol->buffer)+1);
-	int32_t error;
+	char* buffer = malloc(sizeof(t_pun));
+	t_pun offset;
 	t_pun pc;
 
 	//Guardamos el Contexto de Ejecucion Anterior;
-	sol->base = pcb->segmentoStack;
-	sol->offset =  pcb->sizeContext*5 + (pcb->cursorStack - pcb->segmentoStack);
-	sol->tamanio = 4;
-	memcpy(sol->buffer,&pcb->cursorStack,sizeof(t_pun));
-	serializarEscritura = serializarSolicitudEscritura(sol);
-	solicitudEscritura = crear_paquete(escritura,serializarEscritura,sizeof(sizeof(t_pun)*3 + strlen(sol->buffer)+1));
-	enviar_paquete(solicitudEscritura,socketUMV);
-	respuesta = recibir_paquete(socketUMV);
-	memcpy(&error,respuesta->payload,sizeof(int32_t));
-	if(error == -1){
-		notificar_kernel(violacionSegmento);
-		exit(1);
-	}
+	offset =  pcb->sizeContext*5 + (pcb->cursorStack - pcb->segmentoStack);
+	memcpy(buffer,&pcb->cursorStack,sizeof(t_pun));
+	Escribir(pcb->segmentoStack,offset,4,buffer);
 
 	//Guardamos el Program Counter siguiente;
-		sol->base = pcb->segmentoStack;
-		sol->offset =  pcb->sizeContext*5 + (pcb->cursorStack - pcb->segmentoStack) + 4; //Son los 4 del Contexto Anterior
-		sol->tamanio = 4;
-		pc = pcb->programcounter;
-		pc++;
-		memcpy(sol->buffer,&pc,sizeof(t_pun));
-		serializarEscritura = serializarSolicitudEscritura(sol);
-		solicitudEscritura = crear_paquete(escritura,serializarEscritura,sizeof(sizeof(t_pun)*3 + strlen(sol->buffer)+1));
-			enviar_paquete(solicitudEscritura,socketUMV);
-			respuesta = recibir_paquete(socketUMV);
-			memcpy(&error,respuesta->payload,sizeof(int32_t));
-			if(error == -1){
-				notificar_kernel(violacionSegmento);
-				exit(1);
-			}
-	//Guardamos a donde retornar;
-		sol->base = pcb->segmentoStack;
-		sol->offset =  pcb->sizeContext*5 + (pcb->cursorStack - pcb->segmentoStack) + 8;
-		sol->tamanio = 4;
-		memcpy(sol->buffer,&donde_retornar,sizeof(uint32_t));
-		serializarEscritura = serializarSolicitudEscritura(sol);
-		solicitudEscritura = crear_paquete(escritura,serializarEscritura,sizeof(sizeof(t_pun)*3 + strlen(sol->buffer)+1));
-					enviar_paquete(solicitudEscritura,socketUMV);
-					respuesta = recibir_paquete(socketUMV);
-					memcpy(&error,respuesta->payload,sizeof(int32_t));
-					if(error == -1){
-						notificar_kernel(violacionSegmento);
-						exit(1);
-					}
+	offset =  pcb->sizeContext*5 + (pcb->cursorStack - pcb->segmentoStack) + 4; //Son los 4 del Contexto Anterior
+	pc = pcb->programcounter;
+	pc++;
+	memcpy(buffer,&pc,sizeof(t_pun));
+	Escribir(pcb->segmentoStack,offset,4,buffer);
 
-		pcb->cursorStack = sol->offset + 4;
-		dictionary_clean(diccionarioVariables);
-		GameOfThread_irAlLabel(etiqueta); //Me lleva al procedimiento que debo ejecutar;
+
+	//Guardamos a donde retornar;
+	offset =  pcb->sizeContext*5 + (pcb->cursorStack - pcb->segmentoStack) + 8;
+	memcpy(buffer,&donde_retornar,sizeof(uint32_t));
+	Escribir(pcb->segmentoStack,offset,4,buffer);
+
+	//Cambio de Contexto
+	pcb->cursorStack = offset + 4;
+
+	//Limpio el Diccionario
+	dictionary_clean(diccionarioVariables);
+	GameOfThread_irAlLabel(etiqueta); //Me lleva al procedimiento que debo ejecutar;
 
 }
 
 void GameOfThread_finalizar(void){
 
-t_solicitudLectura *sol = malloc(sizeof(t_solicitudLectura));
 package *paquete = malloc(sizeof(package));
-char* serializado = malloc(sizeof(t_pun)*3);
+
+
 	if(pcb->cursorStack == pcb->segmentoCodigo){
 		dictionary_clean(diccionarioVariables);
 		notificar_kernel(finPrograma);
+		//TODO: Preguntar si el Kernel necesita el PCB
 		free(pcb);
 		quantumPrograma = quantumKernel;
 		}
 	else{
 		//Obtengo el Program Counter (Instruccion Siguiente)
-		sol->base = pcb->segmentoStack;
-		sol->offset = pcb->cursorStack - 4;
-		sol->tamanio = 4;
-		serializado = serializarSolicitudLectura(sol);
-		paquete = crear_paquete(lectura,serializado,sizeof(t_pun)*3);
-		enviar_paquete(paquete,socketUMV);
-		paquete = recibir_paquete(socketUMV);
+		paquete = Leer(pcb->segmentoStack,pcb->cursorStack - 4, 4);
 		memcpy(&pcb->programcounter,paquete->payload,sizeof(t_pun));
-		//Obtengo el Cursor del Contexto Anterior
-		sol->base = pcb->segmentoStack;
-		sol->offset = pcb->cursorStack - 8;
-		sol->tamanio = 4;
+		destruir_paquete(paquete);
 
-		serializado = serializarSolicitudLectura(sol);
-		paquete = crear_paquete(lectura,serializado,sizeof(t_pun)*3);
-		enviar_paquete(paquete,socketUMV);
-		paquete = recibir_paquete(socketUMV);
+		//Obtengo el Cursor del Contexto Anterior
+		paquete = Leer(pcb->segmentoStack,pcb->cursorStack - 8 , 4);
 		memcpy(&pcb->cursorStack,paquete->payload,sizeof(t_pun));
 
 		//Limpio el diccionario y lo cargo
 		dictionary_clean(diccionarioVariables);
-		int32_t cant_var = (sol->offset - pcb->cursorStack)/5;
+		int32_t cant_var = ((pcb->cursorStack -8) - pcb->cursorStack)/5;
 		cargar_diccionarioVariables(cant_var);
 		}
 }
@@ -321,12 +230,16 @@ void GameOfThread_imprimirTexto(char* texto){
 }
 
 void GameOfThread_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
-	t_entradaSalida *es = malloc(sizeof(t_entradaSalida));
+	t_iESdeCPU *es = malloc(sizeof(t_iESdeCPU));
 	package *paquete;
-	es->dispositivo = dispositivo;
+
+	memcpy(es->id,dispositivo,strlen(dispositivo));
 	es->tiempo = tiempo;
-	char* payload = serializarEntradaSalida(es);
-	paquete = crear_paquete(entrada_salida,payload,sizeof(t_nombre_dispositivo)+sizeof(uint32_t));
+	es->tamanioID = strlen(dispositivo);
+
+	char* payload = serializar_mensaje_Es(es);
+
+	paquete = crear_paquete(entrada_salida,payload,sizeof(int32_t)*2 + strlen(es->id));
 	enviar_paquete(paquete,socketKernel);
 	destruir_paquete(paquete);
 	quantumPrograma = quantumKernel;
@@ -339,6 +252,9 @@ void GameOfThread_wait(t_nombre_semaforo identificador_semaforo){
 	memcpy(payload,identificador_semaforo,sizeof(t_nombre_semaforo));
 	paquete = crear_paquete(waitPrograma,payload,sizeof(t_nombre_semaforo));
 	enviar_paquete(paquete,socketKernel);
+
+	//TODO: Ver con pablo que me responde para ver si el semaforo esta o no disponible
+
 }
 
 void GameOfThread_signal(t_nombre_semaforo identificador_semaforo){
@@ -347,4 +263,7 @@ void GameOfThread_signal(t_nombre_semaforo identificador_semaforo){
 	memcpy(payload,identificador_semaforo,sizeof(t_nombre_semaforo));
 	paquete = crear_paquete(signalPrograma,payload,sizeof(t_nombre_semaforo));
 	enviar_paquete(paquete,socketKernel);
+
+	//TODO: Idem a Wait
+
 }

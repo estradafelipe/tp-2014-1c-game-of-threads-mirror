@@ -253,12 +253,12 @@ package *Leer(t_pun base,t_pun offset,t_pun tamanio){
 		exit(1);
 	}
 
-	destruir_paquete(solicitud);
+
 	free(payload);
 	return solicitud;
 }
 
-package *Escribir(t_pun base, t_pun offset, t_pun tamanio, char* buffer){
+void *Escribir(t_pun base, t_pun offset, t_pun tamanio, char* buffer){
 	t_solicitudEscritura *sol = malloc(sizeof(t_solicitudEscritura));
 	package *paquete = malloc(sizeof(package));
 	int32_t err;
@@ -275,8 +275,8 @@ package *Escribir(t_pun base, t_pun offset, t_pun tamanio, char* buffer){
 	destruir_paquete(paquete);
 	paquete = recibir_paquete(socketUMV);
 	memcpy(&err,paquete->payload,sizeof(int32_t));
-	if(err == -1)
+	if(err == -1){
 		notificar_kernel(violacionSegmento);
 		exit(1);
-	return paquete;
+	}
 }

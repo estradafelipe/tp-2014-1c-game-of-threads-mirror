@@ -36,7 +36,7 @@ void noticar_kernel(t_paquete);
 void handshake_kernel(void);
 
 package *Leer(t_pun base,t_pun offset,t_pun tamanio);
-package *Escribir(t_pun base, t_pun offset, t_pun tamanio, char* buffer);
+void *Escribir(t_pun base, t_pun offset, t_pun tamanio, char* buffer);
 
 //Defino variables globales a la CPU
 t_dictionary *diccionarioVariables;
