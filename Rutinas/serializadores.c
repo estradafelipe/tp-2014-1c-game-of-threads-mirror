@@ -161,6 +161,7 @@ char* serializarSolicitudEscritura(t_solicitudEscritura* solicitud){
 
 	return stream;
 }
+
 t_solicitudEscritura* desserializarSolicitudEscritura(char* solicitud){
 	int offset = 0, tmp_size = 0;
 	t_solicitudEscritura * solic ;
@@ -220,22 +221,36 @@ t_iPCBaCPU* desserializarPCBCPUKernel(char * payload){
         return datosPCB;
 }
 
-t_iESdeCPU* deserializar_mensaje_ES(char * payload){
+char* serializar_mensaje_ES(t_iESdeCPU* datosES){
+		char *stream = malloc(sizeof(int32_t)*2 + datosES->tamanioID);
+		int size=0, offset=0;
+		size = sizeof(int32_t);
+		memcpy(stream, &datosES->tiempo, size);
+		offset += size;
+		size = sizeof(int32_t);
+		memcpy (stream + offset, &datosES->tamanioID, size);
+		offset += size;
+		size = datosES->tamanioID;
+		memcpy (stream + offset, datosES->id, size);
+		return stream;
+}
+
+t_iESdeCPU* desserializar_mensaje_ES(char* payload){
         int offset = 0, tmp_size = 0;
-        t_iESdeCPU * datosES;
+        t_iESdeCPU* datosES;
         datosES = malloc(sizeof(t_iESdeCPU));
 
-        tmp_size = sizeof(t_pun);
+        tmp_size = sizeof(int32_t);
+        memcpy(&datosES->tiempo, payload+offset, tmp_size);
+
+        offset += tmp_size;
+        tmp_size = sizeof(int32_t);
         memcpy(&datosES->tamanioID, payload+offset, tmp_size);
 
         offset += tmp_size;
         tmp_size = datosES->tamanioID;
+        datosES->id = malloc(tmp_size);
         memcpy(datosES->id, payload+offset, tmp_size);
-        memcpy((datosES->id)+datosES->tamanioID,"\0",1);
-
-        offset += tmp_size;
-        tmp_size = sizeof(t_pun);
-        memcpy(&datosES->tiempo, payload+offset, tmp_size);
 
         return datosES;
 }

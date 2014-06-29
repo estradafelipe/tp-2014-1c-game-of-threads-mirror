@@ -53,9 +53,9 @@ typedef struct{
 }__attribute__((packed)) t_iPCBaCPU;
 
 typedef struct{
-        t_pun tamanioID;
-        t_pun id;
-        t_pun tiempo;
+        int32_t tamanioID;
+        t_nombre_dispositivo id;
+        int32_t tiempo;
 }__attribute__((packed)) t_iESdeCPU;
 
 typedef struct{
@@ -78,6 +78,7 @@ t_solicitudEscritura* desserializarSolicitudEscritura(char* solicitud);
 char* serializarPCBCPUKernel(t_PCB *pcb);
 t_iPCBaCPU* desserializarPCBCPUKernel(char *payload);
 
-t_iESdeCPU* deserializar_mensaje_ES(char * payload);
+char* serializar_mensaje_Es(t_iESdeCPU* datosES);
+t_iESdeCPU* desserializar_mensaje_ES(char * payload);
 
 #endif /* SERIALIZADORES_H_ */
