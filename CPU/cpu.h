@@ -29,14 +29,13 @@
 #define TAMANIO_ID_VAR 1
 #define TAMANIO_VAR 4
 
-void *cargar_diccionarioVariables(int32_t);
-void notificar_kernel(t_paquete);
 void rutina(int n);
-void noticar_kernel(t_paquete);
-void handshake_kernel(void);
+void cargar_diccionarioVariables(int32_t);
+void notificar_kernel(t_paquete);
+void handshake(t_paquete);
 
 package *Leer(t_pun base,t_pun offset,t_pun tamanio);
-void *Escribir(t_pun base, t_pun offset, t_pun tamanio, char* buffer);
+void Escribir(t_pun base, t_pun offset, t_pun tamanio, char* buffer);
 
 //Defino variables globales a la CPU
 t_dictionary *diccionarioVariables;

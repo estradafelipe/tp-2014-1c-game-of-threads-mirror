@@ -23,7 +23,7 @@ int main(int argc, char **argv){
 	package* respuesta = malloc(sizeof(package));
 
 	//Defino variables locales
-	int32_t programcounter, segmentoCodigo, indiceCodigo;
+	int32_t programcounter;
 	char* solicitudEscritura = malloc(sizeof(t_pun)*3);
 	t_datoSentencia *datos = malloc(sizeof(t_datoSentencia));
 
@@ -74,7 +74,6 @@ int main(int argc, char **argv){
 
 				programcounter = pcb->programcounter;
 				programcounter++;
-				indiceCodigo = pcb->indiceCodigo;
 
 				sol->base = pcb->indiceCodigo;
 				sol->offset = programcounter*8;
@@ -109,7 +108,7 @@ int main(int argc, char **argv){
 		}
 			dictionary_clean(diccionarioVariables); //limpio el diccionario de variables
 
-			//TODO: Enviar PCB completo o Enviar lo modificado???? Preguntar Silvina y Pablo
+			//TODO: Enviar PCB
 
 			if (desconectarse == true){
 				notificar_kernel(cpuDesconectada);
@@ -132,35 +131,20 @@ void rutina(int n){
 
 
 
-void *cargar_diccionarioVariables(int32_t cant_var){
-	t_solicitudLectura *sol = malloc(sizeof(t_solicitudLectura));
-	int32_t cursorStack = pcb->cursorStack;
-	package* solicitudLectura = malloc(sizeof(package));
+void cargar_diccionarioVariables(int32_t cant_var){
 	package* paq = malloc(sizeof(package));
+	int32_t offset;
+	char* var = malloc(sizeof(char));
 
-			while(cant_var >0){
+			while(cant_var > 0){
 
-				sol->base = cursorStack;
-				sol->offset = (cant_var - 1) * 5;
-				sol->tamanio = TAMANIO_ID_VAR;
+				offset = (cant_var - 1) * 5;
 
-				char* payloadSerializado = serializarSolicitudLectura(sol);
-
-				solicitudLectura = crear_paquete(lectura,payloadSerializado,sizeof(t_puntero)*3);
-				enviar_paquete(solicitudLectura, socketUMV);
-				paq = recibir_paquete(socketUMV);
-				if(paq->type != respuestaUmv){
-					//TODO:notificar_kernel()'
-					exit(1);
-				}
-				char* var = paq->payload;
-				t_puntero puntero;
-				puntero = sol->offset;
-
-				dictionary_put(diccionarioVariables, var,(void*)puntero);
+				paq = Leer(pcb->cursorStack,offset,1);
+				memcpy(var,paq->payload,sizeof(char));
+				dictionary_put(diccionarioVariables, var,(void*)offset);
 				cant_var--;
 			}
-
 
 }
 
@@ -215,7 +199,7 @@ void handshake(t_paquete pa){
 					destruir_paquete(quantum_package);
 					log_debug(logger,"CONECTADO AL KERNEL");
 					log_debug(logger,"El Quantum es:%d",quantumKernel);
-
+					break;
 
 		case handshakeCpuUmv:
 			handshake = crear_paquete(handshakeCpuUmv,"HOLA UMV",strlen("HOLA UMV")+1);
@@ -228,6 +212,7 @@ void handshake(t_paquete pa){
 				exit(1);
 			destruir_paquete(handshake);
 						}
+			break;
 		default: break;
 				}
 
@@ -258,7 +243,7 @@ package *Leer(t_pun base,t_pun offset,t_pun tamanio){
 	return solicitud;
 }
 
-void *Escribir(t_pun base, t_pun offset, t_pun tamanio, char* buffer){
+void Escribir(t_pun base, t_pun offset, t_pun tamanio, char* buffer){
 	t_solicitudEscritura *sol = malloc(sizeof(t_solicitudEscritura));
 	package *paquete = malloc(sizeof(package));
 	int32_t err;

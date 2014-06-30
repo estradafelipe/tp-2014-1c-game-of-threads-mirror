@@ -206,7 +206,7 @@ void GameOfThread_retornar(t_valor_variable retorno){
 	//Escribo en dirRetorno el valor de retorno t_valor_variable
 	char* buffer = malloc(sizeof(t_valor_variable));
 	memcpy(buffer,&retorno,sizeof(t_valor_variable));
-	paquete = Escribir(base,dirRetorno,tamanio,buffer);
+	Escribir(base,dirRetorno,tamanio,buffer);
 	destruir_paquete(paquete);
 	//Obtengo la proxima instruccion (Program Counter)
 	paquete = Leer(base,offset_tmp - 8, tamanio);
