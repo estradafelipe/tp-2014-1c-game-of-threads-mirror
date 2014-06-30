@@ -33,6 +33,7 @@ t_list *cola_new;
 t_dictionary *programasxfd;
 extern sem_t *sem_exit;
 extern sem_t *sem_multiprogramacion;
+extern sem_t *sem_estado_listo;
 sem_t *sem_new;
 
 pthread_mutex_t mutex_new = PTHREAD_MUTEX_INITIALIZER;

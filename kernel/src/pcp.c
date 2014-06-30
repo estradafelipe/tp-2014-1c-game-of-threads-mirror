@@ -28,6 +28,7 @@
 
 t_dictionary *cpus;
 extern sem_t *sem_exit;
+extern sem_t *sem_estado_listo;
 extern t_cola *cola_ready;
 extern t_cola *cola_exit;
 extern t_kernel *kernel;
@@ -147,6 +148,7 @@ void opRetornoCPUQuantum(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	modificarPCB(cpu->pcb, datosPCB);
 	//AGREGAR SEMAFOROS en version con varios threads
 	pasarACola(cola_ready, cpu->pcb);
+	sem_wait(sem_estado_listo);
 	poner_cpu_no_disponible(cpu);
 }
 
@@ -154,6 +156,7 @@ void opEstoyDisponible(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
 	cpu->estado=CPU_DISPONIBLE;
 	pasarACola(cpus_disponibles, cpu);
+	sem_post(&cpus_disponibles->contador);
 }
 
 t_iPCBaCPU * recibir_pcb_de_cpu(uint32_t fd){
@@ -390,7 +393,30 @@ void recibirCPU(void){
 }
 
 void pasarListosAEjecucion(void){
+	while(1){
+		sem_wait(&cpus_disponibles->contador);
+		sem_wait(sem_estado_listo);
+		log_debug(logger,string_from_format("Hilo pasa PCB a Ejecución\n"));
+		t_PCB *pcb = cola_pop(cola_ready);
+		t_CPU *cpu = cola_pop(cpus_disponibles);
+		enviar_pcb_a_cpu(pcb, cpu);
 
+		//free(programa);
+		//sem_post(sem_multiprogramacion); este semaforo se incrementa cuando pasa a Exit!!!!
+	}
+}
+
+void pasarBloqueadosAListos(void){
+	while(1){
+		sem_wait(&cola_block->contador);
+		sem_wait(sem_estado_listo);
+		log_debug(logger,string_from_format("Hilo pasa PCB de Bloqueado a Listo\n"));
+		t_PCB *pcb = cola_pop(cola_block);
+		t_CPU *cpu = cola_push(cola_ready);
+
+		//free(programa);
+		//sem_post(sem_multiprogramacion); este semaforo se incrementa cuando pasa a Exit!!!!
+	}
 }
 
 void hiloPCP(){
@@ -408,5 +434,11 @@ void hiloPCP(){
 	if (thr== 0)
 		log_debug(logger,string_from_format("Hilo que pone en ejecucion PCBs creado correctamente\n"));
 	else log_debug(logger,string_from_format("Hilo que pone en ejecucion PCBs no se pudo crear\n"));
+
+	pthread_t * pasa_bloqueados_a_listos_thr = malloc(sizeof(pthread_t)); // hilo q recibe programas
+	thr = pthread_create(pasa_bloqueados_a_listos_thr, NULL, (void*)pasarBloqueadosAListos, NULL);
+	if (thr== 0)
+		log_debug(logger,string_from_format("Hilo pasa bloqueados a listos PCBs creado correctamente\n"));
+	else log_debug(logger,string_from_format("Hilo pasa bloqueados a listos PCBs no se pudo crear\n"));
 
 }

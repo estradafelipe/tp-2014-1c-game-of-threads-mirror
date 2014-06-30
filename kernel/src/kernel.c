@@ -28,6 +28,7 @@ t_kernel *kernel;
 sem_t *semaforo_fin;
 sem_t *sem_exit;
 sem_t *sem_multiprogramacion;
+sem_t *sem_estado_listo;
 int ultimoid;
 t_cola *cola_ready;
 t_cola *cola_exit;
