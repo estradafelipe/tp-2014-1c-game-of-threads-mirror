@@ -161,6 +161,7 @@ char* serializarSolicitudEscritura(t_solicitudEscritura* solicitud){
 
 	return stream;
 }
+
 t_solicitudEscritura* desserializarSolicitudEscritura(char* solicitud){
 	int offset = 0, tmp_size = 0;
 	t_solicitudEscritura * solic ;
@@ -201,7 +202,7 @@ char * serializar_datos_pcb_para_cpu(t_PCB * pcb){
         return stream;
 }
 
-t_iPCBaCPU * deserializarRetornoPCBdeCPU(char * payload){
+t_iPCBaCPU* desserializarPCBCPUKernel(char * payload){
         int offset = 0, tmp_size = 0;
         t_iPCBaCPU * datosPCB;
         datosPCB = malloc(sizeof(t_iPCBaCPU));
@@ -220,24 +221,20 @@ t_iPCBaCPU * deserializarRetornoPCBdeCPU(char * payload){
         return datosPCB;
 }
 
+
 t_iESdeCPU * deserializar_mensaje_ES(char * payload){
-        int offset = 0, tmp_size = 0;
-        t_iESdeCPU * datosES;
+        t_iESdeCPU* datosES;
         datosES = malloc(sizeof(t_iESdeCPU));
-
-        tmp_size = sizeof(int);
-        memcpy(&datosES->tamanioID, payload+offset, tmp_size);
-
-        offset += tmp_size;
-        tmp_size = datosES->tamanioID + 1; //pasamos mensajes cadena con "\0"
-        memcpy(&datosES->id, payload+offset, tmp_size);
-        //memcpy((&datosES->id)+datosES->tamanioID,"\0",1);
-
-        offset += tmp_size;
-        tmp_size = sizeof(int);
-        memcpy(&datosES->tiempo, payload+offset, tmp_size);
-
-        return datosES;
+		int size=0, offset=0;
+		size = sizeof(int32_t);
+		memcpy (&datosES->tamanioID, payload, size);
+		offset += size;
+		size = datosES->tamanioID;
+		memcpy (&datosES->id, payload+offset, size);
+		offset += size;
+		size = sizeof(int32_t);
+		memcpy(&datosES->tiempo, payload+offset, size);
+		return datosES;
 }
 
 char * deserializar_mensaje_excepcion(char * cadena, uint32_t longitud){
@@ -251,8 +248,7 @@ t_iVARCOM * deserializar_datos_variable(char * mensaje, uint32_t longitud){
 	char * recurso = malloc(longitud);
     int offset = 0, tmp_size = 0;
     t_iVARCOM * datos_variables;
-
-    tmp_size=longitud-sizeof(uint32_t);
+    tmp_size=longitud-sizeof(int32_t);
     memcpy(&datos_variables->nombre, mensaje+offset, tmp_size);
 
     offset += tmp_size;
@@ -260,4 +256,40 @@ t_iVARCOM * deserializar_datos_variable(char * mensaje, uint32_t longitud){
     memcpy(&datos_variables->valor, mensaje+offset, tmp_size);
 
 	return datos_variables;
+}
+
+char* serializarAsignacionVariable(t_asignacion *asig){
+
+	char *stream = malloc(sizeof(int)+ sizeof(int32_t) + asig->tamanio);
+	int size=0, offset=0;
+	size = sizeof(int);
+	memcpy(stream, &asig->valor, size);
+	offset += size;
+	size = sizeof(int32_t);
+	memcpy (stream + offset, &asig->tamanio, size);
+	offset += size;
+	size = asig->tamanio;
+	memcpy (stream + offset, asig->variable, size);
+	return stream;
+}
+
+
+t_asignacion * desserializarAsignacionVariable(char* payload){
+		int offset = 0, tmp_size = 0;
+		t_asignacion * asig ;
+		asig = malloc(sizeof(t_asignacion));
+
+		tmp_size = sizeof(int);
+		memcpy(&asig->valor,payload+offset,tmp_size);
+
+		offset += tmp_size;
+		tmp_size = sizeof(int32_t);
+		memcpy(&asig->tamanio,payload+offset,tmp_size);
+
+		offset += tmp_size;
+		tmp_size = asig->tamanio;
+		asig->variable = malloc (tmp_size);
+		memcpy(asig->variable, payload+offset, tmp_size);
+
+		return asig;
 }

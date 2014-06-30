@@ -53,14 +53,15 @@ typedef struct{
 }__attribute__((packed)) t_iPCBaCPU;
 
 typedef struct{
-    	int tamanioID;
-        char * id;
-        int tiempo;
+        int32_t tamanioID;
+        t_nombre_dispositivo id;
+        int32_t tiempo;
 }__attribute__((packed)) t_iESdeCPU;
 
 typedef struct{
 	t_nombre_compartida variable;
 	t_valor_variable valor;
+	int32_t tamanio;
 }__attribute__((packed)) t_asignacion;
 
 typedef struct
@@ -73,12 +74,14 @@ typedef struct
 typedef struct
 {
 	char * nombre;
-	uint32_t valor;
+	int32_t valor;
 }__attribute__((packed)) t_iVARCOM;
 
 char* serializarPCB(t_PCB * PCB);
 t_PCB *desserializarPCB(char* PCBSerializada);
 
+char* serializarSolicitudSegmento(t_crearSegmentoUMV *segmento);
+t_crearSegmentoUMV *deserializarSolicitudSegmento(char *solicitud);
 
 char* serializarSolicitudLectura(t_solicitudLectura* solicitud);
 t_solicitudLectura* desserializarSolicitudLectura(char* solicitud);
@@ -86,11 +89,14 @@ t_solicitudLectura* desserializarSolicitudLectura(char* solicitud);
 char* serializarSolicitudEscritura(t_solicitudEscritura* solicitud);
 t_solicitudEscritura* desserializarSolicitudEscritura(char* solicitud);
 
-char* serializarSolicitudSegmento(t_crearSegmentoUMV *segmento);
-t_crearSegmentoUMV *deserializarSolicitudSegmento(char *solicitud);
+char* serializarPCBCPUKernel(t_PCB *pcb);
+t_iPCBaCPU* desserializarPCBCPUKernel(char *payload);
+
+char* serializar_mensaje_Es(t_iESdeCPU* datosES);
+t_iESdeCPU* desserializar_mensaje_ES(char * payload);
 
 char* serializarAsignacionVariable(t_asignacion *asig);
-t_asignacion desserializarAsignacionVariable(char* asignacion);
+t_asignacion * desserializarAsignacionVariable(char* payload);
 
 char * serializar_datos_pcb_para_cpu(t_PCB * pcb);
 
@@ -100,6 +106,6 @@ t_iESdeCPU * deserializar_mensaje_ES(char *);
 
 char * deserializar_mensaje_excepcion(char *, uint32_t);
 
-t_iVARCOM * deserializar_datos_variable(char *, uint32_t);
+t_iVARCOM * deserializar_datos_variable(char *, int32_t);
 
 #endif /* SERIALIZADORES_H_ */

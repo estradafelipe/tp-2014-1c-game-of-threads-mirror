@@ -41,6 +41,9 @@ typedef enum nipc_type{
 	cpuDisponible,							//12
 	cpuDesconectada,						//13
 	finPrograma,							//
+	violacionSegmento,
+	entrada_salida,
+	error_label,							//No se encuentra la instruccion asociada a la etiqueta
 }t_paquete;
 
 
