@@ -202,7 +202,7 @@ char * serializar_datos_pcb_para_cpu(t_PCB * pcb){
         return stream;
 }
 
-t_iPCBaCPU* desserializarPCBCPUKernel(char * payload){
+t_iPCBaCPU* deserializarRetornoPCBdeCPU(char * payload){
         int offset = 0, tmp_size = 0;
         t_iPCBaCPU * datosPCB;
         datosPCB = malloc(sizeof(t_iPCBaCPU));
@@ -242,6 +242,12 @@ char * deserializar_mensaje_excepcion(char * cadena, uint32_t longitud){
 	memcpy(mensaje, cadena, longitud+1); //el mensaje viaja con "\0" incluido La longitud tambien viene con el +1 o se agrega aca
 	//memcpy(mensaje+longitud, "\0", 1);
 	return mensaje;
+}
+
+char * deserializar_nombre_recurso(char * mensaje, uint32_t longitud){
+	char * recurso = malloc(longitud);
+	memcpy(recurso, mensaje, longitud);
+	return recurso;
 }
 
 t_iVARCOM * deserializar_datos_variable(char * mensaje, uint32_t longitud){

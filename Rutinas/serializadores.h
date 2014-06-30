@@ -67,7 +67,7 @@ typedef struct{
 typedef struct
 {
 	char * nombre;
-	uint32_t valor;
+	int32_t valor;
 	pthread_mutex_t * mutex;
 }__attribute__((packed)) t_variable_compartida;
 
@@ -90,7 +90,7 @@ char* serializarSolicitudEscritura(t_solicitudEscritura* solicitud);
 t_solicitudEscritura* desserializarSolicitudEscritura(char* solicitud);
 
 char* serializarPCBCPUKernel(t_PCB *pcb);
-t_iPCBaCPU* desserializarPCBCPUKernel(char *payload);
+t_iPCBaCPU* deserializarRetornoPCBdeCPU(char *payload);
 
 char* serializar_mensaje_Es(t_iESdeCPU* datosES);
 t_iESdeCPU* desserializar_mensaje_ES(char * payload);
@@ -106,6 +106,8 @@ t_iESdeCPU * deserializar_mensaje_ES(char *);
 
 char * deserializar_mensaje_excepcion(char *, uint32_t);
 
-t_iVARCOM * deserializar_datos_variable(char *, int32_t);
+t_iVARCOM * deserializar_datos_variable(char *, uint32_t);
+
+char * deserializar_nombre_recurso(char *, uint32_t);
 
 #endif /* SERIALIZADORES_H_ */
