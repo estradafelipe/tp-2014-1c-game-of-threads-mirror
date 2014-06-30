@@ -8,7 +8,6 @@
 #ifndef PCP_H_
 #define PCP_H_
 #include "kernel.h"
-#include <serializadores.h>
 #include <paquetes.h>
 
 #define ERROR_ENVIO_CPU -1
@@ -41,7 +40,5 @@ void pasarACola(t_cola*, void *);
 void imprimir_mensaje_excepcion(uint32_t, char *);
 
 void pasar_valor_a_imprimir(char *, uint32_t, int);
-
-char * deserializar_nombre_recurso(char *, uint32_t);
 
 #endif /* PCP_H_ */

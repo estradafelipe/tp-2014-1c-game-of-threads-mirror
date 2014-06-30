@@ -23,6 +23,7 @@
 #include <pthread.h>
 #include "hilos.h"
 #include <commons/log.h>
+#include <serializadores.h>
 
 /* Crear cola ejecutando y disponibles para CPUs*/
 
@@ -30,6 +31,7 @@ t_dictionary *cpus;
 extern sem_t *sem_exit;
 extern sem_t *sem_estado_listo;
 extern t_cola *cola_ready;
+extern t_cola *cola_block;
 extern t_cola *cola_exit;
 extern t_kernel *kernel;
 extern t_cola *cpus_disponibles; // contendra los fd de las cpus con el id del PCB e id de cpu
@@ -148,7 +150,7 @@ void opRetornoCPUQuantum(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	modificarPCB(cpu->pcb, datosPCB);
 	//AGREGAR SEMAFOROS en version con varios threads
 	pasarACola(cola_ready, cpu->pcb);
-	sem_wait(sem_estado_listo);
+	sem_post(sem_estado_listo);
 	poner_cpu_no_disponible(cpu);
 }
 
@@ -254,12 +256,6 @@ void opTomarSemaforo(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	printf("Tomar semaforo\n");
 	char * nombre_semaforo = deserializar_nombre_recurso(payload, longitudMensaje);
 	wait_semaforo(nombre_semaforo, fd);
-}
-
-char * deserializar_nombre_recurso(char * mensaje, uint32_t longitud){
-	char * recurso = malloc(longitud);
-	memcpy(recurso, mensaje, longitud);
-	return recurso;
 }
 
 void opLiberarSemaforo(uint32_t fd, char * payload, uint32_t longitudMensaje){
@@ -409,10 +405,10 @@ void pasarListosAEjecucion(void){
 void pasarBloqueadosAListos(void){
 	while(1){
 		sem_wait(&cola_block->contador);
-		sem_wait(sem_estado_listo);
 		log_debug(logger,string_from_format("Hilo pasa PCB de Bloqueado a Listo\n"));
 		t_PCB *pcb = cola_pop(cola_block);
-		t_CPU *cpu = cola_push(cola_ready);
+		cola_push(cola_ready, pcb);
+		sem_post(sem_estado_listo);
 
 		//free(programa);
 		//sem_post(sem_multiprogramacion); este semaforo se incrementa cuando pasa a Exit!!!!

@@ -217,6 +217,7 @@ void agregarProgramaNuevo(t_list *cola_new, t_PCB *element){
 
 void pasarAReady(t_PCB *element){
 	cola_push(cola_ready,element);
+	sem_post(sem_estado_listo);
 	log_debug(logger,string_from_format("Pasa a READY: Programa %d\n",element->id));
 }
 

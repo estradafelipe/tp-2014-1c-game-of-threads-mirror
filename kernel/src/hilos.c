@@ -105,7 +105,6 @@ void signal_semaforo(char *semaforo){
 		cola_push(cola_ready, PCB);	// sacar a un programa de la cola
 		// envia una confirmacion?
 	}
-
 	pthread_mutex_unlock(SEM->mutex);
 }
 
