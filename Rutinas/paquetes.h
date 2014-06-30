@@ -14,19 +14,23 @@
 
 typedef enum nipc_type{
 	handshakeKernelCPU,
-	wait,									// wait de la CPU al Kernel
-	signal,									// signal de la CPU al kernel
+	retornoCPUQuantum,
+	recibiACKDeCPU,
+	solicitarValorVariableCompartida,
+	asignarValorVariableCompartida,
+	liberarSemaforo,						// signal de la CPU al kernel
+	tomarSemaforo,							// wait de la CPU al Kernel
+	imprimirTexto,
+	imprimirValor,
+	retornoCPUExcepcion,
+	retornoCPUFin,
+	retornoCPUPorES,
+	estoyDisponible,
 	bloquearProgramaCPU,					// bloquear programa de kernel a CPU
 	semaforolibre,							// via libre kernel a CPU como respuesta a un wait
-	programaImprimir,
-	programaImprimirTexto,
 	respuestaCPU,
 	enviarPCBACPU,
 	envioPCBES,
-	imprimirValor,
-	imprimirTexto,
-	solicitarValorVariableCompartida,
-	asignarValorVariableCompartida,
 	handshakeCpuUmv,						//01
 	creacionSegmentos,						//02 - solicitar creacion de segmentos a la UMV
 	destruccionSegmentos,					//03 - solicitar destruccion de segmentos a la UMV
@@ -38,8 +42,6 @@ typedef enum nipc_type{
 	programaNuevo,							//09
 	rechazoPrograma,						//10 - respuesta del Kernel de rechazo al programa
 	handshakeKernelUmv,						//11
-	cpuDisponible,							//12
-	cpuDesconectada,						//13
 	finPrograma,							//
 	violacionSegmento,
 	entrada_salida,

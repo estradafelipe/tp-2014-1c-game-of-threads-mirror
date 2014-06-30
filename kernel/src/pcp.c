@@ -22,6 +22,7 @@
 #include <semaphore.h>
 #include <pthread.h>
 #include "hilos.h"
+#include <commons/log.h>
 
 /* Crear cola ejecutando y disponibles para CPUs*/
 
@@ -31,6 +32,7 @@ extern t_cola *cola_ready;
 extern t_cola *cola_exit;
 extern t_kernel *kernel;
 extern t_cola *cpus_disponibles; // contendra los fd de las cpus con el id del PCB e id de cpu
+extern t_log *logger;
 
 //t_cola *cpus_en_ejecucion=cola_create();
 
@@ -269,7 +271,7 @@ char * serializar_valor_variable_compartida(uint32_t valor){
     return stream;
 }
 
-void opObtenerVariable(uint32_t fd, char * payload, uint32_t longitudMensaje){
+void opSolicitarValorVariableCompartida(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	printf("Solicitud de variable\n");
 	char * nombre_variable = deserializar_nombre_recurso(payload, longitudMensaje);
 	t_variable_compartida * variable_compartida = dictionary_get(kernel->variables_compartidas, string_from_format("%d",nombre_variable));
@@ -285,7 +287,7 @@ void opObtenerVariable(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	free(paquete);
 }
 
-void opGrabarVariable(uint32_t fd, char * payload, uint32_t longitudMensaje){
+void opAsignarValorVariableCompartida(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	printf("Guardar valor en variable\n");
 	t_iVARCOM * variable = deserializar_datos_variable(payload, longitudMensaje);
 	t_variable_compartida * variable_compartida = dictionary_get(kernel->variables_compartidas, string_from_format("%d",variable->nombre));
@@ -309,9 +311,8 @@ void pasarACola(t_cola* cola, void *element){
 void (*tabla_operaciones[])(uint32_t, char *, uint32_t) = {
 		opHandshakeKernelCPU,
 		opRetornoCPUQuantum,
-		opRecibiACKDeCPU,
-		opGrabarVariable,
-		opObtenerVariable,
+		opSolicitarValorVariableCompartida,
+		opAsignarValorVariableCompartida,
 		opLiberarSemaforo,
 		opTomarSemaforo,
 		opImprimirTexto,
@@ -379,10 +380,6 @@ void recibirCPU(void){
 						//eliminarDeTablaCPU(i);
 					}
 					else {
-						if (paquete->type == handshakeKernelCPU)
-							printf("Handshake del socket %d, tamanio:%d\n",i,strlen(strdup(paquete->payload)));
-						else
-							printf("Mensaje del socket %d, tamanio:%d\n",i,paquete->payloadLength);
 						(tabla_operaciones[paquete->type])(i, paquete->payload, nbytes);
 					}
 					free(paquete);
@@ -392,12 +389,24 @@ void recibirCPU(void){
 	} // while
 }
 
+void pasarListosAEjecucion(void){
+
+}
+
 void hiloPCP(){
 
 
+	int thr;
+	pthread_t * administra_cpus_thr = malloc(sizeof(pthread_t)); // Administra CPUs
+	thr = pthread_create( administra_cpus_thr, NULL, (void*)recibirCPU, NULL);
+	if (thr== 0)
+		log_debug(logger,string_from_format("Hilo que recibe CPUs creado correctamente\n"));
+	else log_debug(logger,string_from_format("Hilo que recibe CPUs no se pudo crear\n"));
 
+	pthread_t * pasa_a_ejecucion_thr = malloc(sizeof(pthread_t)); // hilo q recibe programas
+	thr = pthread_create( pasa_a_ejecucion_thr, NULL, (void*)pasarListosAEjecucion, NULL);
+	if (thr== 0)
+		log_debug(logger,string_from_format("Hilo que pone en ejecucion PCBs creado correctamente\n"));
+	else log_debug(logger,string_from_format("Hilo que pone en ejecucion PCBs no se pudo crear\n"));
 
-	// hilo que reciba CPU
-	// hilo que pase ready->exec
-	// hilo que pase exec->exit
 }
