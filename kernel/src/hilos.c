@@ -7,6 +7,7 @@
 #include "hilos.h"
 
 extern t_kernel *kernel;
+extern t_cola *cola_ready;
 extern t_cola *cola_block;
 extern t_log *logger;
 char *pathconfig;
@@ -83,20 +84,10 @@ void wait_semaforo(char *semaforo,uint32_t fd){
 		log_debug(logger, string_from_format(" y ahora pasa a tener el valor %d ",SEM->valor));
 		if (SEM->valor<0){
 			bloqueo_por_semaforo(cpu);
-			package *paquete_recibido = recibir_paquete(cpu->fd);
-			if (paquete_recibido->type == respuestaCPU){
-				if (paquete_recibido->payloadLength){
-					printf("Error al enviar PCB a CPU: %d\n", cpu->fd); //Si tamaño de payload == 0 => ERROR
-				}
-				else{
-					printf("Respuesta de CPU id %d\n", cpu->fd);
-				}
-			}
-			t_iPCBaCPU *datosPCB = deserializarRetornoPCBdeCPU(paquete_recibido->payload);
-			t_PCB *pcb = modificarPCB(cpu->pcb, datosPCB);
-			poner_cpu_no_disponible(cpu);
+			t_iPCBaCPU * datosPCB = recibir_pcb_de_cpu(cpu->fd);
+			modificarPCB(cpu->pcb, datosPCB);
 			cola_push(SEM->cola, cpu->pcb);
-			free(paquete_recibido);
+			poner_cpu_no_disponible(cpu);
 		}else semaforo_libre(cpu);
 
 		pthread_mutex_unlock(SEM->mutex);

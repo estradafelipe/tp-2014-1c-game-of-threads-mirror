@@ -186,7 +186,7 @@ t_solicitudEscritura* desserializarSolicitudEscritura(char* solicitud){
 	return solic;
 }
 
-char * serializar_datos_pcb_para_cpu(t_PCB pcb){
+char * serializar_datos_pcb_para_cpu(t_PCB * pcb){
         char *stream = malloc(sizeof(t_pun)*3);
         int size=0, offset=0;
         size = sizeof(t_pun);
@@ -220,24 +220,44 @@ t_iPCBaCPU * deserializarRetornoPCBdeCPU(char * payload){
         return datosPCB;
 }
 
-t_iESdeCPU deserializar_mensaje_ES(char * payload){
+t_iESdeCPU * deserializar_mensaje_ES(char * payload){
         int offset = 0, tmp_size = 0;
         t_iESdeCPU * datosES;
         datosES = malloc(sizeof(t_iESdeCPU));
 
-        tmp_size = sizeof(t_pun);
+        tmp_size = sizeof(int);
         memcpy(&datosES->tamanioID, payload+offset, tmp_size);
 
         offset += tmp_size;
-        tmp_size = datosES->tamanioID;
-        memcpy(datosES->id, payload+offset, tmp_size);
-        memcpy((datosES->id)+datosES->tamanioID,"\0",1);
+        tmp_size = datosES->tamanioID + 1; //pasamos mensajes cadena con "\0"
+        memcpy(&datosES->id, payload+offset, tmp_size);
+        //memcpy((&datosES->id)+datosES->tamanioID,"\0",1);
 
         offset += tmp_size;
-        tmp_size = sizeof(t_pun);
+        tmp_size = sizeof(int);
         memcpy(&datosES->tiempo, payload+offset, tmp_size);
 
         return datosES;
 }
 
+char * deserializar_mensaje_excepcion(char * cadena, uint32_t longitud){
+	char * mensaje=malloc(longitud +1);
+	memcpy(mensaje, cadena, longitud+1); //el mensaje viaja con "\0" incluido La longitud tambien viene con el +1 o se agrega aca
+	//memcpy(mensaje+longitud, "\0", 1);
+	return mensaje;
+}
 
+t_iVARCOM * deserializar_datos_variable(char * mensaje, uint32_t longitud){
+	char * recurso = malloc(longitud);
+    int offset = 0, tmp_size = 0;
+    t_iVARCOM * datos_variables;
+
+    tmp_size=longitud-sizeof(uint32_t);
+    memcpy(&datos_variables->nombre, mensaje+offset, tmp_size);
+
+    offset += tmp_size;
+    tmp_size = sizeof(uint32_t); //pasamos mensajes cadena con "\0"
+    memcpy(&datos_variables->valor, mensaje+offset, tmp_size);
+
+	return datos_variables;
+}

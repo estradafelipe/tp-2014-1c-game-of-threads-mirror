@@ -53,15 +53,28 @@ typedef struct{
 }__attribute__((packed)) t_iPCBaCPU;
 
 typedef struct{
-        t_pun tamanioID;
-        t_pun id;
-        t_pun tiempo;
+    	int tamanioID;
+        char * id;
+        int tiempo;
 }__attribute__((packed)) t_iESdeCPU;
 
 typedef struct{
 	t_nombre_compartida variable;
 	t_valor_variable valor;
 }__attribute__((packed)) t_asignacion;
+
+typedef struct
+{
+	char * nombre;
+	uint32_t valor;
+	pthread_mutex_t * mutex;
+}__attribute__((packed)) t_variable_compartida;
+
+typedef struct
+{
+	char * nombre;
+	uint32_t valor;
+}__attribute__((packed)) t_iVARCOM;
 
 char* serializarPCB(t_PCB * PCB);
 t_PCB *desserializarPCB(char* PCBSerializada);
@@ -79,5 +92,14 @@ t_crearSegmentoUMV *deserializarSolicitudSegmento(char *solicitud);
 char* serializarAsignacionVariable(t_asignacion *asig);
 t_asignacion desserializarAsignacionVariable(char* asignacion);
 
+char * serializar_datos_pcb_para_cpu(t_PCB * pcb);
+
+t_iPCBaCPU * deserializarRetornoPCBdeCPU(char *);
+
+t_iESdeCPU * deserializar_mensaje_ES(char *);
+
+char * deserializar_mensaje_excepcion(char *, uint32_t);
+
+t_iVARCOM * deserializar_datos_variable(char *, uint32_t);
 
 #endif /* SERIALIZADORES_H_ */

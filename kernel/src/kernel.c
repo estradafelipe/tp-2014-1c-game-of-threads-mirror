@@ -34,6 +34,7 @@ t_cola *cola_exit;
 t_cola *cola_block;
 t_log *logger;
 char *pathconfig;
+t_cola *cpus_disponibles; // contendra los fd de las cpus con el id del PCB e id de cpu
 
 pthread_mutex_t mutex_ready = PTHREAD_MUTEX_INITIALIZER;
 
@@ -93,6 +94,7 @@ int main(int argc, char**argv) {
 	cola_ready = cola_create();
 	cola_exit = cola_create();
 	cola_block = cola_create();
+	cpus_disponibles = cola_create();
 	sem_exit = malloc(sizeof(sem_t));
 	sem_init(sem_exit,0,0);
 	sem_init(semaforo_fin,0,0);

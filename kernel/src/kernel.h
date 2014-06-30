@@ -10,7 +10,6 @@
 #include <semaphore.h>
 #include <sockets.h>
 #include <parser/parser.h>
-#include "varcom.h"
 
 #define FIN_PROGRAM_SUCCESS 0
 #define PROGRAM_DISCONNECT -1
@@ -48,6 +47,7 @@ typedef struct
 	int fd;        // file descriptor para socket.
 	int estado;    // estado 1 Activo, 0 Inactivo
 	int exit_code; // como termino?
+	char * mensajeFIN; //cuando termine el programa le pasa este mensaje a la consola
 }t_programa;
 
 typedef struct

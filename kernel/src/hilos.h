@@ -20,6 +20,7 @@
 #include <commons/config.h>
 #include "kernel.h"
 #include "plp.h"
+#include "pcp.h"
 #include "colas.h"
 
 void crea_tablasSitema();
