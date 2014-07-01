@@ -15,10 +15,15 @@
 ===================================
 (entre comillas son los parametros)
   - Operaciones:
-    - operacion crear_seg "id_programa" "tamaño"
-    - operacion destruir_seg "id_programa"
-    - operacion lectura "id_programa" "base" "offset" "size"
-    - operacion escritura "id_programa" "base" "offset" "size" "buffer"
+    - crear_seg "id_programa" "tamaño"
+    - destruir_seg "id_programa"
+    - lectura "id_programa" "base" "offset" "size"
+    - escritura "id_programa" "base" "offset" "size" "tipo_dato" "buffer"
+      - tipo_dato uno de:
+        - "d" --> entero
+        - "s" --> char*
+        - "c" --> char
+        - posibilidad de agregar mas
   - Modificar retardo:
     - retardo "time_miliseg"
   - Modificar algoritmo:
