@@ -103,12 +103,11 @@ int main(int argc, char **argv) {
 					}
 
 					if (paquete_nuevo->type==finPrograma){
-						int *exit_code = malloc(paquete_nuevo->payloadLength);
-						memcpy(&exit_code,paquete_nuevo->payload,paquete_nuevo->payloadLength);
+						char *mensajeFIN = malloc(sizeof(paquete_nuevo->payloadLength));
+						memcpy(mensajeFIN,paquete_nuevo->payload,paquete_nuevo->payloadLength);
 						//en funcion del codigo  mensaje por consola
-						if (exit_code==0) printf("El programa Finalizo correctamente");
-						// DEFINIR LOS != MENSAJES DE ERROR
-						free(exit_code);
+						printf("%s",mensajeFIN);
+						free(mensajeFIN);
 						free(paquete_nuevo);
 						break;
 					}
