@@ -41,4 +41,6 @@ void imprimir_mensaje_excepcion(uint32_t, char *);
 
 void pasar_valor_a_imprimir(char *, uint32_t, int);
 
+t_PCB * buscar_pcb_activo(void);
+
 #endif /* PCP_H_ */

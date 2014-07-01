@@ -251,9 +251,8 @@ char * deserializar_nombre_recurso(char * mensaje, uint32_t longitud){
 }
 
 t_iVARCOM * deserializar_datos_variable(char * mensaje, uint32_t longitud){
-	char * recurso = malloc(longitud);
     int offset = 0, tmp_size = 0;
-    t_iVARCOM * datos_variables;
+    t_iVARCOM * datos_variables = malloc(sizeof(t_iVARCOM));
     tmp_size=longitud-sizeof(int32_t);
     memcpy(&datos_variables->nombre, mensaje+offset, tmp_size);
 
@@ -265,7 +264,6 @@ t_iVARCOM * deserializar_datos_variable(char * mensaje, uint32_t longitud){
 }
 
 char* serializarAsignacionVariable(t_asignacion *asig){
-
 	char *stream = malloc(sizeof(int)+ sizeof(int32_t) + asig->tamanio);
 	int size=0, offset=0;
 	size = sizeof(int);
