@@ -32,8 +32,7 @@ t_puntero GameOfThread_definirVariable(t_nombre_variable identificador_variable)
 t_puntero GameOfThread_obtenerPosicionVariable(t_nombre_variable identificador_variable ){
 	char* key = malloc(sizeof(t_nombre_variable)+1);
 	sprintf(key,"%c",identificador_variable);
-	t_puntero posicion;
-	memcpy(&posicion, dictionary_get(diccionarioVariables, key),sizeof(t_puntero)); //Probar , porque get() devuelve void*
+	t_puntero posicion = (t_puntero)dictionary_get(diccionarioVariables, key);
 	return posicion;
 }
 
@@ -252,8 +251,17 @@ void GameOfThread_wait(t_nombre_semaforo identificador_semaforo){
 	memcpy(payload,identificador_semaforo,sizeof(t_nombre_semaforo));
 	paquete = crear_paquete(waitPrograma,payload,sizeof(t_nombre_semaforo));
 	enviar_paquete(paquete,socketKernel);
+	destruir_paquete(paquete);
+	paquete = recibir_paquete(socketKernel);
 
-	//TODO: Ver con pablo que me responde para ver si el semaforo esta o no disponible
+	if (paquete->type == semaforolibre){
+		//TODO: Que hacemos??
+	} else {
+		destruir_paquete(paquete);
+		paquete = crear_paquete(bloquearProgramaCPU,"Se bloquea",strlen("Se bloquea")+1);
+		enviar_paquete(paquete,socketKernel);
+		destruir_paquete(paquete);
+	}
 
 }
 
@@ -264,6 +272,13 @@ void GameOfThread_signal(t_nombre_semaforo identificador_semaforo){
 	paquete = crear_paquete(signalPrograma,payload,sizeof(t_nombre_semaforo));
 	enviar_paquete(paquete,socketKernel);
 
-	//TODO: Idem a Wait
+	if (paquete->type == semaforolibre){
+			//TODO: Que hacemos??
+		} else {
+			destruir_paquete(paquete);
+			paquete = crear_paquete(bloquearProgramaCPU,"Se bloquea",strlen("Se bloquea")+1);
+			enviar_paquete(paquete,socketKernel);
+			destruir_paquete(paquete);
+		}
 
 }

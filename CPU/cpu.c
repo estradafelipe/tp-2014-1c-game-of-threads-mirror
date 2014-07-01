@@ -102,8 +102,7 @@ int main(int argc, char **argv){
 					exit(1);
 				}
 
-				// Ejecutar parser
-				//TODO: Destruir paquete antes de volver a crear otro;
+				// TODO:Ejecutar parser
 				quantumPrograma ++;
 		}
 			dictionary_clean(diccionarioVariables); //limpio el diccionario de variables

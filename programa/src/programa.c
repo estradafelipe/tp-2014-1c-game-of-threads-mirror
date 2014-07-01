@@ -113,13 +113,13 @@ int main(int argc, char **argv) {
 						break;
 					}
 
-					if (paquete_nuevo->type==programaImprimir){
+					if (paquete_nuevo->type==imprimirValor){
 						int valor_mostrar;
 						memcpy(&valor_mostrar,paquete_nuevo->payload,paquete_nuevo->payloadLength);
 						printf("%d\n",valor_mostrar);
 					}
 
-					if (paquete_nuevo->type==programaImprimirTexto){
+					if (paquete_nuevo->type==imprimirTexto){
 						char *texto = malloc(paquete_nuevo->payloadLength);
 						memcpy(texto,paquete_nuevo->payload,paquete_nuevo->payloadLength);
 						printf("%s",texto);
