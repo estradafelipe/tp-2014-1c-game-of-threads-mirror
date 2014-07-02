@@ -7,9 +7,11 @@
 #include "hilos.h"
 
 extern t_kernel *kernel;
+extern sem_t *sem_estado_listo;
+extern sem_t *sem_exit;
 extern t_cola *cola_ready;
-extern t_cola *cola_block;
 extern t_log *logger;
+extern t_cola *cola_exit;
 char *pathconfig;
 
 /* Envia mensaje a cpu de que el programa se debe bloquear
@@ -117,8 +119,14 @@ void hiloIO(t_entradasalida *IO){
 		// controlar que este activo el programa para no desperdiciar recurso
 		int retardo = IO->retardo * elemento->unidadesTiempo;
 		usleep(retardo);
-		// cola de bloqueados intermedia para pasar de block->ready
-		cola_push(cola_block,elemento->PCB);
+		t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",elemento->PCB->id));
+		if (!programa->estado){ 				//Verifico  si el programa esta activo
+			pasarACola(cola_exit, elemento->PCB);
+			sem_post(sem_exit);
+		} else {
+			cola_push(cola_ready,elemento->PCB);
+			sem_post(sem_estado_listo);
+		}
 		free(elemento);
 	}
 }

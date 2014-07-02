@@ -31,7 +31,6 @@ t_dictionary *cpus;
 extern sem_t *sem_exit;
 extern sem_t *sem_estado_listo;
 extern t_cola *cola_ready;
-extern t_cola *cola_block;
 extern t_cola *cola_exit;
 extern t_kernel *kernel;
 extern t_cola *cpus_disponibles; // contendra los fd de las cpus con el id del PCB e id de cpu
@@ -206,26 +205,26 @@ void opRetornoCPUFin(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	sem_post(sem_exit);
 }
 
-void pasarMensajeYFinalizar(uint32_t fd, char * mensajeFIN){
+void opRetornoCPUExcepcion(uint32_t fd, char * payload, uint32_t longitudMensaje){
+	printf("Retorno de CPU por Excepcion logica\n");
+	char * excepcion = deserializar_mensaje_excepcion(payload, longitudMensaje);
 	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
-	t_PCB *pcb = cpu->pcb;
-	t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",pcb->id));
-	strcpy(programa->mensajeFIN, mensajeFIN);// DONDE se pone el mensaje de finalizacion de programa SILVINA
+	t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",cpu->pcb->id));
+	strcpy(programa->mensajeFIN, excepcion); // DONDE se pone el mensaje de finalizacion de programa SILVINA
 	poner_cpu_no_disponible(cpu);
 	pasarACola(cola_exit, cpu->pcb);
 	sem_post(sem_exit);
 }
 
-void opRetornoCPUExcepcion(uint32_t fd, char * payload, uint32_t longitudMensaje){
-	printf("Retorno de CPU por Excepcion logica\n");
-	char * excepcion = deserializar_mensaje_excepcion(payload, longitudMensaje);
-	pasarMensajeYFinalizar(fd, excepcion);
-}
-
 void opExcepcionCPUHardware(uint32_t fd){
 	printf("Retorno de CPU por Excepcion Hardware\n");
 	char * excepcion = "Error CPU";
-	pasarMensajeYFinalizar(fd, excepcion);
+	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
+	t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",cpu->pcb->id));
+	strcpy(programa->mensajeFIN, excepcion); // DONDE se pone el mensaje de finalizacion de programa SILVINA
+	dictionary_remove(cpus, string_from_format("%d",fd));
+	pasarACola(cola_exit, cpu->pcb);
+	sem_post(sem_exit);
 }
 
 void pasar_dato_a_imprimir(char * texto, int longitudTexto, uint32_t fd, t_paquete tipoPaquete){
@@ -239,16 +238,14 @@ void pasar_dato_a_imprimir(char * texto, int longitudTexto, uint32_t fd, t_paque
 void opImprimirValor(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	printf("Imprimir Valor\n");
 	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
-	t_PCB *pcb = cpu->pcb;
-	t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",pcb->id));
+	t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",cpu->pcb->id));
 	pasar_dato_a_imprimir(payload, longitudMensaje, programa->fd, imprimirValor);// VER Con Silvina ¿imprime el PCP?
 }
 
 void opImprimirTexto(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	printf("Imprimir Texto\n");
 	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
-	t_PCB *pcb = cpu->pcb;
-	t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",pcb->id));
+	t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d", cpu->pcb->id));
 	pasar_dato_a_imprimir(payload, longitudMensaje, programa->fd, imprimirTexto);// VER Con Silvina ¿imprime el PCP?
 }
 
@@ -376,10 +373,17 @@ void recibirCPU(void){
 						printf("selectserver: socket %d hung up\n", i);
 						close(i);
 						FD_CLR(i, &master); // Elimina del conjunto maestro, ¿saca de la copia del read_fs?
-						//eliminarDeTablaCPU(i);
+						opExcepcionCPUHardware(i);
 					}
 					else {
-						(tabla_operaciones[paquete->type])(i, paquete->payload, nbytes);
+						t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",i));
+						t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",cpu->pcb->id));
+						if (!programa->estado){ //Verifico  si el programa esta activo
+							pasarACola(cola_exit, cpu->pcb);
+							sem_post(sem_exit);
+						} else {
+							(tabla_operaciones[paquete->type])(i, paquete->payload, nbytes);
+						}
 					}
 					free(paquete);
 				}
@@ -394,30 +398,21 @@ void pasarListosAEjecucion(void){
 		sem_wait(sem_estado_listo);
 		log_debug(logger,string_from_format("Hilo pasa PCB a Ejecución\n"));
 		t_PCB *pcb = cola_pop(cola_ready);
-		t_CPU *cpu = cola_pop(cpus_disponibles);
-		enviar_pcb_a_cpu(pcb, cpu);
-
-		//free(programa);
-		//sem_post(sem_multiprogramacion); este semaforo se incrementa cuando pasa a Exit!!!!
-	}
-}
-
-void pasarBloqueadosAListos(void){
-	while(1){
-		sem_wait(&cola_block->contador);
-		log_debug(logger,string_from_format("Hilo pasa PCB de Bloqueado a Listo\n"));
-		t_PCB *pcb = cola_pop(cola_block);
-		cola_push(cola_ready, pcb);
-		sem_post(sem_estado_listo);
-
+		t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",pcb->id));
+		if (!programa->estado){
+			pasarACola(cola_exit, pcb);
+			sem_post(sem_exit);
+			sem_post(&cpus_disponibles->contador);
+		} else {
+			t_CPU *cpu = cola_pop(cpus_disponibles);
+			enviar_pcb_a_cpu(pcb, cpu);
+		}
 		//free(programa);
 		//sem_post(sem_multiprogramacion); este semaforo se incrementa cuando pasa a Exit!!!!
 	}
 }
 
 void hiloPCP(){
-
-
 	int thr;
 	pthread_t * administra_cpus_thr = malloc(sizeof(pthread_t)); // Administra CPUs
 	thr = pthread_create( administra_cpus_thr, NULL, (void*)recibirCPU, NULL);
@@ -430,11 +425,4 @@ void hiloPCP(){
 	if (thr== 0)
 		log_debug(logger,string_from_format("Hilo que pone en ejecucion PCBs creado correctamente\n"));
 	else log_debug(logger,string_from_format("Hilo que pone en ejecucion PCBs no se pudo crear\n"));
-
-	pthread_t * pasa_bloqueados_a_listos_thr = malloc(sizeof(pthread_t)); // hilo q recibe programas
-	thr = pthread_create(pasa_bloqueados_a_listos_thr, NULL, (void*)pasarBloqueadosAListos, NULL);
-	if (thr== 0)
-		log_debug(logger,string_from_format("Hilo pasa bloqueados a listos PCBs creado correctamente\n"));
-	else log_debug(logger,string_from_format("Hilo pasa bloqueados a listos PCBs no se pudo crear\n"));
-
 }

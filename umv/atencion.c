@@ -306,7 +306,7 @@ void* atenderConsola(){
 	int tamanio;
 	char* datos;
 	int estado;
-
+	int32_t entero;
 	t_crearSegmentoUMV* crear;
 	t_solicitudLectura* reader;
 	t_solicitudEscritura* writer;
@@ -324,136 +324,138 @@ void* atenderConsola(){
 		if(logConsola){
 			log_debug(loggerConsola,"Se ingreso un comando\n");
 		}
-		if(strcmp(palabras[0],"operacion")==0){
-			// validar  que operacion es
-			id_programa = atoi(palabras[2]);
-			if (strcmp(palabras[1],"lectura")==0){
-				// es un pedido de lectura
+		// validar  que operacion es
+		if (strcmp(palabras[0],"lectura")==0){
+			// es un pedido de lectura
+			if(logConsola){
+				log_debug(loggerConsola,"Es un pedido de lectura");
+			}
+			reader = malloc(sizeof(t_solicitudLectura));
+			id_programa = atoi(palabras[1]);
+			reader->base = atoi(palabras[2]);
+			reader->offset = atoi(palabras[3]);
+			reader->tamanio = atoi(palabras[4]);
+			printf("Leyendo %d bytes en el segmento del programa %d con base %d\n",reader->tamanio,id_programa,reader->base);
+			if(logConsola){
+				log_debug(loggerConsola,"Leyendo %d bytes en el segmento del programa %d con base %d",reader->tamanio,id_programa,reader->base);
+			}
+			pthread_rwlock_rdlock(&lockSegmentos);
+			datos = leer(id_programa,reader);
+			pthread_rwlock_unlock(&lockSegmentos);
+			if(datos!=NULL){
+				printf("Los datos obtenidos son: %s\n",generarHexa(datos,reader->tamanio));
 				if(logConsola){
-					log_debug(loggerConsola,"Es un pedido de lectura");
+					log_debug(loggerConsola,"Los datos obtenidos son: %s",generarHexa(datos,reader->tamanio));
 				}
-				reader = malloc(sizeof(t_solicitudLectura));
-				reader->base = atoi(palabras[3]);
-				reader->offset = atoi(palabras[4]);
-				reader->tamanio = atoi(palabras[5]);
-				printf("Leyendo %d bytes en el segmento del programa %d con base %d\n",reader->tamanio,id_programa,reader->base);
+			} else {
+				printf("Violación de segmento!!!\n");
 				if(logConsola){
-					log_debug(loggerConsola,"Leyendo %d bytes en el segmento del programa %d con base %d",reader->tamanio,id_programa,reader->base);
+					log_debug(loggerConsola,"Violación de segmento!!!\n");
 				}
-				pthread_rwlock_rdlock(&lockSegmentos);
-				datos = leer(id_programa,reader);
-				pthread_rwlock_unlock(&lockSegmentos);
-				if(datos!=NULL){
-					printf("Los datos obtenidos son: %s\n",generarHexa(datos,reader->tamanio));
-					if(logConsola){
-						log_debug(loggerConsola,"Los datos obtenidos son: %s",generarHexa(datos,reader->tamanio));
-					}
-				} else {
-					printf("Violación de segmento!!!\n");
-					if(logConsola){
-						log_debug(loggerConsola,"Violación de segmento!!!\n");
-					}
-				}
-				free(reader);
-			} else if (strcmp(palabras[1],"escritura")==0){
-				// es un pedido de escritura
-				if(logConsola){
-					log_debug(loggerConsola,"Es un pedido de escritura");
-				}
-				writer = malloc(sizeof(t_solicitudEscritura));
-				writer->base = atoi(palabras[3]);
-				writer->offset = atoi(palabras[4]);
-				writer->tamanio = atoi(palabras[5]);
-				writer->buffer = malloc(writer->tamanio);
+			}
+			free(reader);
+		} else if (strcmp(palabras[0],"escritura")==0){
+			// es un pedido de escritura
+			if(logConsola){
+				log_debug(loggerConsola,"Es un pedido de escritura");
+			}
+			id_programa = atoi(palabras[1]);
+			writer = malloc(sizeof(t_solicitudEscritura));
+			writer->base = atoi(palabras[2]);
+			writer->offset = atoi(palabras[3]);
+			writer->tamanio = atoi(palabras[4]);
+			writer->buffer = malloc(writer->tamanio);
+			//Valido de que tipo es el buffer que hay que escribir
+			//TODO: ver que tipos se pueden agregar
+			if(strcmp(palabras[5],"d")==0){//escribir como entero
+				entero = atoi(palabras[6]);
+				memcpy(writer->buffer,&entero,writer->tamanio);
+			} else if(strcmp(palabras[5],"s")==0 || strcmp(palabras[5],"c")==0){//como char* o char
 				memcpy(writer->buffer,palabras[6],writer->tamanio);
-				printf("Escribiendo %d bytes en el segmento del programa %d con base %d\n",writer->tamanio,id_programa,writer->base);
+			}
+
+			printf("Escribiendo %d bytes en el segmento del programa %d con base %d\n",writer->tamanio,id_programa,writer->base);
+			if(logConsola){
+				log_debug(loggerConsola,"Escribiendo %d bytes en el segmento del programa %d con base %d",writer->tamanio,id_programa,writer->base);
+			}
+			pthread_rwlock_rdlock(&lockSegmentos);
+			estado = escribir(id_programa,writer);
+			pthread_rwlock_unlock(&lockSegmentos);
+			if(estado >= 0){
+				printf("La operacion de escritura termino correctamente\n");
 				if(logConsola){
-					log_debug(loggerConsola,"Escribiendo %d bytes en el segmento del programa %d con base %d",writer->tamanio,id_programa,writer->base);
+					log_debug(loggerConsola,"La operacion de escritura termino correctamente\n");
 				}
-				pthread_rwlock_rdlock(&lockSegmentos);
-				estado = escribir(id_programa,writer);
+			} else {
+				printf("Violación de segmento!!!\n");
+				if(logConsola){
+					log_debug(loggerConsola,"Violación de segmento!!!\n");
+				}
+			}
+			free(writer);
+		} else if (strcmp(palabras[0],"crear_seg")==0){
+			// es un pedido de creacion de segmento
+			if(logConsola){
+				log_debug(loggerConsola,"Es un pedido de creación de segmento");
+			}
+			crear = malloc(sizeof(t_crearSegmentoUMV));
+			crear->programid = atoi(palabras[1]);
+			crear->size = atoi(palabras[2]);
+			pthread_rwlock_wrlock(&lockSegmentos);
+			estado = crear_segmento(crear);
+			pthread_rwlock_unlock(&lockSegmentos);
+			if(estado>=0){
+				printf("El segmento del %d de tamaño %d se creo correctamente\n",crear->programid,crear->size);
+				if(logConsola){
+					log_debug(loggerConsola,"El segmento del %d de tamaño %d se creo correctamente\n",crear->programid,crear->size);
+				}
+			} else {
+				printf("No hubo espacio suficiente, se realizara la compactacion y se volvera a intentar\n");
+				if(logConsola){
+					log_debug(loggerConsola,"No hubo espacio suficiente, se realizara la compactacion y se volvera a intentar");
+				}
+				pthread_rwlock_wrlock(&lockSegmentos);
+				pthread_rwlock_wrlock(&lockMemoria);
+				compactar();
+				pthread_rwlock_unlock(&lockMemoria);
 				pthread_rwlock_unlock(&lockSegmentos);
-				if(estado >= 0){
-					printf("La operacion de escritura termino correctamente\n");
-					if(logConsola){
-						log_debug(loggerConsola,"La operacion de escritura termino correctamente\n");
-					}
-				} else {
-					printf("Violación de segmento!!!\n");
-					if(logConsola){
-						log_debug(loggerConsola,"Violación de segmento!!!\n");
-					}
-				}
-				free(writer);
-			} else if (strcmp(palabras[1],"crear_seg")==0){
-				// es un pedido de creacion de segmento
-				if(logConsola){
-					log_debug(loggerConsola,"Es un pedido de creación de segmento");
-				}
-				crear = malloc(sizeof(t_crearSegmentoUMV));
-				crear->programid = atoi(palabras[2]);
-				crear->size = atoi(palabras[3]);
+
 				pthread_rwlock_wrlock(&lockSegmentos);
 				estado = crear_segmento(crear);
 				pthread_rwlock_unlock(&lockSegmentos);
+
 				if(estado>=0){
 					printf("El segmento del %d de tamaño %d se creo correctamente\n",crear->programid,crear->size);
 					if(logConsola){
 						log_debug(loggerConsola,"El segmento del %d de tamaño %d se creo correctamente\n",crear->programid,crear->size);
 					}
 				} else {
-					printf("No hubo espacio suficiente, se realizara la compactacion y se volvera a intentar\n");
+					printf("Memory overload!!!\n");
 					if(logConsola){
-						log_debug(loggerConsola,"No hubo espacio suficiente, se realizara la compactacion y se volvera a intentar");
-					}
-					pthread_rwlock_wrlock(&lockSegmentos);
-					pthread_rwlock_wrlock(&lockMemoria);
-					compactar();
-					pthread_rwlock_unlock(&lockMemoria);
-					pthread_rwlock_unlock(&lockSegmentos);
-
-					pthread_rwlock_wrlock(&lockSegmentos);
-					estado = crear_segmento(crear);
-					pthread_rwlock_unlock(&lockSegmentos);
-
-					if(estado>=0){
-						printf("El segmento del %d de tamaño %d se creo correctamente\n",crear->programid,crear->size);
-						if(logConsola){
-							log_debug(loggerConsola,"El segmento del %d de tamaño %d se creo correctamente\n",crear->programid,crear->size);
-						}
-					} else {
-						printf("Memory overload!!!\n");
-						if(logConsola){
-							log_debug(loggerConsola,"Memory overload!!!\n");
-						}
+						log_debug(loggerConsola,"Memory overload!!!\n");
 					}
 				}
-			} else if (strcmp(palabras[1],"destruir_seg")==0){
-				// es un pedido de destruccion de segmentos
+			}
+		} else if (strcmp(palabras[0],"destruir_seg")==0){
+			// es un pedido de destruccion de segmentos
+			if(logConsola){
+				log_debug(loggerConsola,"Es un pedido de destrucción de segmentos");
+			}
+			id_programa = atoi(palabras[1]);
+
+			pthread_rwlock_wrlock(&lockSegmentos);
+			estado = destruir_segmentos(id_programa);
+			pthread_rwlock_unlock(&lockSegmentos);
+
+			if(estado >= 0){
+				printf("Los segmentos del programa %d se borraron correctamente\n",id_programa);
 				if(logConsola){
-					log_debug(loggerConsola,"Es un pedido de destrucción de segmentos");
-				}
-				id_programa = atoi(palabras[2]);
-
-				pthread_rwlock_wrlock(&lockSegmentos);
-				estado = destruir_segmentos(id_programa);
-				pthread_rwlock_unlock(&lockSegmentos);
-
-				if(estado >= 0){
-					printf("Los segmentos del programa %d se borraron correctamente\n",id_programa);
-					if(logConsola){
-						log_debug(loggerConsola,"Los segmentos del programa %d se borraron correctamente\n",id_programa);
-					}
-				} else {
-					printf("No habia segmentos del programa\n");
-					if(logConsola){
-						log_debug(loggerConsola,"No habia segmentos del programa\n");
-					}
+					log_debug(loggerConsola,"Los segmentos del programa %d se borraron correctamente\n",id_programa);
 				}
 			} else {
-				printf("Comando no reconocido, intente de nuevo\n");
+				printf("No habia segmentos del programa\n");
 				if(logConsola){
-					log_debug(loggerConsola,"Comando no reconocido, intente de nuevo\n");
+					log_debug(loggerConsola,"No habia segmentos del programa\n");
 				}
 			}
 
