@@ -42,7 +42,7 @@ t_dictionary *diccionarioVariables;
 t_dictionary *diccionarioEtiquetas;
 t_PCB *pcb;
 int socketKernel, socketUMV;
-int desconectarse = false;
+int desconectarse;
 int32_t quantumKernel;
 t_log* logger;
 int32_t quantumPrograma;
