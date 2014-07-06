@@ -46,6 +46,11 @@ typedef enum nipc_type{
 	violacionSegmento,
 	entrada_salida,
 	error_label,							//No se encuentra la instruccion asociada a la etiqueta
+	cpuDisponible,
+	cpuDesconectada,
+	programaImprimirTexto,
+	signalPrograma,
+	waitPrograma
 }t_paquete;
 
 
