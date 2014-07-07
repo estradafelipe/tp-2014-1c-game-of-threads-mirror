@@ -71,7 +71,7 @@ int main(int argc, char **argv){
 	handshake(handshakeCpuUmv);
 
 	while(1){ //para recibir los PCB
-			notificar_kernel(cpuDisponible);
+			notificar_kernel(estoyDisponible);
 			packagePCB = recibir_paquete(socketKernel);
 
 			if(packagePCB->type != enviarPCBACPU){
@@ -131,6 +131,10 @@ int main(int argc, char **argv){
 }
 
 
+
+
+
+
 //Defino el interrupt handler
 void rutina(int n){
 	switch(n){
@@ -163,8 +167,8 @@ void cargar_diccionarioVariables(int32_t cant_var){
 void notificar_kernel(t_paquete pa){
 	package* paquete = malloc(sizeof(package));
 		switch(pa){
-			case cpuDisponible:
-				paquete = crear_paquete(cpuDisponible,"ESTOY DISPONIBLE",strlen("ESTOY DISPONIBLE")+1);
+			case estoyDisponible:
+				paquete = crear_paquete(estoyDisponible,"ESTOY DISPONIBLE",strlen("ESTOY DISPONIBLE")+1);
 				enviar_paquete(paquete,socketKernel);
 				break;
 			case cpuDesconectada:

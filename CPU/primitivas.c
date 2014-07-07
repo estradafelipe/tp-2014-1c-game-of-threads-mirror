@@ -235,7 +235,7 @@ void GameOfThread_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
 	es->tiempo = tiempo;
 	es->tamanioID = strlen(dispositivo);
 
-	char* payload = serializar_mensaje_Es(es);
+	char* payload = serializar_mensaje_ES(es);
 
 	paquete = crear_paquete(entrada_salida,payload,sizeof(int32_t)*2 + strlen(es->id));
 	enviar_paquete(paquete,socketKernel);
