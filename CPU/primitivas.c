@@ -7,7 +7,6 @@
 
 #include "primitivas.h"
 
-
 t_puntero GameOfThread_definirVariable(t_nombre_variable identificador_variable){
 
 	char* var = malloc(sizeof(t_nombre_variable)+1);
@@ -223,7 +222,7 @@ void GameOfThread_retornar(t_valor_variable retorno){
 
 void GameOfThread_imprimirTexto(char* texto){
 	package* paquete = malloc(sizeof(package));
-	paquete = crear_paquete(programaImprimirTexto,texto,strlen(texto));
+	paquete = crear_paquete(imprimirTexto,texto,strlen(texto));
 	enviar_paquete(paquete,socketKernel);
 	destruir_paquete(paquete);
 }
@@ -249,13 +248,13 @@ void GameOfThread_wait(t_nombre_semaforo identificador_semaforo){
 	package *paquete;
 	char *payload = malloc(sizeof(t_nombre_semaforo));
 	memcpy(payload,identificador_semaforo,sizeof(t_nombre_semaforo));
-	paquete = crear_paquete(waitPrograma,payload,sizeof(t_nombre_semaforo));
+	paquete = crear_paquete(tomarSemaforo,payload,sizeof(t_nombre_semaforo));
 	enviar_paquete(paquete,socketKernel);
 	destruir_paquete(paquete);
 	paquete = recibir_paquete(socketKernel);
 
 	if (paquete->type == semaforolibre){
-		//TODO: Que hacemos??
+		//TODO: Que hacemos?? Seguis con la ejecucion
 	} else {
 		destruir_paquete(paquete);
 		paquete = crear_paquete(bloquearProgramaCPU,"Se bloquea",strlen("Se bloquea")+1);
@@ -269,7 +268,7 @@ void GameOfThread_signal(t_nombre_semaforo identificador_semaforo){
 	package *paquete;
 	char *payload = malloc(sizeof(t_nombre_semaforo));
 	memcpy(payload,identificador_semaforo,sizeof(t_nombre_semaforo));
-	paquete = crear_paquete(signalPrograma,payload,sizeof(t_nombre_semaforo));
+	paquete = crear_paquete(liberarSemaforo,payload,sizeof(t_nombre_semaforo));
 	enviar_paquete(paquete,socketKernel);
 
 	if (paquete->type == semaforolibre){
