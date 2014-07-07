@@ -92,9 +92,9 @@ int main(int argc, char **argv){
 			memcpy(id,&pcb->id,sizeof(t_pun));
 			paq = crear_paquete(cambioProcesoActivo,id,sizeof(t_pun));
 			enviar_paquete(paq,socketUMV);
-			paq = destruir_paquete(paq);
+			destruir_paquete(paq);
 			paq = recibir_paquete(socketUMV); //TODO: Verificar que todo este ok
-			paq = destruir_paquete(paq);
+			destruir_paquete(paq);
 
 			cargar_diccionarioVariables(pcb->sizeContext);
 			quantumPrograma = 0;
