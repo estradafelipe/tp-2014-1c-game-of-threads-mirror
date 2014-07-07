@@ -105,13 +105,13 @@ int main(int argc, char **argv){
 				programcounter++;
 				//TODO: Ver si lo de aca arriba esta bien.
 
-				paq =  Leer(pcb->indiceCodigo,programcounter,TAMANIO_INSTRUCCION);
+				paq =  Leer(pcb->indiceCodigo,programcounter*8,TAMANIO_INSTRUCCION);
 
 
 				memcpy(&datos->inicio,paq->payload,sizeof(int32_t));
 				memcpy(&datos->longitud,paq->payload + sizeof(int32_t),sizeof(int32_t));
 
-				paq = Leer(pcb->segmentoCodigo,datos->inicio,datos->longitud); // TODO: Verificar, estaba pcb->indiceCodigo
+				paq = Leer(pcb->segmentoCodigo,datos->inicio,datos->longitud);
 
 				// TODO:Ejecutar parser
 
