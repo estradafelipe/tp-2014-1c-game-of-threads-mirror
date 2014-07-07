@@ -6,7 +6,7 @@
  */
 
 #include "primitivas.h"
-
+#include <serializadores.h>
 t_puntero GameOfThread_definirVariable(t_nombre_variable identificador_variable){
 
 	char* var = malloc(sizeof(t_nombre_variable)+1);
@@ -235,7 +235,7 @@ void GameOfThread_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
 	es->tiempo = tiempo;
 	es->tamanioID = strlen(dispositivo);
 
-	char* payload = serializar_mensaje_ES(es);
+	char* payload = seriarlizar_mensaje_ES(es);
 
 	paquete = crear_paquete(entrada_salida,payload,sizeof(int32_t)*2 + strlen(es->id));
 	enviar_paquete(paquete,socketKernel);
