@@ -221,7 +221,7 @@ t_iPCBaCPU* deserializarRetornoPCBdeCPU(char * payload){
         return datosPCB;
 }
 
-char* serializar_mensaje_Es(t_iESdeCPU* datosES){
+char* seriarlizar_mensaje_ES(t_iESdeCPU* datosES){
 	char *stream = malloc(sizeof(int32_t)*2+datosES->tamanioID);
 	int size=0, offset =0;
 	size = sizeof(int32_t);
@@ -234,19 +234,27 @@ char* serializar_mensaje_Es(t_iESdeCPU* datosES){
 	memcpy(stream+offset,datosES->id,size);
 	return stream;
 }
+
 t_iESdeCPU * deserializar_mensaje_ES(char * payload){
         t_iESdeCPU* datosES;
         datosES = malloc(sizeof(t_iESdeCPU));
 		int size=0, offset=0;
+
 		size = sizeof(int32_t);
-		memcpy (&datosES->tamanioID, payload, size);
+		memcpy (&datosES->tiempo, payload, size);
+		offset += size;
+		size = sizeof(int32_t);
+		memcpy (&datosES->tamanioID, payload+offset, size);
 		offset += size;
 		size = datosES->tamanioID;
-		memcpy (&datosES->id, payload+offset, size);
-		offset += size;
-		size = sizeof(int32_t);
-		memcpy(&datosES->tiempo, payload+offset, size);
+		datosES->id = malloc(datosES->tamanioID);
+		memcpy(datosES->id, payload+offset, size);
 		return datosES;
+
+
+
+
+
 }
 
 char * deserializar_mensaje_excepcion(char * cadena, uint32_t longitud){
