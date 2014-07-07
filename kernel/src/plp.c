@@ -157,7 +157,7 @@ bool solicitarSegmentosUMV(char *codigo, uint16_t codigoSize, t_medatada_program
 	}
 
 	//Indice de Codigo
-	dirSegmento = solicitudSegmento(pcb->id,programa->instrucciones_size);
+	dirSegmento = solicitudSegmento(pcb->id,(programa->instrucciones_size*8));
 	if(dirSegmento == -1){
 		return false;
 	} else pcb->indiceCodigo = dirSegmento;
@@ -180,7 +180,7 @@ bool solicitarSegmentosUMV(char *codigo, uint16_t codigoSize, t_medatada_program
 		}
 	}
 
-	rta = enviarBytesUMV(pcb->indiceCodigo,programa->instrucciones_size,programa->instrucciones_serializado); // Segmento de Etiquetas
+	rta = enviarBytesUMV(pcb->indiceCodigo,(programa->instrucciones_size*8),programa->instrucciones_serializado); // Segmento de Etiquetas
 	if (rta==-1){
 		destruirSegmentos(pcb->id);
 		return false;
@@ -220,6 +220,7 @@ void agregarProgramaNuevo(t_list *cola_new, t_PCB *element){
 void pasarAReady(t_PCB *element){
 	cola_push(cola_ready,element);
 	log_debug(logger,string_from_format("Pasa a READY: Programa %d\n",element->id));
+	sem_post(sem_estado_listo);
 }
 
 void siguienteSJN(t_list *cola_new){
@@ -415,8 +416,8 @@ void gestionarDatos(int fd, package *paquete){
 		t_PCB *PCB = crearPCB(fd,programa);
 		if (solicitarSegmentosUMV(paquete->payload,paquete->payloadLength,programa,PCB)) {
 			agregarProgramaNuevo(cola_new,PCB);
-			sem_post(sem_new);
 			log_debug(logger,string_from_format("Pasa a NEW: Programa %d\n",PCB->id));
+			sem_post(sem_new);
 		}
 		else {
 			log_debug(logger,string_from_format("PROGRAMA RECHAZADO: Programa %d\n",PCB->id));
@@ -431,7 +432,7 @@ void gestionarDatos(int fd, package *paquete){
 
 void pasarAExit(t_PCB *pcb){
 	cola_push(cola_exit,pcb);
-	sem_post(sem_estado_listo);
+	//sem_post(sem_estado_listo);
 	log_debug(logger,string_from_format("Paso a EXIT: Programa %d\n",pcb->id));
 	sem_post(sem_exit);
 }
