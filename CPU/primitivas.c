@@ -7,6 +7,7 @@
 
 #include "primitivas.h"
 #include <serializadores.h>
+
 t_puntero GameOfThread_definirVariable(t_nombre_variable identificador_variable){
 
 	char* var = malloc(sizeof(t_nombre_variable)+1);
@@ -63,42 +64,42 @@ void GameOfThread_asignar(t_puntero direccion_variable, t_valor_variable valor){
 t_valor_variable GameOfThread_obtenerValorCompartida(t_nombre_compartida variable){
 	package *paquete = malloc(sizeof(package));
 	t_valor_variable val;
-	char * payload = malloc(sizeof(t_nombre_compartida));
-	memcpy(payload,variable,sizeof(t_nombre_compartida));
-	paquete = crear_paquete(solicitarValorVariableCompartida,payload,sizeof(t_nombre_compartida));
+
+	paquete = crear_paquete(solicitarValorVariableCompartida,variable,strlen(variable)+1);
 	enviar_paquete(paquete,socketKernel);
 	destruir_paquete(paquete);
 	paquete = recibir_paquete(socketKernel);
+	if(paquete->type != solicitarValorVariableCompartida){
+		notificarError_kernel("ERROR AL SOLICITAR EL VALOR DE LA VARIABLE COMPARTIDA");
+	}
 	memcpy(&val,paquete->payload,sizeof(t_nombre_compartida));
-
-	//TODO: Habria que ver que pasa si hay algun error.
 	return val;
 }
 
 t_valor_variable GameOfThread_asignarValorCompartida(t_nombre_compartida variable, t_valor_variable valor){
 	package *solicitud = malloc(sizeof(package));
-	t_asignacion *asig = malloc(sizeof(t_asignacion));
+	t_iVARCOM *asig = malloc(sizeof(t_iVARCOM));
 
 	asig->valor = valor;
-	asig->variable = variable;
-	asig->tamanio = strlen(variable);
+	asig->nombre = variable;
 
-	char* payload = serializarAsignacionVariable(asig);
+	char* payload = serializar_datos_variable(asig,strlen(asig->nombre)+1 + sizeof(int32_t));
 	solicitud =  crear_paquete(asignarValorVariableCompartida,payload,sizeof(t_nombre_compartida)+sizeof(t_valor_variable)+sizeof(int32_t));
 	enviar_paquete(solicitud,socketKernel);
 	return valor;
 }
-t_puntero_instruccion GameOfThread_irAlLabel(t_nombre_etiqueta etiqueta){
+void GameOfThread_irAlLabel(t_nombre_etiqueta etiqueta){
 	t_puntero_instruccion instruccion;
 	char* etiquetas = malloc(sizeof(t_pun));
 	memcpy(etiquetas,&pcb->indiceEtiquetas,sizeof(t_pun));
 	instruccion = metadata_buscar_etiqueta(etiqueta, etiquetas, pcb->sizeIndexLabel);
 	if (instruccion == -1){
-		notificar_kernel(error_label);
+		notificarError_kernel("Error al encontrar label");
 		exit(1);
-	}else{
-		return instruccion;
 	}
+
+	pcb->programcounter = instruccion;
+
 }
 
 void GameOfThread_llamarSinRetorno(t_nombre_etiqueta etiqueta){
@@ -165,8 +166,6 @@ package *paquete = malloc(sizeof(package));
 	if(pcb->cursorStack == pcb->segmentoCodigo){
 		dictionary_clean(diccionarioVariables);
 		notificar_kernel(finPrograma);
-		//TODO: Preguntar si el Kernel necesita el PCB
-		free(pcb);
 		quantumPrograma = quantumKernel;
 		}
 	else{
@@ -220,6 +219,16 @@ void GameOfThread_retornar(t_valor_variable retorno){
 	cargar_diccionarioVariables(cant_var);
 }
 
+void GameOfThread_imprimir(t_valor_variable retorno){
+	package* paquete = malloc(sizeof(package));
+	char* payload = malloc(sizeof(t_valor_variable));
+	memcpy(payload,&retorno,sizeof(int32_t));
+	paquete = crear_paquete(imprimirValor,payload,sizeof(int32_t));
+	enviar_paquete(paquete,socketKernel);
+	destruir_paquete(paquete);
+}
+
+
 void GameOfThread_imprimirTexto(char* texto){
 	package* paquete = malloc(sizeof(package));
 	paquete = crear_paquete(imprimirTexto,texto,strlen(texto));
@@ -235,13 +244,12 @@ void GameOfThread_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
 	es->tiempo = tiempo;
 	es->tamanioID = strlen(dispositivo);
 
-	char* payload = seriarlizar_mensaje_ES(es);
+	char* payload = serializar_mensaje_ES(es);
 
 	paquete = crear_paquete(entrada_salida,payload,sizeof(int32_t)*2 + strlen(es->id));
 	enviar_paquete(paquete,socketKernel);
 	destruir_paquete(paquete);
 	quantumPrograma = quantumKernel;
-	notificar_kernel(bloquearProgramaCPU);
 }
 
 void GameOfThread_wait(t_nombre_semaforo identificador_semaforo){
@@ -252,14 +260,12 @@ void GameOfThread_wait(t_nombre_semaforo identificador_semaforo){
 	enviar_paquete(paquete,socketKernel);
 	destruir_paquete(paquete);
 	paquete = recibir_paquete(socketKernel);
-
+	destruir_paquete(paquete);
 	if (paquete->type == semaforolibre){
-		//TODO: Que hacemos?? Seguis con la ejecucion
-	} else {
-		destruir_paquete(paquete);
-		paquete = crear_paquete(bloquearProgramaCPU,"Se bloquea",strlen("Se bloquea")+1);
-		enviar_paquete(paquete,socketKernel);
-		destruir_paquete(paquete);
+		log_debug(logger,"El semaforo %s esta libre",identificador_semaforo);
+	} else if(paquete->type == bloquearProgramaCPU) {
+		log_debug(logger,"El semaforo %s esta bloqueado",identificador_semaforo);
+		quantumPrograma = quantumKernel;
 	}
 
 }
@@ -270,14 +276,6 @@ void GameOfThread_signal(t_nombre_semaforo identificador_semaforo){
 	memcpy(payload,identificador_semaforo,sizeof(t_nombre_semaforo));
 	paquete = crear_paquete(liberarSemaforo,payload,sizeof(t_nombre_semaforo));
 	enviar_paquete(paquete,socketKernel);
-
-	if (paquete->type == semaforolibre){
-			//TODO: Que hacemos??
-		} else {
-			destruir_paquete(paquete);
-			paquete = crear_paquete(bloquearProgramaCPU,"Se bloquea",strlen("Se bloquea")+1);
-			enviar_paquete(paquete,socketKernel);
-			destruir_paquete(paquete);
-		}
-
+	destruir_paquete(paquete);
+	log_debug(logger,"Hubo un signal del semaforo %s ",identificador_semaforo);
 }

@@ -8,10 +8,41 @@
 #include "cpu.h"
 
 
+
+
+
 int main(int argc, char **argv){
 	desconectarse = false;
 	signal(SIGUSR1, rutina);
 	pcb = malloc(sizeof(t_PCB));
+
+	/* Defino las primitivas */
+
+	AnSISOP_funciones primitivas = {
+
+	.AnSISOP_definirVariable = GameOfThread_definirVariable,
+	.AnSISOP_obtenerPosicionVariable = GameOfThread_obtenerPosicionVariable,
+	.AnSISOP_dereferenciar = GameOfThread_dereferenciar,
+	.AnSISOP_asignar = GameOfThread_asignar,
+	.AnSISOP_obtenerValorCompartida = GameOfThread_obtenerValorCompartida,
+	.AnSISOP_asignarValorCompartida = GameOfThread_asignarValorCompartida,
+	.AnSISOP_irAlLabel = GameOfThread_irAlLabel,
+	.AnSISOP_llamarSinRetorno = GameOfThread_llamarSinRetorno,
+	.AnSISOP_llamarConRetorno = GameOfThread_llamarConRetorno,
+	.AnSISOP_finalizar = GameOfThread_finalizar,
+	.AnSISOP_retornar = GameOfThread_retornar,
+	.AnSISOP_imprimir = GameOfThread_imprimir,
+	.AnSISOP_imprimirTexto = GameOfThread_imprimirTexto,
+	.AnSISOP_entradaSalida = GameOfThread_entradaSalida
+	};
+
+	AnSISOP_kernel funciones_kernel = {
+		.AnSISOP_signal = GameOfThread_wait,
+		.AnSISOP_wait = GameOfThread_signal
+	};
+
+	/* Fin Primitivas */
+
 
 	//Creo los logs
 	logger = log_create("loggerCPU.log","CPU_LOG",false,LOG_LEVEL_DEBUG);
@@ -71,63 +102,73 @@ int main(int argc, char **argv){
 	handshake(handshakeCpuUmv);
 
 	while(1){ //para recibir los PCB
-			volverAEmpezar:
+
 			notificar_kernel(estoyDisponible);
 			packagePCB = recibir_paquete(socketKernel);
 
-			if(packagePCB->type != enviarPCBACPU){
-				notificarError_kernel("NO SE RECIBIO PCB");
-				destruir_paquete(packagePCB);
-				goto volverAEmpezar;
-			}
+			if(packagePCB->type == enviarPCBACPU){
+
+						notificar_kernel(respuestaCPU);
+
+						pcb = desserializarPCB(packagePCB->payload);
+						destruir_paquete(packagePCB);
+						log_debug(logger,"RECIBIDA UNA PCB. Su program id es: %d\n",pcb->id);
 
 
-			notificar_kernel(respuestaCPU);
+						char* id = malloc(sizeof(t_pun));
+						memcpy(id,&pcb->id,sizeof(t_pun));
+						paq = crear_paquete(cambioProcesoActivo,id,sizeof(t_pun));
+						enviar_paquete(paq,socketUMV);
+						destruir_paquete(paq);
+						paq = recibir_paquete(socketUMV);
+						if(paq->type != respuestaUmv){
+							log_debug(logger,"Fallo proceso cambio activo");
+						}
+						destruir_paquete(paq);
 
-			pcb = desserializarPCB(packagePCB->payload);
+						cargar_diccionarioVariables(pcb->sizeContext);
+						quantumPrograma = 0;
+
+						while(quantumPrograma<quantumKernel){
+
+									programcounter = pcb->programcounter;
+
+									paq =  Leer(pcb->indiceCodigo,programcounter*8,TAMANIO_INSTRUCCION);
+
+
+									memcpy(&datos->inicio,paq->payload,sizeof(int32_t));
+									memcpy(&datos->longitud,paq->payload + sizeof(int32_t),sizeof(int32_t));
+
+									paq = Leer(pcb->segmentoCodigo,datos->inicio,datos->longitud);
+
+									analizadorLinea(paq->payload,&primitivas,&funciones_kernel);
+
+									quantumPrograma ++;
+									programcounter ++;
+						}
+
+						dictionary_clean(diccionarioVariables); //limpio el diccionario de variables
+
+						//TODO: Enviar PCB y loggear envio
+
+						if (desconectarse == true){
+							notificar_kernel(cpuDesconectada);
+							log_debug(logger,"CPU DESCONECTADA");
+							exit(1);
+								}
+
+			}else{
 			destruir_paquete(packagePCB);
-			log_debug(logger,"RECIBIDA UNA PCB. Su program id es: %d\n",pcb->id);
-
-
-			char* id = malloc(sizeof(t_pun));
-			memcpy(id,&pcb->id,sizeof(t_pun));
-			paq = crear_paquete(cambioProcesoActivo,id,sizeof(t_pun));
-			enviar_paquete(paq,socketUMV);
-			destruir_paquete(paq);
-			paq = recibir_paquete(socketUMV); //TODO: Verificar que todo este ok
-			destruir_paquete(paq);
-
-			cargar_diccionarioVariables(pcb->sizeContext);
-			quantumPrograma = 0;
-
-			while(quantumPrograma<quantumKernel){
-
-				programcounter = pcb->programcounter;
-
-				paq =  Leer(pcb->indiceCodigo,programcounter*8,TAMANIO_INSTRUCCION);
-
-
-				memcpy(&datos->inicio,paq->payload,sizeof(int32_t));
-				memcpy(&datos->longitud,paq->payload + sizeof(int32_t),sizeof(int32_t));
-
-				paq = Leer(pcb->segmentoCodigo,datos->inicio,datos->longitud);
-
-				// TODO:Ejecutar parser
-
-				quantumPrograma ++;
-				programcounter ++;
+			packagePCB = crear_paquete(respuestaCPU,"",0);
+			enviar_paquete(packagePCB,socketKernel);
+			destruir_paquete(packagePCB);
+			log_debug(logger,"ERROR AL RECIBIR PCB");
 		}
-			dictionary_clean(diccionarioVariables); //limpio el diccionario de variables
 
-			//TODO: Enviar PCB
-
-			if (desconectarse == true){
-				notificar_kernel(cpuDesconectada);
-				log_debug(logger,"CPU DESCONECTADA");
-				exit(1);
-					}
 	}
-	return 0;
+
+
+return 0;
 }
 
 
@@ -176,10 +217,6 @@ void notificar_kernel(t_paquete pa){
 				enviar_paquete(paquete,socketKernel);
 				exit(1);
 				break;
-			case bloquearProgramaCPU:
-				paquete = crear_paquete(bloquearProgramaCPU,"Bloquear programa", strlen("Bloquear programa")+1);
-				enviar_paquete(paquete,socketKernel);
-				break;
 			case respuestaCPU:
 				paquete = crear_paquete(respuestaCPU,"OK",strlen("OK")+1);
 				enviar_paquete(paquete,socketKernel);
@@ -200,7 +237,7 @@ void notificarError_kernel(char* error){
 	paq = crear_paquete(retornoCPUExcepcion,error,strlen(error)+1);
 	enviar_paquete(paq,socketKernel);
 	destruir_paquete(paq);
-	free(pcb);
+//	free(pcb);
 	log_debug(logger,error);
 	quantumPrograma = quantumKernel;
 }

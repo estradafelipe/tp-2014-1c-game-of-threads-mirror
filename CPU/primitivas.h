@@ -9,8 +9,7 @@
 #define PRIMITIVAS_H_
 
 #include "cpu.h"
-
-AnSISOP_funciones *primitivas;
+#include <parser/parser.h>
 
 t_puntero GameOfThread_definirVariable(t_nombre_variable identificador_variable);
 t_puntero GameOfThread_obtenerPosicionVariable(t_nombre_variable identificador_variable);
@@ -18,7 +17,7 @@ t_valor_variable GameOfThread_dereferenciar(t_puntero direccion_variable);
 void GameOfThread_asignar(t_puntero direccion_variable, t_valor_variable valor);
 t_valor_variable GameOfThread_obtenerValorCompartida(t_nombre_compartida variable);
 t_valor_variable GameOfThread_asignarValorCompartida(t_nombre_compartida variable, t_valor_variable valor);
-t_puntero_instruccion GameOfThread_irAlLabel(t_nombre_etiqueta t_nombre_etiqueta);
+void GameOfThread_irAlLabel(t_nombre_etiqueta t_nombre_etiqueta);
 void GameOfThread_llamarSinRetorno(t_nombre_etiqueta etiqueta);
 void GameOfThread_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar);
 void GameOfThread_finalizar(void);

@@ -40,7 +40,6 @@ void Escribir(t_pun base, t_pun offset, t_pun tamanio, char* buffer);
 
 //Defino variables globales a la CPU
 t_dictionary *diccionarioVariables;
-t_dictionary *diccionarioEtiquetas;
 t_PCB *pcb;
 int socketKernel, socketUMV;
 int desconectarse;
@@ -52,6 +51,9 @@ typedef struct{
 	int32_t inicio;
 	int32_t longitud;
 }t_datoSentencia;
+
+
+
 
 
 
