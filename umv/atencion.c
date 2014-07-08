@@ -376,8 +376,12 @@ void* atenderConsola(){
 				//como el buffer puede tener espacios, concateno las palabras que lo conforman
 				bufferEscritura = string_new();
 				while(palabras[i]!= NULL){
-					string_append(&bufferEscritura,palabras[i]);
-					string_append(&bufferEscritura," ");
+					if(palabras[i+1]!= NULL){
+						string_append(&bufferEscritura,palabras[i]);
+						string_append(&bufferEscritura," ");
+					} else {
+						string_append(&bufferEscritura,palabras[i]);
+					}
 					i++;
 				}
 				i = 6;

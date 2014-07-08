@@ -1,2 +1,74 @@
 
+[INFO] 14:56:00:15 UMV-Consola/(3311:3312): Hilo que atiende la consola esperando entrada por teclado
+[INFO] 15:25:55:294 UMV-Consola/(2354:2355): Hilo que atiende la consola esperando entrada por teclado
+[DEBUG] 15:26:24:425 UMV-Consola/(2354:2355): Se ingreso un comando
+
+[DEBUG] 15:26:24:426 UMV-Consola/(2354:2355): **********************************************
+[DEBUG] 15:26:24:426 UMV-Consola/(2354:2355): Id_programa: 0, Base logica: 212791, Base real: 0x9f28950, Tamaño: 4
+[DEBUG] 15:26:24:426 UMV-Consola/(2354:2355): Id_programa: 2, Base logica: 603300, Base real: 0x9f28954, Tamaño: 6
+[DEBUG] 15:26:24:426 UMV-Consola/(2354:2355): Id_programa: 1, Base logica: 810081, Base real: 0x9f2895a, Tamaño: 8
+[DEBUG] 15:26:24:426 UMV-Consola/(2354:2355): Id_programa: -1 (VACÍO), Base logica: 1936879447, Base real: 0x9f28962, Tamaño: 1006
+[DEBUG] 15:26:24:426 UMV-Consola/(2354:2355): **********************************************
+
+[DEBUG] 15:26:27:426 UMV-Consola/(2354:2355): **********************************************
+[DEBUG] 15:26:27:426 UMV-Consola/(2354:2355): Id_programa: 0, Base logica: 212791, Base real: 0x9f28950, Tamaño: 4
+[DEBUG] 15:26:27:426 UMV-Consola/(2354:2355): Id_programa: -1 (VACÍO), Base logica: 0, Base real: 0x9f28954, Tamaño: 6
+[DEBUG] 15:26:27:426 UMV-Consola/(2354:2355): Id_programa: 1, Base logica: 810081, Base real: 0x9f2895a, Tamaño: 8
+[DEBUG] 15:26:27:426 UMV-Consola/(2354:2355): Id_programa: -1 (VACÍO), Base logica: 1936879447, Base real: 0x9f28962, Tamaño: 1006
+[DEBUG] 15:26:27:426 UMV-Consola/(2354:2355): **********************************************
+
+[DEBUG] 15:26:30:426 UMV-Consola/(2354:2355): **********************************************
+[DEBUG] 15:26:30:426 UMV-Consola/(2354:2355): Id_programa: 0, Base logica: 212791, Base real: 0x9f28950, Tamaño: 4
+[DEBUG] 15:26:30:426 UMV-Consola/(2354:2355): Id_programa: -1 (VACÍO), Base logica: 0, Base real: 0x9f28954, Tamaño: 6
+[DEBUG] 15:26:30:426 UMV-Consola/(2354:2355): Id_programa: 1, Base logica: 810081, Base real: 0x9f2895a, Tamaño: 8
+[DEBUG] 15:26:30:426 UMV-Consola/(2354:2355): Id_programa: 1, Base logica: 48663, Base real: 0x9f28962, Tamaño: 5
+[DEBUG] 15:26:30:426 UMV-Consola/(2354:2355): Id_programa: -1 (VACÍO), Base logica: 84, Base real: 0x9f28967, Tamaño: 1001
+[DEBUG] 15:26:30:426 UMV-Consola/(2354:2355): **********************************************
+
+[DEBUG] 15:28:08:147 UMV-Consola/(2354:2355): Se ingreso un comando
+
+[DEBUG] 15:28:08:147 UMV-Consola/(2354:2355): Es un pedido de escritura
+[DEBUG] 15:28:08:148 UMV-Consola/(2354:2355): Escribiendo 8 bytes en el segmento del programa 1 con base 810081
+[DEBUG] 15:28:08:148 UMV-Consola/(2354:2355): La operacion de escritura termino correctamente
+
+[DEBUG] 15:29:02:729 UMV-Consola/(2354:2355): Se ingreso un comando
+
+[DEBUG] 15:29:02:729 UMV-Consola/(2354:2355): Es un pedido de escritura
+[DEBUG] 15:29:02:729 UMV-Consola/(2354:2355): Escribiendo 8 bytes en el segmento del programa 1 con base 810081
+[DEBUG] 15:29:02:729 UMV-Consola/(2354:2355): La operacion de escritura termino correctamente
+
+[INFO] 15:29:47:19 UMV-Consola/(2401:2402): Hilo que atiende la consola esperando entrada por teclado
+[DEBUG] 15:29:49:500 UMV-Consola/(2401:2402): Se ingreso un comando
+
+[DEBUG] 15:29:49:500 UMV-Consola/(2401:2402): **********************************************
+[DEBUG] 15:29:49:500 UMV-Consola/(2401:2402): Id_programa: 0, Base logica: 540902, Base real: 0x8d04950, Tamaño: 4
+[DEBUG] 15:29:49:500 UMV-Consola/(2401:2402): Id_programa: 2, Base logica: 235319, Base real: 0x8d04954, Tamaño: 6
+[DEBUG] 15:29:49:500 UMV-Consola/(2401:2402): Id_programa: 1, Base logica: 180070, Base real: 0x8d0495a, Tamaño: 8
+[DEBUG] 15:29:49:500 UMV-Consola/(2401:2402): Id_programa: -1 (VACÍO), Base logica: 1936879447, Base real: 0x8d04962, Tamaño: 1006
+[DEBUG] 15:29:49:500 UMV-Consola/(2401:2402): **********************************************
+
+[DEBUG] 15:29:52:501 UMV-Consola/(2401:2402): **********************************************
+[DEBUG] 15:29:52:501 UMV-Consola/(2401:2402): Id_programa: 0, Base logica: 540902, Base real: 0x8d04950, Tamaño: 4
+[DEBUG] 15:29:52:501 UMV-Consola/(2401:2402): Id_programa: -1 (VACÍO), Base logica: 0, Base real: 0x8d04954, Tamaño: 6
+[DEBUG] 15:29:52:501 UMV-Consola/(2401:2402): Id_programa: 1, Base logica: 180070, Base real: 0x8d0495a, Tamaño: 8
+[DEBUG] 15:29:52:501 UMV-Consola/(2401:2402): Id_programa: -1 (VACÍO), Base logica: 1936879447, Base real: 0x8d04962, Tamaño: 1006
+[DEBUG] 15:29:52:501 UMV-Consola/(2401:2402): **********************************************
+
+[DEBUG] 15:29:55:501 UMV-Consola/(2401:2402): **********************************************
+[DEBUG] 15:29:55:501 UMV-Consola/(2401:2402): Id_programa: 0, Base logica: 540902, Base real: 0x8d04950, Tamaño: 4
+[DEBUG] 15:29:55:501 UMV-Consola/(2401:2402): Id_programa: -1 (VACÍO), Base logica: 0, Base real: 0x8d04954, Tamaño: 6
+[DEBUG] 15:29:55:501 UMV-Consola/(2401:2402): Id_programa: 1, Base logica: 180070, Base real: 0x8d0495a, Tamaño: 8
+[DEBUG] 15:29:55:501 UMV-Consola/(2401:2402): Id_programa: 1, Base logica: 719021, Base real: 0x8d04962, Tamaño: 5
+[DEBUG] 15:29:55:501 UMV-Consola/(2401:2402): Id_programa: -1 (VACÍO), Base logica: 84, Base real: 0x8d04967, Tamaño: 1001
+[DEBUG] 15:29:55:501 UMV-Consola/(2401:2402): **********************************************
+
+[DEBUG] 15:30:47:936 UMV-Consola/(2401:2402): Se ingreso un comando
+
+[DEBUG] 15:30:47:936 UMV-Consola/(2401:2402): Es un pedido de escritura
+[DEBUG] 15:30:47:936 UMV-Consola/(2401:2402): Escribiendo 7 bytes en el segmento del programa 1 con base 180070
+[DEBUG] 15:30:47:936 UMV-Consola/(2401:2402): La operacion de escritura termino correctamente
+
+[DEBUG] 15:30:56:157 UMV-Consola/(2401:2402): Se ingreso un comando
+
+[DEBUG] 15:30:56:157 UMV-Consola/(2401:2402): Comando no reconocido, intente de nuevo
 
