@@ -221,7 +221,7 @@ t_iPCBaCPU* deserializarRetornoPCBdeCPU(char * payload){
         return datosPCB;
 }
 
-char* seriarlizar_mensaje_ES(t_iESdeCPU* datosES){
+char* seriarizar_mensaje_ES(t_iESdeCPU* datosES){
 	char *stream = malloc(sizeof(int32_t)*2+datosES->tamanioID);
 	int size=0, offset =0;
 	size = sizeof(int32_t);

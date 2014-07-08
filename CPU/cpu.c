@@ -71,13 +71,14 @@ int main(int argc, char **argv){
 	handshake(handshakeCpuUmv);
 
 	while(1){ //para recibir los PCB
+			volverAEmpezar:
 			notificar_kernel(estoyDisponible);
 			packagePCB = recibir_paquete(socketKernel);
 
 			if(packagePCB->type != enviarPCBACPU){
 				notificarError_kernel("NO SE RECIBIO PCB");
 				destruir_paquete(packagePCB);
-				log_debug(logger,"ERROR, NO SE RECIBIO PCB");
+				goto volverAEmpezar;
 			}
 
 
@@ -102,8 +103,6 @@ int main(int argc, char **argv){
 			while(quantumPrograma<quantumKernel){
 
 				programcounter = pcb->programcounter;
-				programcounter++;
-				//TODO: Ver si lo de aca arriba esta bien.
 
 				paq =  Leer(pcb->indiceCodigo,programcounter*8,TAMANIO_INSTRUCCION);
 
@@ -116,6 +115,7 @@ int main(int argc, char **argv){
 				// TODO:Ejecutar parser
 
 				quantumPrograma ++;
+				programcounter ++;
 		}
 			dictionary_clean(diccionarioVariables); //limpio el diccionario de variables
 
@@ -187,6 +187,7 @@ void notificar_kernel(t_paquete pa){
 			case finPrograma:
 				paquete = crear_paquete(finPrograma,"FINALIZO",strlen("FINALIZO")+1);
 				enviar_paquete(paquete,socketKernel);
+				break;
 			default:
 				break;
 		}
