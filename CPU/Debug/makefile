@@ -24,14 +24,11 @@ endif
 # All Target
 all: CPU
 
-dependents:
-	-cd /home/utnso/workspace/parser/Debug && $(MAKE) all
-
 # Tool invocations
-CPU: $(OBJS) $(USER_OBJS) /home/utnso/workspace/parser/Debug/libparser.so
+CPU: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	gcc -L"/home/utnso/workspace/parser/Debug" -o "CPU" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc  -o "CPU" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -42,6 +39,5 @@ clean:
 
 .PHONY: all clean dependents
 .SECONDARY:
-/home/utnso/workspace/parser/Debug/libparser.so:
 
 -include ../makefile.targets
