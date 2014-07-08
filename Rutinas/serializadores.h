@@ -107,6 +107,7 @@ t_iESdeCPU * deserializar_mensaje_ES(char *);
 
 char * deserializar_mensaje_excepcion(char *, uint32_t);
 
+char* serializar_datos_variable(t_iVARCOM*,uint32_t);
 t_iVARCOM * deserializar_datos_variable(char *, uint32_t);
 
 char * deserializar_nombre_recurso(char *, uint32_t);

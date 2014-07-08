@@ -221,7 +221,7 @@ t_iPCBaCPU* deserializarRetornoPCBdeCPU(char * payload){
         return datosPCB;
 }
 
-char* seriarizar_mensaje_ES(t_iESdeCPU* datosES){
+char* serializar_mensaje_ES(t_iESdeCPU* datosES){
 	char *stream = malloc(sizeof(int32_t)*2+datosES->tamanioID);
 	int size=0, offset =0;
 	size = sizeof(int32_t);
@@ -270,15 +270,33 @@ char * deserializar_nombre_recurso(char * mensaje, uint32_t longitud){
 	return recurso;
 }
 
+char* serializar_datos_variable(t_iVARCOM* asig,uint32_t longitud){
+	char* stream = malloc(sizeof(int32_t) + longitud );
+	int size=0, offset=0;
+	size = longitud;
+	memcpy(stream, asig->nombre, size);
+	offset += size;
+	size = sizeof(int32_t);
+	memcpy (stream + offset, &asig->valor, size);
+	return stream;
+
+
+}
+
+
 t_iVARCOM * deserializar_datos_variable(char * mensaje, uint32_t longitud){
     int offset = 0, tmp_size = 0;
+    printf("Hola\n");
     t_iVARCOM * datos_variables = malloc(sizeof(t_iVARCOM));
     tmp_size=longitud-sizeof(int32_t);
-    memcpy(&datos_variables->nombre, mensaje+offset, tmp_size);
+    datos_variables->nombre = malloc(tmp_size);
+    memcpy(datos_variables->nombre, mensaje+offset, tmp_size);
+    printf("Hola\n");
 
     offset += tmp_size;
     tmp_size = sizeof(uint32_t); //pasamos mensajes cadena con "\0"
     memcpy(&datos_variables->valor, mensaje+offset, tmp_size);
+    printf("Hola\n");
 
 	return datos_variables;
 }
