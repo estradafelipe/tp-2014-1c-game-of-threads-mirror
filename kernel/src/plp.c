@@ -66,7 +66,7 @@ t_puntero recibirSegmento(){
 		if (segmento!=-1) log_debug(logger,string_from_format("Base del nuevo segmento: %d\n",segmento));
 		else log_debug(logger,string_from_format("No hubo espacio suficiente para el segmento"));
 	}
-	free(paquete_recibido);
+	destruir_paquete(paquete_recibido);
 	return segmento;
 }
 t_puntero recibirRespuestaEscritura(){
@@ -77,7 +77,7 @@ t_puntero recibirRespuestaEscritura(){
 		if (bytesEscritos==-1) log_debug(logger,string_from_format("Error al escribir en el segmento (UMV)\n"));
 		else log_debug(logger,string_from_format("Escritura en el segmento: %d\n",bytesEscritos));
 	}
-	free(paquete_recibido);
+	destruir_paquete(paquete_recibido);
 	return bytesEscritos;
 }
 //base,offset,size,buffer
@@ -94,8 +94,7 @@ int enviarBytesUMV(t_puntero base, t_puntero size, void * buffer){
 	size_t payload_size = (sizeof(t_puntero)*3) + size;
 	package *paquete = crear_paquete(escritura,payload,payload_size);
 	int resu = enviar_paquete(paquete,kernel->fd_UMV);
-	free(paquete);
-	free(payload);
+	destruir_paquete(paquete);
 	free(envioBytes);
 	if (resu==-1) return -1;
 	return recibirRespuestaEscritura();
@@ -107,8 +106,7 @@ t_puntero solicitarSegmento(t_crearSegmentoUMV *segmento){
 	payload = serializarSolicitudSegmento(segmento);
 	package *paquete = crear_paquete(creacionSegmentos,payload,payload_size);
 	int resu = enviar_paquete(paquete,kernel->fd_UMV);
-	free(paquete);
-	free(payload);
+	destruir_paquete(paquete);
 	if (resu==-1) return -1;
 	return recibirSegmento();
 }
@@ -198,7 +196,7 @@ int conectarConUMV(){
 
 	package *paquete = crear_paquete(handshakeKernelUmv,payload,strlen(payload)+1);
 	int resu = enviar_paquete(paquete,descriptor);
-	free(paquete);
+	destruir_paquete(paquete);
 	if (resu ==-1) return 0;
 
 	kernel->fd_UMV = descriptor;
@@ -207,7 +205,7 @@ int conectarConUMV(){
 	if (paquete_recibido->type ==handshakeKernelUmv && paquete_recibido->payloadLength>0)
 		resu= 1;
 	else resu=0;
-	free(paquete_recibido);
+	destruir_paquete(paquete_recibido);
 	return resu;
 }
 
@@ -255,7 +253,7 @@ void enviarMsgPrograma(int fd, char *msg){
 	char *string = strdup(msg);
 	package *paquete = crear_paquete(rechazoPrograma,string,strlen(string)+1);
 	enviar_paquete(paquete,fd);
-	free(paquete);
+	destruir_paquete(paquete);
 }
 void finalizarPrograma(int pcbid, int fd, int exit_code, char * mensajeFIN){
 	//armamos payload con cod error
@@ -398,7 +396,7 @@ void saludarPrograma(int fd){
 	char * payload = "Hola Programa";
 	package *paquete = crear_paquete(handshakeProgKernel,payload,strlen(payload)+1);
 	enviar_paquete(paquete,fd);
-	free(paquete);
+	destruir_paquete(paquete);
 }
 
 void gestionarDatos(int fd, package *paquete){
@@ -540,7 +538,7 @@ void recibirProgramas(void){
 							log_debug(logger,string_from_format("Mensaje del socket %d, tamanio:%d\n",i,paquete->payloadLength));
 						gestionarDatos(i,paquete);
 					}
-					free(paquete);
+					destruir_paquete(paquete);
 				}
 			}
 		} // for
