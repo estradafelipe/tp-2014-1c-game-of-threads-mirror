@@ -301,12 +301,14 @@ int atenderCpu(int fd){
 
 void* atenderConsola(){
 	char buffer[BUFFERSIZE];
+	char* bufferEscritura;
 	int id_programa;
 	int offset;
 	int tamanio;
 	char* datos;
 	int estado;
 	int32_t entero;
+	int i = 6;
 	t_crearSegmentoUMV* crear;
 	t_solicitudLectura* reader;
 	t_solicitudEscritura* writer;
@@ -371,7 +373,15 @@ void* atenderConsola(){
 				entero = atoi(palabras[6]);
 				memcpy(writer->buffer,&entero,writer->tamanio);
 			} else if(strcmp(palabras[5],"s")==0 || strcmp(palabras[5],"c")==0){//como char* o char
-				memcpy(writer->buffer,palabras[6],writer->tamanio);
+				//como el buffer puede tener espacios, concateno las palabras que lo conforman
+				bufferEscritura = string_new();
+				while(palabras[i]!= NULL){
+					string_append(&bufferEscritura,palabras[i]);
+					string_append(&bufferEscritura," ");
+					i++;
+				}
+				i = 6;
+				memcpy(writer->buffer,bufferEscritura,writer->tamanio);
 			}
 
 			printf("Escribiendo %d bytes en el segmento del programa %d con base %d\n",writer->tamanio,id_programa,writer->base);
