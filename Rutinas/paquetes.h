@@ -26,9 +26,9 @@ typedef enum nipc_type{
 	retornoCPUFin,
 	retornoCPUPorES,
 	estoyDisponible,
+	respuestaCPU,
 	bloquearProgramaCPU,					// bloquear programa de kernel a CPU
 	semaforolibre,							// via libre kernel a CPU como respuesta a un wait
-	respuestaCPU,
 	enviarPCBACPU,
 	envioPCBES,
 	handshakeCpuUmv,						//01
