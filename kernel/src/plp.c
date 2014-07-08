@@ -33,18 +33,18 @@ t_list *cola_new;
 t_dictionary *programasxfd;
 extern sem_t *sem_exit;
 extern sem_t *sem_multiprogramacion;
-extern sem_t *sem_estado_listo;
 sem_t *sem_new;
-
+extern sem_t *sem_estado_listo;
 pthread_mutex_t mutex_new = PTHREAD_MUTEX_INITIALIZER;
 
 
-void actualizarExit_Code(int pcbid,int exit_code){
+void actualizarExit_Code(int pcbid,int exit_code, char * mensajeFIN){
 	char *key = string_from_format("%d",pcbid);
 	if (dictionary_has_key(kernel->programas,key)){
 		pthread_mutex_lock(&kernel->mutex_programas);
 		t_programa * programa = dictionary_get(kernel->programas,key);
 		programa->exit_code = exit_code;
+		programa->mensajeFIN = mensajeFIN;
 		pthread_mutex_unlock(&kernel->mutex_programas);
 	}
 }
@@ -157,7 +157,7 @@ bool solicitarSegmentosUMV(char *codigo, uint16_t codigoSize, t_medatada_program
 	}
 
 	//Indice de Codigo
-	dirSegmento = solicitudSegmento(pcb->id,programa->instrucciones_size);
+	dirSegmento = solicitudSegmento(pcb->id,(programa->instrucciones_size*8));
 	if(dirSegmento == -1){
 		return false;
 	} else pcb->indiceCodigo = dirSegmento;
@@ -180,7 +180,7 @@ bool solicitarSegmentosUMV(char *codigo, uint16_t codigoSize, t_medatada_program
 		}
 	}
 
-	rta = enviarBytesUMV(pcb->indiceCodigo,programa->instrucciones_size,programa->instrucciones_serializado); // Segmento de Etiquetas
+	rta = enviarBytesUMV(pcb->indiceCodigo,(programa->instrucciones_size*8),programa->instrucciones_serializado); // Segmento de Etiquetas
 	if (rta==-1){
 		destruirSegmentos(pcb->id);
 		return false;
@@ -195,6 +195,7 @@ int conectarConUMV(){
 	char * payload = "HolaUMV";
 	descriptor = abrir_socket();
 	conectar_socket(descriptor,kernel->ip_umv,kernel->puertoumv);
+
 	package *paquete = crear_paquete(handshakeKernelUmv,payload,strlen(payload)+1);
 	int resu = enviar_paquete(paquete,descriptor);
 	free(paquete);
@@ -202,6 +203,7 @@ int conectarConUMV(){
 
 	kernel->fd_UMV = descriptor;
 	package *paquete_recibido = recibir_paquete(descriptor);
+
 	if (paquete_recibido->type ==handshakeKernelUmv && paquete_recibido->payloadLength>0)
 		resu= 1;
 	else resu=0;
@@ -217,8 +219,8 @@ void agregarProgramaNuevo(t_list *cola_new, t_PCB *element){
 
 void pasarAReady(t_PCB *element){
 	cola_push(cola_ready,element);
-	sem_post(sem_estado_listo);
 	log_debug(logger,string_from_format("Pasa a READY: Programa %d\n",element->id));
+	sem_post(sem_estado_listo);
 }
 
 void siguienteSJN(t_list *cola_new){
@@ -255,12 +257,10 @@ void enviarMsgPrograma(int fd, char *msg){
 	enviar_paquete(paquete,fd);
 	free(paquete);
 }
-void finalizarPrograma(int pcbid, int fd, int exit_code){
+void finalizarPrograma(int pcbid, int fd, int exit_code, char * mensajeFIN){
 	//armamos payload con cod error
 	if ((exit_code!=PROGRAM_DISCONNECT)&&(exit_code!=PROGRAM_SEGSIZE_FAULT)){
-		char *payload=malloc(sizeof(int));
-		memcpy(payload,&exit_code, sizeof(int));
-		package * paquete = crear_paquete(finPrograma,payload,sizeof(int));
+		package * paquete = crear_paquete(finPrograma,mensajeFIN,strlen(mensajeFIN)+1);
 		enviar_paquete(paquete,fd);
 	}
 }
@@ -274,10 +274,11 @@ void eliminarProgramaTabla(int id){
 		t_programa *programa = dictionary_get(kernel->programas,key);
 		int exit_code = programa->exit_code;
 		int fd = programa->fd;
+		char * mensajeFin = programa->mensajeFIN;
 		dictionary_remove(programasxfd,string_from_format("%d",programa->fd));
 		dictionary_remove(kernel->programas,key);
 		pthread_mutex_unlock(&kernel->mutex_programas);
-		finalizarPrograma(id,fd,exit_code);
+		finalizarPrograma(id,fd,exit_code,mensajeFin);
 	}
 }
 
@@ -415,12 +416,12 @@ void gestionarDatos(int fd, package *paquete){
 		t_PCB *PCB = crearPCB(fd,programa);
 		if (solicitarSegmentosUMV(paquete->payload,paquete->payloadLength,programa,PCB)) {
 			agregarProgramaNuevo(cola_new,PCB);
-			sem_post(sem_new);
 			log_debug(logger,string_from_format("Pasa a NEW: Programa %d\n",PCB->id));
+			sem_post(sem_new);
 		}
 		else {
 			log_debug(logger,string_from_format("PROGRAMA RECHAZADO: Programa %d\n",PCB->id));
-			actualizarExit_Code(PCB->id,PROGRAM_SEGSIZE_FAULT);
+			actualizarExit_Code(PCB->id,PROGRAM_SEGSIZE_FAULT,"No hay espacio suficiente para procesar este Programa");
 			eliminarProgramaTabla(PCB->id);
 			rechazarPrograma(fd); // informa por pantalla
 		}
@@ -431,6 +432,7 @@ void gestionarDatos(int fd, package *paquete){
 
 void pasarAExit(t_PCB *pcb){
 	cola_push(cola_exit,pcb);
+	//sem_post(sem_estado_listo);
 	log_debug(logger,string_from_format("Paso a EXIT: Programa %d\n",pcb->id));
 	sem_post(sem_exit);
 }
@@ -555,9 +557,11 @@ void hiloPLP(){
 	sem_init(sem_multiprogramacion,0,kernel->multiprogramacion);
 	// Conectarse a la UMV
 	int resconn = conectarConUMV();
+
 	if (resconn==0)
 		printf("No se pudo conectar con la UMV"); //ver como tratamos errores.
-
+	else
+		log_debug(logger,string_from_format("Se conecto con UMV!\n"));
 	int thr;
 	pthread_t * progthr = malloc(sizeof(pthread_t)); // hilo q recibe programas
 	thr = pthread_create( progthr, NULL, (void*)recibirProgramas, NULL);

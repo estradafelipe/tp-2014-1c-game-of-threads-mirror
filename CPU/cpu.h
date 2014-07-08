@@ -32,6 +32,7 @@
 void rutina(int n);
 void cargar_diccionarioVariables(int32_t);
 void notificar_kernel(t_paquete);
+void notificarError_kernel(char*);
 void handshake(t_paquete);
 
 package *Leer(t_pun base,t_pun offset,t_pun tamanio);
@@ -42,7 +43,7 @@ t_dictionary *diccionarioVariables;
 t_dictionary *diccionarioEtiquetas;
 t_PCB *pcb;
 int socketKernel, socketUMV;
-int desconectarse = false;
+int desconectarse;
 int32_t quantumKernel;
 t_log* logger;
 int32_t quantumPrograma;

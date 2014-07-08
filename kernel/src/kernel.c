@@ -35,7 +35,7 @@ t_cola *cola_exit;
 t_cola *cola_block;
 t_log *logger;
 char *pathconfig;
-t_cola *cpus_disponibles; // contendra los fd de las cpus con el id del PCB e id de cpu
+
 
 pthread_mutex_t mutex_ready = PTHREAD_MUTEX_INITIALIZER;
 
@@ -95,10 +95,11 @@ int main(int argc, char**argv) {
 	cola_ready = cola_create();
 	cola_exit = cola_create();
 	cola_block = cola_create();
-	cpus_disponibles = cola_create();
 	sem_exit = malloc(sizeof(sem_t));
+	sem_estado_listo = malloc(sizeof(sem_t));
 	sem_init(sem_exit,0,0);
 	sem_init(semaforo_fin,0,0);
+	sem_init(sem_estado_listo,0,0);
 	char * path = argv[1]; // path del archivo de configuracion
 	leerconfiguracion(path);
 	crea_tablasSitema();
@@ -113,7 +114,7 @@ int main(int argc, char**argv) {
 	int thr;
 
 	pthread_t * plpthr = malloc(sizeof(pthread_t)); // hilo plp
-	//pthread_t * pcpthr = malloc(sizeof(pthread_t)); // hilo pcp
+	pthread_t * pcpthr = malloc(sizeof(pthread_t)); // hilo pcp
 
 
 	thr = pthread_create( plpthr, NULL, (void*)hiloPLP, NULL);
@@ -122,12 +123,12 @@ int main(int argc, char**argv) {
 		log_debug(logger,"Se creo el hilo lo mas bien\n");//se pudo crear el hilo
 	else log_debug(logger,"no se pudo crear el hilo\n");//no se pudo crear el hilo
 
-/*
+
 	//dejo comentado para cuando este el PCP
 	thr = pthread_create( pcpthr, NULL, (void*)hiloPCP, NULL);
 	if (thr== 0)
 			printf("Se creo el hilo pcp lo mas bien\n");
-*/
+
 	/*
 		En vez de hacer el join de los threads me bloqueo con un semaforo
 		hasta que se termine todo.
