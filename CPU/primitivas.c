@@ -41,9 +41,9 @@ t_puntero GameOfThread_obtenerPosicionVariable(t_nombre_variable identificador_v
 t_valor_variable GameOfThread_dereferenciar(t_puntero direccion_variable){
 	t_valor_variable valorVariable;
 	package* paquete = malloc(sizeof(package));
+	
 
-
-	paquete = Leer(pcb->segmentoStack,direccion_variable,4);
+	paquete = Leer(pcb->segmentoStack,direccion_variable+1,4);
 
 	memcpy(&valorVariable,paquete->payload,sizeof(t_valor_variable));
 	log_debug(logger,"Ejecutando Primitiva GameOfThread_dereferenciar");
@@ -54,7 +54,6 @@ void GameOfThread_asignar(t_puntero direccion_variable, t_valor_variable valor){
 
 	t_pun offset;
 	char* buffer = malloc(sizeof(int32_t));
-
 
 	offset = direccion_variable + 1;
 

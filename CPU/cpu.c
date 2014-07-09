@@ -114,7 +114,7 @@ int main(int argc, char **argv){
 						destruir_paquete(packagePCB);
 						log_debug(logger,"RECIBIDA UNA PCB. Su program id es: %d\n",pcb->id);
 
-
+						printf("El sizeContext es: %d\n",pcb->sizeContext);
 						char* id = malloc(sizeof(t_pun));
 						memcpy(id,&pcb->id,sizeof(t_pun));
 						paq = crear_paquete(cambioProcesoActivo,id,sizeof(t_pun));
@@ -125,13 +125,13 @@ int main(int argc, char **argv){
 							log_debug(logger,"Fallo proceso cambio activo");
 						}
 						destruir_paquete(paq);
-
+						
 						cargar_diccionarioVariables(pcb->sizeContext);
 						quantumPrograma = 0;
 						programcounter = pcb->programcounter;
-
+						
 						while(quantumPrograma<quantumKernel){
-
+		
 									paq =  Leer(pcb->indiceCodigo,programcounter*8,TAMANIO_INSTRUCCION);
 
 
@@ -198,7 +198,10 @@ void cargar_diccionarioVariables(int32_t cant_var){
 			while(cant_var > 0){
 
 				offset = pcb->cursorStack + (cant_var - 1) * 5;
-
+				printf("El cursorStack es: %d\n",pcb->cursorStack);
+				printf("El cantVar es: %d\n",cant_var);
+				printf("El sizeContext es: %d\n",pcb->sizeContext);
+				printf("El offset es: %d\n",offset);
 				paq = Leer(pcb->segmentoStack,offset,1);
 				memcpy(var,paq->payload,sizeof(char));
 				dictionary_put(diccionarioVariables, var,(void*)offset);
