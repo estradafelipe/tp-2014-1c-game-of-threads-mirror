@@ -153,7 +153,7 @@ int main(int argc, char **argv){
 						pcbSerializado = serializar_datos_pcb_para_cpu(pcb);
 						respuesta = crear_paquete(respuestaCPU,pcbSerializado,sizeof(t_pun)*3);
 						enviar_paquete(respuesta,socketKernel);
-						log_debug(logger,"SE ENVÍO EL PCB AL KERNEL");
+						log_debug(logger,"SE ENVIO EL PCB AL KERNEL");
 
 						if (desconectarse == true){
 							notificar_kernel(cpuDesconectada);
