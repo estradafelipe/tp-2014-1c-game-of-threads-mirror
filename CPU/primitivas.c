@@ -10,6 +10,7 @@
 
 t_puntero GameOfThread_definirVariable(t_nombre_variable identificador_variable){
 	log_trace(logger,"Ejecutando Primitiva GameOfThread_definirVariable");
+	log_debug(logger, "Variable a definir: %c",identificador_variable);
 	char* var = malloc(sizeof(t_nombre_variable)+1);
 	sprintf(var,"%c",identificador_variable);
 	t_puntero puntero;
@@ -24,7 +25,7 @@ t_puntero GameOfThread_definirVariable(t_nombre_variable identificador_variable)
 	Escribir(pcb->segmentoStack,offset,1,id);
 	dictionary_put(diccionarioVariables, var,(void*) puntero);
 	pcb->sizeContext++;
-	log_debug(logger, "Variable definida: %s, posicion: %d, sizeContext: %d",id,puntero,pcb->sizeContext);
+	log_debug(logger, "Posicion: %d, sizeContext: %d",puntero,pcb->sizeContext);
 
 	return puntero;
 }
@@ -35,7 +36,7 @@ t_puntero GameOfThread_obtenerPosicionVariable(t_nombre_variable identificador_v
 	char* key = malloc(sizeof(t_nombre_variable)+1);
 	sprintf(key,"%c",identificador_variable);
 	t_puntero posicion = (t_puntero)dictionary_get(diccionarioVariables, key);
-	log_debug(logger, "Variable buscada: %s, posicion encontrada: %d",identificador_variable,posicion);
+	log_debug(logger, "Variable buscada: %c, posicion encontrada: %d",identificador_variable,posicion);
 	return posicion;
 }
 

@@ -1,1 +1,57 @@
+[DEBUG] 10:05:12:345 CPU_LOG/(4225:4225): CONECTADO AL KERNEL
+[DEBUG] 10:05:12:345 CPU_LOG/(4225:4225): El Quantum es:30
+[DEBUG] 10:05:22:225 CPU_LOG/(4225:4225): RECIBIDA UNA PCB. Su program id es: 1
 
+[TRACE] 10:05:24:226 CPU_LOG/(4225:4225): Ejecutando Primitiva GameOfThread_definirVariable
+[DEBUG] 10:05:24:226 CPU_LOG/(4225:4225): Variable a definir: f
+[DEBUG] 10:05:25:226 CPU_LOG/(4225:4225): Posicion: 0, sizeContext: 1
+[TRACE] 10:05:25:226 CPU_LOG/(4225:4225): Ejecutando Primitiva GameOfThread_definirVariable
+[DEBUG] 10:05:25:226 CPU_LOG/(4225:4225): Variable a definir: a
+[DEBUG] 10:05:26:227 CPU_LOG/(4225:4225): Posicion: 5, sizeContext: 2
+[TRACE] 10:05:26:227 CPU_LOG/(4225:4225): Ejecutando Primitiva GameOfThread_definirVariable
+[DEBUG] 10:05:26:227 CPU_LOG/(4225:4225): Variable a definir: g
+[DEBUG] 10:05:27:227 CPU_LOG/(4225:4225): Posicion: 10, sizeContext: 3
+[TRACE] 10:05:29:229 CPU_LOG/(4225:4225): Ejecutando Primitiva GameOfThread_obtenerPosicionVariable
+[DEBUG] 10:05:29:229 CPU_LOG/(4225:4225): Variable buscada: a, posicion encontrada: 5
+[TRACE] 10:05:29:229 CPU_LOG/(4225:4225): Ejecutando Primitiva GameOfThread_asignar
+[DEBUG] 10:05:30:230 CPU_LOG/(4225:4225): Posicion a escribir: 6, valor: 1
+[TRACE] 10:05:32:231 CPU_LOG/(4225:4225): Ejecutando Primitiva GameOfThread_obtenerPosicionVariable
+[DEBUG] 10:05:32:231 CPU_LOG/(4225:4225): Variable buscada: f, posicion encontrada: 0
+[TRACE] 10:05:32:231 CPU_LOG/(4225:4225): Ejecutando Primitiva GameOfThread_asignar
+[DEBUG] 10:05:33:232 CPU_LOG/(4225:4225): Posicion a escribir: 1, valor: 8
+[TRACE] 10:05:35:233 CPU_LOG/(4225:4225): Ejecutando Primitiva GameOfThread_obtenerPosicionVariable
+[DEBUG] 10:05:35:233 CPU_LOG/(4225:4225): Variable buscada: a, posicion encontrada: 5
+[TRACE] 10:05:35:233 CPU_LOG/(4225:4225): Ejecutando Primitiva GameOfThread_dereferenciar
+[DEBUG] 10:05:36:234 CPU_LOG/(4225:4225): Posicion buscada: 5, valor encontrado: 1
+[TRACE] 10:05:36:234 CPU_LOG/(4225:4225): Ejecutando Primitiva GameOfThread_obtenerPosicionVariable
+[DEBUG] 10:05:36:234 CPU_LOG/(4225:4225): Variable buscada: g, posicion encontrada: 10
+[TRACE] 10:05:36:234 CPU_LOG/(4225:4225): Ejecutando Primitiva GameOfThread_llamarConRetorno
+[DEBUG] 10:05:36:234 CPU_LOG/(4225:4225): Guardando contexto de ejecución actual
+[DEBUG] 10:05:37:234 CPU_LOG/(4225:4225): Guardando programCounter siguiente
+[DEBUG] 10:05:38:235 CPU_LOG/(4225:4225): Guardando direccion de retorno
+[DEBUG] 10:05:39:235 CPU_LOG/(4225:4225): Cambiando contexto de ejecución
+[DEBUG] 10:05:39:235 CPU_LOG/(4225:4225): Limpiando diccionario
+[TRACE] 10:05:39:235 CPU_LOG/(4225:4225): Ejecutando Primitiva GameOfThread_irAlLabel
+[DEBUG] 10:05:39:235 CPU_LOG/(4225:4225): Pidiendo indiceEtiquetas a la UMV
+[DEBUG] 10:05:40:236 CPU_LOG/(4225:4225): La etiqueta buscada es: doble
+[DEBUG] 10:05:40:236 CPU_LOG/(4225:4225): Label encontrada, posicion: 6
+[TRACE] 10:05:40:236 CPU_LOG/(4225:4225): Ejecutando Primitiva GameOfThread_definirVariable
+[DEBUG] 10:05:40:236 CPU_LOG/(4225:4225): Variable a definir: 0
+[DEBUG] 10:05:41:237 CPU_LOG/(4225:4225): Posicion: 42, sizeContext: 4
+[TRACE] 10:05:41:237 CPU_LOG/(4225:4225): Ejecutando Primitiva GameOfThread_asignar
+[DEBUG] 10:05:42:238 CPU_LOG/(4225:4225): Posicion a escribir: 43, valor: 1
+[TRACE] 10:05:44:239 CPU_LOG/(4225:4225): Ejecutando Primitiva GameOfThread_obtenerPosicionVariable
+[DEBUG] 10:05:44:239 CPU_LOG/(4225:4225): Variable buscada: g, posicion encontrada: 0
+[TRACE] 10:05:44:239 CPU_LOG/(4225:4225): Ejecutando Primitiva GameOfThread_dereferenciar
+[DEBUG] 10:05:45:239 CPU_LOG/(4225:4225): Posicion buscada: 0, valor encontrado: 8
+[TRACE] 10:05:45:239 CPU_LOG/(4225:4225): Ejecutando Primitiva GameOfThread_imprimir
+[DEBUG] 10:05:45:239 CPU_LOG/(4225:4225): Valor a imprimir: 8
+[TRACE] 10:05:47:240 CPU_LOG/(4225:4225): Ejecutando Primitiva GameOfThread_finalizar
+[DEBUG] 10:05:47:241 CPU_LOG/(4225:4225): Hay instrucciones para seguir ejecutando
+[DEBUG] 10:05:48:242 CPU_LOG/(4225:4225): ProgramCounter a ejecutar: 10
+[DEBUG] 10:05:49:242 CPU_LOG/(4225:4225): CursorStack del contexto anterior: 1
+[DEBUG] 10:05:49:242 CPU_LOG/(4225:4225): Limpiando diccionario de variables
+[DEBUG] 10:05:49:242 CPU_LOG/(4225:4225): Cargando diccionario de variables
+[TRACE] 10:05:51:243 CPU_LOG/(4225:4225): Ejecutando Primitiva GameOfThread_definirVariable
+[DEBUG] 10:05:51:243 CPU_LOG/(4225:4225): Variable a definir: f
+[DEBUG] 10:05:52:244 CPU_LOG/(4225:4225): Posicion: 21, sizeContext: 5

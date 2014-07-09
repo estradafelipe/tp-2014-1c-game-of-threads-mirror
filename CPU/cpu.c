@@ -45,7 +45,7 @@ int main(int argc, char **argv){
 
 
 	//Creo los logs
-	logger = log_create("loggerCPU.log","CPU_LOG",false,LOG_LEVEL_DEBUG);
+	logger = log_create("loggerCPU.log","CPU_LOG",false,LOG_LEVEL_TRACE);
 
 	//Creo el diccionario de variables
 	diccionarioVariables = dictionary_create();
