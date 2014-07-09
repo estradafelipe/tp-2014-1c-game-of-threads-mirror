@@ -200,10 +200,10 @@ char * serializar_datos_pcb_para_cpu(t_PCB * pcb){
         memcpy (stream + offset, &pcb->programcounter, size);
         offset += size;
         size = sizeof(t_pun);
-        memcpy(stream+offset,&pcb->sizeContext);
+        memcpy(stream + offset,&pcb->sizeContext, size);
         offset += size;
         size = sizeof(t_pun);
-        memcpy(stream+offset,&pcb->cursorStack);
+        memcpy(stream + offset,&pcb->cursorStack, size);
         
 
         return stream;
