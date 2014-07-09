@@ -274,11 +274,13 @@ void opRetornoCPUExcepcion(uint32_t fd, char * payload, uint32_t longitudMensaje
 
 void opExcepcionCPUHardware(uint32_t fd){
 	printf("Retorno de CPU por Excepcion Hardware\n");
-	char * excepcion = "Error CPU";
-	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
+	pthread_mutex_lock(&kernel->mutex_cpus);
+	t_CPU *cpu = dictionary_remove(cpus, string_from_format("%d",fd));
+	pthread_mutex_unlock(&kernel->mutex_cpus);
+	pthread_mutex_lock(&kernel->mutex_programas);
 	t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",cpu->pcb->id));
-	strcpy(programa->mensajeFIN, excepcion); // DONDE se pone el mensaje de finalizacion de programa SILVINA
-	dictionary_remove(cpus, string_from_format("%d",fd));
+	pthread_mutex_unlock(&kernel->mutex_programas);
+	programa->mensajeFIN="Error CPU"; // DONDE se pone el mensaje de finalizacion de programa SILVINA
 	pasarACola(cola_exit, cpu->pcb);
 	sem_post(sem_exit);
 }
@@ -436,7 +438,7 @@ void recibirCPU(void){
 						printf("selectserver: socket %d hung up\n", i);
 						close(i);
 						FD_CLR(i, &master); // Elimina del conjunto maestro, ¿saca de la copia del read_fs?
-						opExcepcionCPUHardware(i);
+						//opExcepcionCPUHardware(i);
 					}
 					else {
 						if (dictionary_has_key(cpus,string_from_format("%d",i))) {

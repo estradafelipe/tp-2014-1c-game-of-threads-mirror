@@ -373,9 +373,13 @@ void hiloSacaExit(){
 	while(1){
 		sem_wait(sem_exit);
 		log_debug(logger,string_from_format("Hilo Exit, se libero el semaforo\n"));
+		printf("PASO ANTES DE SACAR DE COLA\n");
 		t_PCB *programa = cola_pop(cola_exit);
+		printf("PASO luego DE SACAR DE COLA antes de liberar recursos umv\n");
 		liberarRecursosUMV(programa);
+		printf("PASO luego DE liberar recursos umv antes de eliminar programa de tabla\n");
 		eliminarProgramaTabla(programa->id);
+		printf("luego de liberar programa de tabla\n");
 		//free(programa);
 		//sem_post(sem_multiprogramacion); este semaforo se incrementa cuando pasa a Exit!!!!
 	}
