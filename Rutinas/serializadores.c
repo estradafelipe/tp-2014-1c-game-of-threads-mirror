@@ -188,7 +188,7 @@ t_solicitudEscritura* desserializarSolicitudEscritura(char* solicitud){
 }
 
 char * serializar_datos_pcb_para_cpu(t_PCB * pcb){
-        char *stream = malloc(sizeof(t_pun)*3);
+        char *stream = malloc(sizeof(t_pun)*5);
         int size=0, offset=0;
         size = sizeof(t_pun);
         memcpy(stream, &pcb->id, size);
@@ -198,6 +198,13 @@ char * serializar_datos_pcb_para_cpu(t_PCB * pcb){
         offset += size;
         size = sizeof(t_pun);
         memcpy (stream + offset, &pcb->programcounter, size);
+        offset += size;
+        size = sizeof(t_pun);
+        memcpy(stream+offset,&pcb->sizeContext);
+        offset += size;
+        size = sizeof(t_pun);
+        memcpy(stream+offset,&pcb->cursorStack);
+        
 
         return stream;
 }
@@ -218,6 +225,14 @@ t_iPCBaCPU* deserializarRetornoPCBdeCPU(char * payload){
         tmp_size = sizeof(t_pun);
         memcpy(&datosPCB->programcounter,payload+offset,tmp_size);
 
+	offset += tmp_size;
+        tmp_size = sizeof(t_pun);
+        memcpy(&datosPCB->sizeContext,payload+offset,tmp_size);
+
+	offset += tmp_size;
+        tmp_size = sizeof(t_pun);
+        memcpy(&datosPCB->cursorStack,payload+offset,tmp_size);
+        
         return datosPCB;
 }
 
