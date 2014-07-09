@@ -115,6 +115,7 @@ int main(int argc, char **argv){
 						log_debug(logger,"RECIBIDA UNA PCB. Su program id es: %d\n",pcb->id);
 
 						printf("El sizeContext es: %d\n",pcb->sizeContext);
+						printf("El sizeIndexLabel es: %d\n",pcb->sizeIndexLabel);
 						char* id = malloc(sizeof(t_pun));
 						memcpy(id,&pcb->id,sizeof(t_pun));
 						paq = crear_paquete(cambioProcesoActivo,id,sizeof(t_pun));
