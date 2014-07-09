@@ -53,6 +53,7 @@ void interactuarConCPU(){
 }*/
 
 void integrarCPU(uint32_t fd, uint32_t *fdMasGrande, fd_set *grupoFD){
+
 	FD_SET(fd, grupoFD); // Añade al maestro, ¿lo agrega al conjunto del select read_fds?
 	if (fd > *fdMasGrande)     // Actualiza máximo
 		*fdMasGrande = fd;
@@ -97,8 +98,10 @@ t_CPU *crearEstructuraCPU(uint32_t fd){
 
 void poner_cpu_no_disponible(t_CPU *cpu){
 	printf("pone cpu no disponible\n");
+	pthread_mutex_lock(&kernel->mutex_cpus);
 	cpu->pcb=NULL;
 	cpu->estado=CPU_NO_DISPONIBLE;
+	pthread_mutex_unlock(&kernel->mutex_cpus);
 }
 
 void opRecibiACKDeCPU(uint32_t fd, char * payload, uint32_t longitudMensaje){
@@ -192,8 +195,8 @@ void opEstoyDisponible(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	if (dictionary_has_key(cpus,string_from_format("%d",fd))){
 		pthread_mutex_lock(&kernel->mutex_cpus);
 		t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
-		pthread_mutex_unlock(&kernel->mutex_cpus);
 		cpu->estado=CPU_DISPONIBLE;
+		pthread_mutex_unlock(&kernel->mutex_cpus);
 		pasarACola(cpus_disponibles, cpu);
 		//cola_push(cpus_disponibles,cpu);
 		//sem_post(&cpus_disponibles->contador);
@@ -257,11 +260,10 @@ void opRetornoCPUExcepcion(uint32_t fd, char * payload, uint32_t longitudMensaje
 		pthread_mutex_lock(&kernel->mutex_programas);
 		t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",cpu->pcb->id));
 		pthread_mutex_unlock(&kernel->mutex_programas);
-		//strcpy(programa->mensajeFIN, excepcion); // DONDE se pone el mensaje de finalizacion de programa SILVINA
+
 		programa->mensajeFIN = malloc(sizeof(longitudMensaje));
 		programa->mensajeFIN = payload;
 		poner_cpu_no_disponible(cpu);
-		//pasarACola(cola_exit, cpu->pcb);
 		cola_push(cola_exit,cpu->pcb);
 		printf("pase a exit el pcb");
 		sem_post(sem_exit);
@@ -275,11 +277,22 @@ void opRetornoCPUExcepcion(uint32_t fd, char * payload, uint32_t longitudMensaje
 void opExcepcionCPUHardware(uint32_t fd){
 	printf("Retorno de CPU por Excepcion Hardware\n");
 	char * excepcion = "Error CPU";
+	pthread_mutex_lock(&kernel->mutex_cpus);
 	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
+	pthread_mutex_unlock(&kernel->mutex_cpus);
+
+	pthread_mutex_lock(&kernel->mutex_programas);
 	t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",cpu->pcb->id));
-	strcpy(programa->mensajeFIN, excepcion); // DONDE se pone el mensaje de finalizacion de programa SILVINA
+	//strcpy(programa->mensajeFIN, excepcion); // DONDE se pone el mensaje de finalizacion de programa SILVINA
+	programa->mensajeFIN = excepcion;
+	pthread_mutex_unlock(&kernel->mutex_programas);
+	printf("actualice el programa\n");
+	pthread_mutex_lock(&kernel->mutex_cpus);
 	dictionary_remove(cpus, string_from_format("%d",fd));
+	pthread_mutex_unlock(&kernel->mutex_cpus);
+	printf("elimine cpu\n");
 	pasarACola(cola_exit, cpu->pcb);
+	printf("pase pcb a exit\n");
 	sem_post(sem_exit);
 }
 
