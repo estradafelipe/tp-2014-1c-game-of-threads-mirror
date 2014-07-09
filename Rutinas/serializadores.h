@@ -50,6 +50,8 @@ typedef struct{
         t_pun id;
         t_pun indiceEtiquetas;
         t_pun programcounter;
+        t_pun sizeContext;
+        t_pun cursorStack;
 }__attribute__((packed)) t_iPCBaCPU;
 
 typedef struct{
