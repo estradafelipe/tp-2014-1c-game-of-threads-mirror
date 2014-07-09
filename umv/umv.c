@@ -43,7 +43,7 @@ int main(int argc, char **argv){
 	pthread_rwlock_init(&lockSegmentos,NULL);
 	pthread_rwlock_init(&lockMemoria,NULL);
 	pthread_rwlock_init(&lockAlgoritmo,NULL);
-
+	sem_init(&finEjecucion,0,0);
 	printf("Lista de segmentos creada\n");
 	t_segmento* vacio = malloc(sizeof(t_segmento));
 	vacio->id_programa = -1;

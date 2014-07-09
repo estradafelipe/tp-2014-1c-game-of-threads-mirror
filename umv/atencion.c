@@ -46,7 +46,6 @@ void* atenderNuevaConexion(void* parametro){
 	} else if (bytesRecibidos==0) {	//Se desconecto
 		log_debug(logger, "Se desconecto y no se pudo realizar el handshake");
 		destruir_paquete(paquete);
-		exit(0);
 	}
 	return (void*)socketCliente;// para que no rompa las bolas con que la funcion no retorna un void*
 }
@@ -191,12 +190,12 @@ int atenderKernel(int fd){
 		} else if (bytesRecibidos==0) {	//Se desconecto
 			log_info(logger, "Se desconecto el Kernel");
 			destruir_paquete(paquete);
-			exit(0);
+			break;
 		}
 	}
 	log_debug(logger, "Hilo que atiende al KERNEL termino");
 	free(answer);
-	return 0;
+	exit(0);
 }
 
 /* Atiende solicitudes de la cpu */
@@ -291,7 +290,7 @@ int atenderCpu(int fd){
 		} else if (bytesRecibidos==0) {	//Se desconecto
 			log_debug(logger, "Se desconecto una CPU");
 			destruir_paquete(paquete);
-			exit(0);
+			break;
 		}
 	}
 	log_debug(logger, "Hilo que atiende una CPU termino");

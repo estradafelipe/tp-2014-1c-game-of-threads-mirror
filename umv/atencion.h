@@ -37,7 +37,7 @@ typedef struct{
 }t_segmento;
 
 pthread_rwlock_t lockSegmentos, lockMemoria, lockAlgoritmo;
-//pthread_mutex_t mutexAlgoritmo;
+sem_t finEjecucion;
 
 t_list* hilos; //lista de hilos
 t_list* segmentos; //lista de segmentos
