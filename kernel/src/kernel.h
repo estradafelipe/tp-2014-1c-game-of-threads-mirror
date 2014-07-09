@@ -15,6 +15,7 @@
 #define PROGRAM_DISCONNECT -1
 #define PROGRAM_SEG_FAULT -2
 #define PROGRAM_SEGSIZE_FAULT -3
+#define CPU_CON_PROCESO 1
 
 typedef struct
 {
