@@ -15,7 +15,7 @@ t_puntero GameOfThread_definirVariable(t_nombre_variable identificador_variable)
 	t_puntero puntero;
 	t_pun offset;
 	char* id = malloc(sizeof(char));
-	offset = pcb->sizeContext*5 + (pcb->cursorStack - pcb->segmentoStack);
+	offset = pcb->sizeContext*5 + (pcb->cursorStack + pcb->segmentoStack);
 
 	memcpy(id,var,strlen(var));
 
@@ -108,12 +108,12 @@ void GameOfThread_llamarSinRetorno(t_nombre_etiqueta etiqueta){
 	char* buffer = malloc(sizeof(int32_t));
 
 	//Guardamos el Contexto de Ejecucion Anterior;
-	offset =  pcb->sizeContext*5 + (pcb->cursorStack - pcb->segmentoStack);
+	offset =  pcb->sizeContext*5 + (pcb->cursorStack + pcb->segmentoStack);
 	memcpy(buffer,&pcb->cursorStack,sizeof(t_pun));
 	Escribir(pcb->segmentoStack,offset,4,buffer);
 
 	//Guardamos el Program Counter siguiente;
-	offset =  pcb->sizeContext*5 + (pcb->cursorStack - pcb->segmentoStack) + 4; //Son los 4 del Contexto Anterior
+	offset =  pcb->sizeContext*5 + (pcb->cursorStack + pcb->segmentoStack) + 4; //Son los 4 del Contexto Anterior
 	pc = pcb->programcounter;
 	pc++;
 	memcpy(buffer,&pc,sizeof(t_pun));
@@ -132,7 +132,7 @@ void GameOfThread_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_r
 	t_pun pc;
 
 	//Guardamos el Contexto de Ejecucion Anterior;
-	offset =  pcb->sizeContext*5 + (pcb->cursorStack - pcb->segmentoStack);
+	offset =  pcb->sizeContext*5 + (pcb->cursorStack + pcb->segmentoStack);
 	memcpy(buffer,&pcb->cursorStack,sizeof(t_pun));
 	Escribir(pcb->segmentoStack,offset,4,buffer);
 
@@ -170,17 +170,17 @@ package *paquete = malloc(sizeof(package));
 		}
 	else{
 		//Obtengo el Program Counter (Instruccion Siguiente)
-		paquete = Leer(pcb->segmentoStack,pcb->cursorStack - 4, 4);
+		paquete = Leer(pcb->segmentoStack,pcb->segmentoStack + pcb->cursorStack - 4, 4);
 		memcpy(&pcb->programcounter,paquete->payload,sizeof(t_pun));
 		destruir_paquete(paquete);
 
 		//Obtengo el Cursor del Contexto Anterior
-		paquete = Leer(pcb->segmentoStack,pcb->cursorStack - 8 , 4);
+		paquete = Leer(pcb->segmentoStack,pcb->segmentoStack + pcb->cursorStack - 8 , 4);
 		memcpy(&pcb->cursorStack,paquete->payload,sizeof(t_pun));
 
 		//Limpio el diccionario y lo cargo
 		dictionary_clean(diccionarioVariables);
-		int32_t cant_var = ((pcb->cursorStack -8) - pcb->cursorStack)/5;
+		int32_t cant_var = (pcb->cursorStack - 8)/5;
 		cargar_diccionarioVariables(cant_var);
 		}
 }
@@ -215,7 +215,7 @@ void GameOfThread_retornar(t_valor_variable retorno){
 
 	//Limpio el diccionario y lo cargo
 	dictionary_clean(diccionarioVariables);
-	int32_t cant_var = ((offset_tmp - 12) - pcb->cursorStack)/5;
+	int32_t cant_var = (offset_tmp - 12)/5;
 	cargar_diccionarioVariables(cant_var);
 }
 

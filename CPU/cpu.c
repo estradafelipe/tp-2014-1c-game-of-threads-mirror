@@ -194,9 +194,9 @@ void cargar_diccionarioVariables(int32_t cant_var){
 
 			while(cant_var > 0){
 
-				offset = (cant_var - 1) * 5;
+				offset = pcb->cursorStack + (cant_var - 1) * 5;
 
-				paq = Leer(pcb->cursorStack,offset,1);
+				paq = Leer(pcb->segmentoStack,offset,1);
 				memcpy(var,paq->payload,sizeof(char));
 				dictionary_put(diccionarioVariables, var,(void*)offset);
 				cant_var--;
@@ -293,7 +293,7 @@ package *Leer(t_pun base,t_pun offset,t_pun tamanio){
 	sol->offset = offset;
 	sol->tamanio = tamanio;
 	payload = serializarSolicitudLectura(sol);
-	solicitud = crear_paquete(lectura,payload,sizeof(t_pun));
+	solicitud = crear_paquete(lectura,payload,sizeof(t_pun)*3);
 	enviar_paquete(solicitud,socketUMV);
 	destruir_paquete(solicitud);
 	solicitud = recibir_paquete(socketUMV);
@@ -315,12 +315,12 @@ void Escribir(t_pun base, t_pun offset, t_pun tamanio, char* buffer){
 	sol->base = base;
 	sol->offset = offset;
 	sol->tamanio = tamanio;
-	sol->buffer = malloc(strlen(buffer)+1);
-	memcpy(sol->buffer, buffer,strlen(buffer));
+	sol->buffer = malloc(tamanio);
+	memcpy(sol->buffer, buffer,tamanio);
 
 	char* payload = serializarSolicitudEscritura(sol);
 
-	paquete = crear_paquete(escritura,payload,sizeof(t_pun)*3 + strlen(sol->buffer));
+	paquete = crear_paquete(escritura,payload,sizeof(t_pun)*3 + tamanio);
 	enviar_paquete(paquete,socketUMV);
 	destruir_paquete(paquete);
 	paquete = recibir_paquete(socketUMV);
