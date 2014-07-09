@@ -24,15 +24,17 @@ t_puntero GameOfThread_definirVariable(t_nombre_variable identificador_variable)
 	Escribir(pcb->segmentoStack,offset,1,id);
 	dictionary_put(diccionarioVariables, var,(void*) puntero);
 	pcb->sizeContext++;
-
+	log_debug(logger,"Ejecutando Primitiva GameOfThread_definirVariable");
 	return puntero;
 }
 
 
 t_puntero GameOfThread_obtenerPosicionVariable(t_nombre_variable identificador_variable ){
+
 	char* key = malloc(sizeof(t_nombre_variable)+1);
 	sprintf(key,"%c",identificador_variable);
 	t_puntero posicion = (t_puntero)dictionary_get(diccionarioVariables, key);
+	log_debug(logger,"Ejecutando Primitiva GameOfThread_obtenerPosicionVariable");
 	return posicion;
 }
 
@@ -44,6 +46,7 @@ t_valor_variable GameOfThread_dereferenciar(t_puntero direccion_variable){
 	paquete = Leer(pcb->segmentoStack,direccion_variable,4);
 
 	memcpy(&valorVariable,paquete->payload,sizeof(t_valor_variable));
+	log_debug(logger,"Ejecutando Primitiva GameOfThread_dereferenciar");
 	return valorVariable;
 }
 
@@ -58,7 +61,7 @@ void GameOfThread_asignar(t_puntero direccion_variable, t_valor_variable valor){
 	memcpy(buffer,&valor,sizeof(t_valor_variable));
 
 	Escribir(pcb->segmentoStack,offset,4,buffer);
-
+	log_debug(logger,"Ejecutando Primitiva GameOfThread_asignar");
 	}
 
 t_valor_variable GameOfThread_obtenerValorCompartida(t_nombre_compartida variable){
@@ -73,6 +76,7 @@ t_valor_variable GameOfThread_obtenerValorCompartida(t_nombre_compartida variabl
 		notificarError_kernel("ERROR AL SOLICITAR EL VALOR DE LA VARIABLE COMPARTIDA");
 	}
 	memcpy(&val,paquete->payload,sizeof(t_nombre_compartida));
+	log_debug(logger,"Ejecutando Primitiva GameOfThread_obtenerValorCompartida");
 	return val;
 }
 
@@ -86,6 +90,7 @@ t_valor_variable GameOfThread_asignarValorCompartida(t_nombre_compartida variabl
 	char* payload = serializar_datos_variable(asig,strlen(asig->nombre)+1 + sizeof(int32_t));
 	solicitud =  crear_paquete(asignarValorVariableCompartida,payload,sizeof(t_nombre_compartida)+sizeof(t_valor_variable)+sizeof(int32_t));
 	enviar_paquete(solicitud,socketKernel);
+	log_debug(logger,"Ejecutando Primitiva GameOfThread_asignarValorCompartida");
 	return valor;
 }
 void GameOfThread_irAlLabel(t_nombre_etiqueta etiqueta){
@@ -99,7 +104,7 @@ void GameOfThread_irAlLabel(t_nombre_etiqueta etiqueta){
 	}
 
 	pcb->programcounter = instruccion;
-
+	log_debug(logger,"Ejecutando Primitiva GameOfThread_irAlLabel");
 }
 
 void GameOfThread_llamarSinRetorno(t_nombre_etiqueta etiqueta){
@@ -124,6 +129,7 @@ void GameOfThread_llamarSinRetorno(t_nombre_etiqueta etiqueta){
 	dictionary_clean(diccionarioVariables);
 	GameOfThread_irAlLabel(etiqueta); //Me lleva al procedimiento que debo ejecutar;
 
+	log_debug(logger,"Ejecutando Primitiva GameOfThread_llamarSinRetorno");
 }
 
 void GameOfThread_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar){
@@ -156,6 +162,9 @@ void GameOfThread_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_r
 	dictionary_clean(diccionarioVariables);
 	GameOfThread_irAlLabel(etiqueta); //Me lleva al procedimiento que debo ejecutar;
 
+
+	log_debug(logger,"Ejecutando Primitiva GameOfThread_llamarConRetorno");
+
 }
 
 void GameOfThread_finalizar(void){
@@ -182,7 +191,9 @@ package *paquete = malloc(sizeof(package));
 		dictionary_clean(diccionarioVariables);
 		int32_t cant_var = (pcb->cursorStack - 8)/5;
 		cargar_diccionarioVariables(cant_var);
-		}
+	}
+
+	log_debug(logger,"Ejecutando Primitiva GameOfThread_finalizar");
 }
 
 void GameOfThread_retornar(t_valor_variable retorno){
@@ -217,6 +228,9 @@ void GameOfThread_retornar(t_valor_variable retorno){
 	dictionary_clean(diccionarioVariables);
 	int32_t cant_var = (offset_tmp - 12)/5;
 	cargar_diccionarioVariables(cant_var);
+
+
+	log_debug(logger,"Ejecutando Primitiva GameOfThread_retornar");
 }
 
 void GameOfThread_imprimir(t_valor_variable retorno){
@@ -226,6 +240,9 @@ void GameOfThread_imprimir(t_valor_variable retorno){
 	paquete = crear_paquete(imprimirValor,payload,sizeof(int32_t));
 	enviar_paquete(paquete,socketKernel);
 	destruir_paquete(paquete);
+
+
+	log_debug(logger,"Ejecutando Primitiva GameOfThread_imprimir");
 }
 
 
@@ -234,6 +251,9 @@ void GameOfThread_imprimirTexto(char* texto){
 	paquete = crear_paquete(imprimirTexto,texto,strlen(texto));
 	enviar_paquete(paquete,socketKernel);
 	destruir_paquete(paquete);
+
+
+	log_debug(logger,"Ejecutando Primitiva GameOfThread_imprimirTexto");
 }
 
 void GameOfThread_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
@@ -250,6 +270,9 @@ void GameOfThread_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
 	enviar_paquete(paquete,socketKernel);
 	destruir_paquete(paquete);
 	quantumPrograma = quantumKernel;
+
+
+	log_debug(logger,"Ejecutando Primitiva GameOfThread_entradaSalida");
 }
 
 void GameOfThread_wait(t_nombre_semaforo identificador_semaforo){
@@ -268,6 +291,8 @@ void GameOfThread_wait(t_nombre_semaforo identificador_semaforo){
 		quantumPrograma = quantumKernel;
 	}
 
+
+	log_debug(logger,"Ejecutando Primitiva GameOfThread_wait");
 }
 
 void GameOfThread_signal(t_nombre_semaforo identificador_semaforo){
@@ -278,4 +303,7 @@ void GameOfThread_signal(t_nombre_semaforo identificador_semaforo){
 	enviar_paquete(paquete,socketKernel);
 	destruir_paquete(paquete);
 	log_debug(logger,"Hubo un signal del semaforo %s ",identificador_semaforo);
+
+
+	log_debug(logger,"Ejecutando Primitiva GameOfThread_signal");
 }

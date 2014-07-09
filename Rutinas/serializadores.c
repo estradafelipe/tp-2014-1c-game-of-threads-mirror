@@ -301,17 +301,14 @@ char* serializar_datos_variable(t_iVARCOM* asig,uint32_t longitud){
 
 t_iVARCOM * deserializar_datos_variable(char * mensaje, uint32_t longitud){
     int offset = 0, tmp_size = 0;
-    printf("Hola\n");
     t_iVARCOM * datos_variables = malloc(sizeof(t_iVARCOM));
     tmp_size=longitud-sizeof(int32_t);
     datos_variables->nombre = malloc(tmp_size);
     memcpy(datos_variables->nombre, mensaje+offset, tmp_size);
-    printf("Hola\n");
 
     offset += tmp_size;
     tmp_size = sizeof(uint32_t); //pasamos mensajes cadena con "\0"
     memcpy(&datos_variables->valor, mensaje+offset, tmp_size);
-    printf("Hola\n");
 
 	return datos_variables;
 }

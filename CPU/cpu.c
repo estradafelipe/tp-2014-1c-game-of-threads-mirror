@@ -128,10 +128,9 @@ int main(int argc, char **argv){
 
 						cargar_diccionarioVariables(pcb->sizeContext);
 						quantumPrograma = 0;
+						programcounter = pcb->programcounter;
 
 						while(quantumPrograma<quantumKernel){
-
-									programcounter = pcb->programcounter;
 
 									paq =  Leer(pcb->indiceCodigo,programcounter*8,TAMANIO_INSTRUCCION);
 
@@ -151,7 +150,7 @@ int main(int argc, char **argv){
 
 						//TODO: Enviar PCB y loggear envio
 						pcbSerializado = serializar_datos_pcb_para_cpu(pcb);
-						respuesta = crear_paquete(respuestaCPU,pcbSerializado,sizeof(t_pun)*3);
+						respuesta = crear_paquete(retornoCPUQuantum,pcbSerializado,sizeof(t_pun)*3);
 						enviar_paquete(respuesta,socketKernel);
 						log_debug(logger,"SE ENVIO EL PCB AL KERNEL");
 
