@@ -128,10 +128,9 @@ int main(int argc, char **argv){
 
 						cargar_diccionarioVariables(pcb->sizeContext);
 						quantumPrograma = 0;
+						programcounter = pcb->programcounter;
 
 						while(quantumPrograma<quantumKernel){
-
-									programcounter = pcb->programcounter;
 
 									paq =  Leer(pcb->indiceCodigo,programcounter*8,TAMANIO_INSTRUCCION);
 
