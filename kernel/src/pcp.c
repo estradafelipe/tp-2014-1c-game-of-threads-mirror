@@ -72,7 +72,6 @@ void enviarQuantum(uint32_t fd){
 	package *paquete = crear_paquete(handshakeKernelCPU,quantum_cadena,sizeof(int));
 	enviar_paquete(paquete,fd);
 	destruir_paquete(paquete);
-	//free(paquete);
 	printf("CPU. Envie Quantum\n");
 }
 
@@ -108,30 +107,38 @@ void opRecibiACKDeCPU(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	char * clave = string_from_format("%d",cpu->fd);
 	dictionary_put(cpus, clave, cpu);
 }
-//int enviar_pcb_a_cpu(t_PCB *pcb, t_CPU *cpu){
+
+void opRespuestaCPU(uint32_t fd, char * payload, uint32_t longitudMensaje){
+	if (!longitudMensaje)
+		printf("Error al enviar PCB a CPU: %d\n", fd); //Si tamaño de payload == 0 => ERROR
+		// que hacemos en este caso?
+	else
+		printf("Respuesta de CPU id %d\n", fd);
+
+}
+
 int enviar_pcb_a_cpu(t_PCB *pcb,t_CPU *cpu){
 	printf("Enviar PCB a CPU\n");
-
 	printf("envio paquete a cpu %d\n",cpu->fd);
 	char * payload = serializarPCB(pcb);
-	//int payload_size = sizeof(payload);
 	int payload_size = sizeof(t_pun)*9;
 	package *paquete = crear_paquete(enviarPCBACPU, payload, payload_size);
 
 	if (enviar_paquete(paquete,cpu->fd)==-1){
-	//if (resu==-1){
 		printf("Error en envio de PCB a CPU: %d", cpu->fd);
 		return ERROR_ENVIO_CPU;
 	}
-	int resu = recibir_respuesta_envio_pcb_a_cpu(cpu);
-	if (!resu){
+	//int resu = recibir_respuesta_envio_pcb_a_cpu(cpu);
+	//if (!resu){
 	//if (!recibir_respuesta_envio_pcb_a_cpu(cpu)){
+	// habria que asignar el pcb y poner la cpu ocupada aunque aun no haya respondido
+	// para no mandarle otro pcb
 		cpu->pcb=pcb; //Poner en diccionario de PCBs que esta en ejecucion VER CON SILVINA
 		cpu->estado=1;
 		return EXITO_ENVIO_PCB_A_CPU;
-	}
-	free(paquete);
-	free(payload);
+	//}
+	destruir_paquete(paquete);
+
 	return ERROR_RESPUESTA_CPU;
 }
 
@@ -174,8 +181,8 @@ void opEstoyDisponible(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	if (dictionary_has_key(cpus,string_from_format("%d",fd))){
 		t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
 		cpu->estado=CPU_DISPONIBLE;
-		//pasarACola(cpus_disponibles, cpu);
-		cola_push(cpus_disponibles,cpu);
+		pasarACola(cpus_disponibles, cpu);
+		//cola_push(cpus_disponibles,cpu);
 		//sem_post(&cpus_disponibles->contador);
 		sem_post(sem_cpu_disponible);
 	}else printf("No guardo en el dictionary el fd de la cpu!\n");
@@ -339,6 +346,7 @@ void (*tabla_operaciones[])(uint32_t, char *, uint32_t) = {
 		opRetornoCPUFin,
 		opRetornoCPUPorES,
 		opEstoyDisponible,
+		opRespuestaCPU,
 	};
 
 /*  Hilo que recibe los cpu (select) */
@@ -418,6 +426,7 @@ void recibirCPU(void){
 	} // while
 }
 
+
 void pasarListosAEjecucion(void){
 	while(1){
 		//sem_wait(&cpus_disponibles->contador);
@@ -435,11 +444,8 @@ void pasarListosAEjecucion(void){
 			sem_post(sem_cpu_disponible);
 		} else {
 			t_CPU *cpu = cola_pop(cpus_disponibles);
-			//printf("Agarre la cpu\n");
 			enviar_pcb_a_cpu(pcb,cpu);
 		}
-		//free(programa);
-		//sem_post(sem_multiprogramacion); este semaforo se incrementa cuando pasa a Exit!!!!
 	}
 }
 

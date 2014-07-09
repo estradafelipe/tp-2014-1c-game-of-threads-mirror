@@ -21,6 +21,7 @@ void bloqueo_por_semaforo(t_CPU *cpu){
 	int size = strlen(payload) +1;
 	package *paquete = crear_paquete(bloquearProgramaCPU,payload,size);
 	enviar_paquete(paquete,cpu->fd);
+	destruir_paquete(paquete);
 }
 
 /* Envia mensaje a cpu de que el programa puede seguir,
@@ -30,6 +31,7 @@ void semaforo_libre(t_CPU *cpu){
 	int size = strlen(payload) +1;
 	package *paquete = crear_paquete(semaforolibre,payload,size);
 	enviar_paquete(paquete,cpu->fd);
+	destruir_paquete(paquete);
 }
 
 /* Crea las tablas de semaforos y de I/O */
