@@ -53,6 +53,7 @@ void destruirSegmentos(int pcbid){
 
 	char *payload = malloc(sizeof(int));
 	memcpy(payload,&pcbid,sizeof(int));
+	printf("Solicito destruccion segmentos\n");
 	package *paquete = crear_paquete(destruccionSegmentos,payload,sizeof(int));
 	enviar_paquete(paquete,kernel->fd_UMV);
 
@@ -373,13 +374,11 @@ void hiloSacaExit(){
 	while(1){
 		sem_wait(sem_exit);
 		log_debug(logger,string_from_format("Hilo Exit, se libero el semaforo\n"));
-		printf("PASO ANTES DE SACAR DE COLA\n");
-		t_PCB *programa = cola_pop(cola_exit);
-		printf("PASO luego DE SACAR DE COLA antes de liberar recursos umv\n");
-		liberarRecursosUMV(programa);
-		printf("PASO luego DE liberar recursos umv antes de eliminar programa de tabla\n");
-		eliminarProgramaTabla(programa->id);
-		printf("luego de liberar programa de tabla\n");
+		t_PCB *pcb = cola_pop(cola_exit);
+		log_debug(logger,string_from_format("tengo el progrmaa %d\n",pcb->id));
+		liberarRecursosUMV(pcb);
+		printf("libere recursos \n");
+		eliminarProgramaTabla(pcb->id);
 		//free(programa);
 		//sem_post(sem_multiprogramacion); este semaforo se incrementa cuando pasa a Exit!!!!
 	}
