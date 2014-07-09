@@ -135,7 +135,7 @@ int main(int argc, char **argv){
 			log_debug(logger, "ProgramCounter: %d",programcounter);
 			while(quantumPrograma<quantumKernel){
 
-				paq =  Leer(pcb->indiceCodigo,programcounter*8,TAMANIO_INSTRUCCION);
+				paq =  Leer(pcb->indiceCodigo,pcb->programcounter*8,TAMANIO_INSTRUCCION);
 
 
 				memcpy(&datos->inicio,paq->payload,sizeof(int32_t));
@@ -143,17 +143,18 @@ int main(int argc, char **argv){
 
 				paq = Leer(pcb->segmentoCodigo,datos->inicio,datos->longitud);
 				instruccionAnsisop = strndup(paq->payload,paq->payloadLength);
+				log_debug(logger, "PC: %d, INSTRUCCION: %s",pcb->programcounter,instruccionAnsisop);
 				analizadorLinea(instruccionAnsisop,&primitivas,&funciones_kernel);
 
 				quantumPrograma ++;
-				programcounter ++;
+				pcb->programcounter++;//TODO: ver este tema!!!!!!
 			}
 
 			log_debug(logger,"FIN QUANTUM");
 			dictionary_clean(diccionarioVariables); //limpio el diccionario de variables
 
 			pcbSerializado = serializar_datos_pcb_para_cpu(pcb);
-			respuesta = crear_paquete(retornoCPUQuantum,pcbSerializado,sizeof(t_pun)*3);
+			respuesta = crear_paquete(retornoCPUQuantum,pcbSerializado,sizeof(t_pun)*5);
 			enviar_paquete(respuesta,socketKernel);
 			log_debug(logger,"SE ENVIO EL PCB AL KERNEL, tipo paquete: %d",respuesta->type);
 			destruir_paquete(respuesta);
@@ -196,13 +197,13 @@ void rutina(int n){
 void cargar_diccionarioVariables(int32_t cant_var){
 	package* paq = malloc(sizeof(package));
 	int32_t offset;
-	char* var = malloc(sizeof(char));
+	char* var = malloc(sizeof(char)) + 1;
 
 			while(cant_var > 0){
 
 				offset = pcb->cursorStack + (cant_var - 1) * 5;
 				paq = Leer(pcb->segmentoStack,offset,1);
-				memcpy(var,paq->payload,sizeof(char));
+				memcpy(var,paq->payload,sizeof(char) + 1);
 				dictionary_put(diccionarioVariables, var,(void*)offset);
 				cant_var--;
 			}

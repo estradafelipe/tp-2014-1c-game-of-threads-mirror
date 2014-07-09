@@ -17,7 +17,7 @@ t_puntero GameOfThread_definirVariable(t_nombre_variable identificador_variable)
 	t_pun offset;
 	char* id = malloc(sizeof(char));
 	offset = pcb->sizeContext*5 + pcb->cursorStack;
-
+	log_debug(logger,"sizeContext: %d, cursorStack: %d",pcb->sizeContext,pcb->cursorStack);
 	memcpy(id,var,strlen(var));
 
 	memcpy(&puntero,&offset,sizeof(t_pun));
@@ -36,7 +36,7 @@ t_puntero GameOfThread_obtenerPosicionVariable(t_nombre_variable identificador_v
 	char* key = malloc(sizeof(t_nombre_variable)+1);
 	sprintf(key,"%c",identificador_variable);
 	t_puntero posicion = (t_puntero)dictionary_get(diccionarioVariables, key);
-	log_debug(logger, "Variable buscada: %c, posicion encontrada: %d",identificador_variable,posicion);
+	log_debug(logger, "Variable buscada: %s, posicion encontrada: %d",key,posicion);
 	return posicion;
 }
 
@@ -102,19 +102,21 @@ t_valor_variable GameOfThread_asignarValorCompartida(t_nombre_compartida variabl
 }
 void GameOfThread_irAlLabel(t_nombre_etiqueta etiqueta){
 	log_trace(logger,"Ejecutando Primitiva GameOfThread_irAlLabel");
+	char* etiq = strndup(etiqueta,strlen(etiqueta)- 1);
 	package* paq = malloc(sizeof(package));
 	t_puntero_instruccion instruccion;
 	log_debug(logger, "Pidiendo indiceEtiquetas a la UMV");
 	paq=Leer(pcb->indiceEtiquetas,0,pcb->sizeIndexLabel);
 		
-	log_debug(logger, "La etiqueta buscada es: %s",etiqueta);
-	instruccion = metadata_buscar_etiqueta(etiqueta, paq->payload, pcb->sizeIndexLabel);
+	log_debug(logger, "La etiqueta buscada es: %s",etiq);
+	instruccion = metadata_buscar_etiqueta(etiq, paq->payload, pcb->sizeIndexLabel);
 	if (instruccion == -1){
 		notificarError_kernel("Error al encontrar label");
 	}
 	log_debug(logger, "Label encontrada, posicion: %d",instruccion);
 
-	pcb->programcounter = instruccion;
+	pcb->programcounter = instruccion - 1;
+	log_debug(logger,"PC: %d",pcb->programcounter);
 
 }
 
@@ -127,6 +129,7 @@ void GameOfThread_llamarSinRetorno(t_nombre_etiqueta etiqueta){
 	//Guardamos el Contexto de Ejecucion Anterior;
 	log_debug(logger,"Guardando contexto de ejecución actual");
 	log_debug(logger, "CursorStack: %d",pcb->cursorStack);
+	log_debug(logger, "sizeContext: %d",pcb->sizeContext);
 	offset =  pcb->sizeContext*5 + pcb->cursorStack;
 	memcpy(buffer,&pcb->cursorStack,sizeof(t_pun));
 	Escribir(pcb->segmentoStack,offset,4,buffer);
@@ -144,7 +147,10 @@ void GameOfThread_llamarSinRetorno(t_nombre_etiqueta etiqueta){
 	log_debug(logger,"Cambiando contexto de ejecución");
 	pcb->cursorStack = offset + 4;
 	log_debug(logger, "CursorStack nuevo: %d",pcb->cursorStack);
+	pcb->sizeContext = 0;
+	log_debug(logger, "sizeContext nuevo: %d",pcb->sizeContext);
 	dictionary_clean(diccionarioVariables);
+	log_debug(logger,"Diccionario vacio: %d\n",dictionary_is_empty(diccionarioVariables));
 	GameOfThread_irAlLabel(etiqueta); //Me lleva al procedimiento que debo ejecutar;
 
 }
@@ -158,6 +164,7 @@ void GameOfThread_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_r
 	//Guardamos el Contexto de Ejecucion Anterior;
 	log_debug(logger,"Guardando contexto de ejecución actual");
 	log_debug(logger, "CursorStack: %d",pcb->cursorStack);
+	log_debug(logger, "sizeContext: %d",pcb->sizeContext);
 	offset =  pcb->sizeContext*5 + pcb->cursorStack;
 	memcpy(buffer,&pcb->cursorStack,sizeof(t_pun));
 	Escribir(pcb->segmentoStack,offset,4,buffer);
@@ -183,6 +190,8 @@ void GameOfThread_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_r
 	log_debug(logger,"Cambiando contexto de ejecución");
 	pcb->cursorStack = offset + 4;
 	log_debug(logger, "CursorStack: %d",pcb->cursorStack);
+	pcb->sizeContext = 0;
+	log_debug(logger, "sizeContext nuevo: %d",pcb->sizeContext);
 
 	//Limpio el Diccionario
 	log_debug(logger,"Limpiando diccionario");
