@@ -76,9 +76,9 @@ void enviarQuantum(uint32_t fd){
 }
 
 void imprimirMensajeDeCPU(char * payload, uint32_t longitud){
-	char * mensaje = deserializar_mensaje_excepcion(payload, longitud);
-	printf("Pedido inicio conexión CPU: %s\n", mensaje);
-	free(mensaje);
+	//char * mensaje = deserializar_mensaje_excepcion(payload, longitud);
+	printf("Pedido inicio conexión CPU: %s\n", payload);
+	//free(mensaje);
 }
 
 void opHandshakeKernelCPU(uint32_t fd, char * payload, uint32_t longitudMensaje){
@@ -235,13 +235,24 @@ void opRetornoCPUFin(uint32_t fd, char * payload, uint32_t longitudMensaje){
 
 void opRetornoCPUExcepcion(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	printf("Retorno de CPU por Excepcion logica\n");
-	char * excepcion = deserializar_mensaje_excepcion(payload, longitudMensaje);
+	//char * excepcion = deserializar_mensaje_excepcion(payload, longitudMensaje);
 	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
-	t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",cpu->pcb->id));
-	strcpy(programa->mensajeFIN, excepcion); // DONDE se pone el mensaje de finalizacion de programa SILVINA
-	poner_cpu_no_disponible(cpu);
-	pasarACola(cola_exit, cpu->pcb);
-	sem_post(sem_exit);
+	printf("tengo cpu, tiene asignado el pcb: %d\n",cpu->pcb->id);
+	if (dictionary_has_key(kernel->programas,string_from_format("%d",cpu->pcb->id))){
+		t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",cpu->pcb->id));
+		//strcpy(programa->mensajeFIN, excepcion); // DONDE se pone el mensaje de finalizacion de programa SILVINA
+		programa->mensajeFIN = malloc(sizeof(longitudMensaje));
+		programa->mensajeFIN = payload;
+		poner_cpu_no_disponible(cpu);
+		//pasarACola(cola_exit, cpu->pcb);
+		cola_push(cola_exit,cpu->pcb);
+		printf("pase a exit el pcb");
+		sem_post(sem_exit);
+
+	}
+	else
+		printf("no estaba en el diccionario WTF\n");
+
 }
 
 void opExcepcionCPUHardware(uint32_t fd){
