@@ -96,6 +96,7 @@ t_CPU *crearEstructuraCPU(uint32_t fd){
 }
 
 void poner_cpu_no_disponible(t_CPU *cpu){
+	printf("pone cpu no disponible\n");
 	cpu->pcb=NULL;
 	cpu->estado=CPU_NO_DISPONIBLE;
 }
@@ -105,7 +106,9 @@ void opRecibiACKDeCPU(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	imprimirMensajeDeCPU(payload, longitudMensaje);
 	t_CPU * cpu=crearEstructuraCPU(fd);
 	char * clave = string_from_format("%d",cpu->fd);
+	pthread_mutex_lock(&kernel->mutex_cpus);
 	dictionary_put(cpus, clave, cpu);
+	pthread_mutex_unlock(&kernel->mutex_cpus);
 }
 
 void opRespuestaCPU(uint32_t fd, char * payload, uint32_t longitudMensaje){
@@ -163,23 +166,33 @@ int recibir_respuesta_envio_pcb_a_cpu(t_CPU * cpu){
 void modificarPCB(t_PCB *pcb, t_iPCBaCPU *datosPCB){
 	pcb->indiceEtiquetas = datosPCB->indiceEtiquetas;
 	pcb->programcounter = datosPCB->programcounter;
+	pcb->sizeContext = datosPCB->sizeContext;
+	pcb->cursorStack = datosPCB->cursorStack;
 }
 
 void opRetornoCPUQuantum(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	printf("Retorno de CPU por Quantum\n");
 	t_iPCBaCPU *datosPCB = deserializarRetornoPCBdeCPU(payload);
+	pthread_mutex_lock(&kernel->mutex_cpus);
 	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
+	pthread_mutex_unlock(&kernel->mutex_cpus);
 	modificarPCB(cpu->pcb, datosPCB);
+	printf("actualice el pcb\n");
 	//AGREGAR SEMAFOROS en version con varios threads
-	pasarACola(cola_ready, cpu->pcb);
-	sem_post(sem_estado_listo);
+	//pasarACola(cola_ready, cpu->pcb);
+	cola_push(cola_ready, cpu->pcb);
+	printf("pase a ready el pcb\n");
 	poner_cpu_no_disponible(cpu);
+	sem_post(sem_estado_listo);
+
 }
 
 void opEstoyDisponible(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	printf("Recibi EstoyDisponbile de la CPU\n");
 	if (dictionary_has_key(cpus,string_from_format("%d",fd))){
+		pthread_mutex_lock(&kernel->mutex_cpus);
 		t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
+		pthread_mutex_unlock(&kernel->mutex_cpus);
 		cpu->estado=CPU_DISPONIBLE;
 		pasarACola(cpus_disponibles, cpu);
 		//cola_push(cpus_disponibles,cpu);
@@ -236,10 +249,14 @@ void opRetornoCPUFin(uint32_t fd, char * payload, uint32_t longitudMensaje){
 void opRetornoCPUExcepcion(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	printf("Retorno de CPU por Excepcion logica\n");
 	//char * excepcion = deserializar_mensaje_excepcion(payload, longitudMensaje);
+	pthread_mutex_lock(&kernel->mutex_cpus);
 	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
+	pthread_mutex_unlock(&kernel->mutex_cpus);
 	printf("tengo cpu, tiene asignado el pcb: %d\n",cpu->pcb->id);
 	if (dictionary_has_key(kernel->programas,string_from_format("%d",cpu->pcb->id))){
+		pthread_mutex_lock(&kernel->mutex_programas);
 		t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",cpu->pcb->id));
+		pthread_mutex_unlock(&kernel->mutex_programas);
 		//strcpy(programa->mensajeFIN, excepcion); // DONDE se pone el mensaje de finalizacion de programa SILVINA
 		programa->mensajeFIN = malloc(sizeof(longitudMensaje));
 		programa->mensajeFIN = payload;
@@ -275,9 +292,14 @@ void pasar_dato_a_imprimir(char * texto, int longitudTexto, uint32_t fd, t_paque
 }
 
 void opImprimirValor(uint32_t fd, char * payload, uint32_t longitudMensaje){
-	printf("Imprimir Valor\n");
+	printf("Imprimir Valor \n");
 	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
 	t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",cpu->pcb->id));
+	int valor;
+	memcpy(&valor,payload,sizeof(int32_t));
+	printf("valor %d\n",valor);
+
+
 	pasar_dato_a_imprimir(payload, longitudMensaje, programa->fd, imprimirValor);// VER Con Silvina ¿imprime el PCP?
 }
 
@@ -418,7 +440,9 @@ void recibirCPU(void){
 					}
 					else {
 						if (dictionary_has_key(cpus,string_from_format("%d",i))) {
+							pthread_mutex_lock(&kernel->mutex_cpus);
 							t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",i));
+							pthread_mutex_unlock(&kernel->mutex_cpus);
 							if (cpu->pcb!=NULL){
 								t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",cpu->pcb->id));
 								if (!programa->estado){ //Verifico  si el programa esta activo
