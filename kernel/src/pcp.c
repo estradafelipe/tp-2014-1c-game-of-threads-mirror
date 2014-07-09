@@ -443,7 +443,7 @@ void recibirCPU(void){
 						printf("selectserver: socket %d hung up\n", i);
 						close(i);
 						FD_CLR(i, &master); // Elimina del conjunto maestro, ¿saca de la copia del read_fs?
-						//opExcepcionCPUHardware(i);
+						opExcepcionCPUHardware(i);
 					}
 					else {
 						if (dictionary_has_key(cpus,string_from_format("%d",i))) {
