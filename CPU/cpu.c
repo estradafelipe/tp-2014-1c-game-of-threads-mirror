@@ -54,14 +54,14 @@ int main(int argc, char **argv){
 	package* packagePCB = malloc(sizeof(package));
 	package* paq = malloc(sizeof(package));
 	package* respuesta = malloc(sizeof(package));
-
+	char* pcbSerializado;
 	//Defino variables locales
 	int32_t programcounter;
-	char* solicitudEscritura = malloc(sizeof(t_pun)*3);
+	//char* solicitudEscritura = malloc(sizeof(t_pun)*3);
 	t_datoSentencia *datos = malloc(sizeof(t_datoSentencia));
 
 	//Defino solicitud de lectura y reservo espacio
-	t_solicitudLectura *sol = malloc(sizeof(t_solicitudLectura));
+	//t_solicitudLectura *sol = malloc(sizeof(t_solicitudLectura));
 
 	//Defino las estructuras para la configuracion del kernel y la UMV
 	t_config *configKernel = config_create((char*)argv[1]);
@@ -146,10 +146,14 @@ int main(int argc, char **argv){
 									quantumPrograma ++;
 									programcounter ++;
 						}
-
+						log_debug(logger,"FIN QUANTUM");
 						dictionary_clean(diccionarioVariables); //limpio el diccionario de variables
 
 						//TODO: Enviar PCB y loggear envio
+						pcbSerializado = serializar_datos_pcb_para_cpu(pcb);
+						respuesta = crear_paquete(respuestaCPU,pcbSerializado,sizeof(t_pun)*3);
+						enviar_paquete(respuesta,socketKernel);
+						log_debug(logger,"SE ENVÍO EL PCB AL KERNEL");
 
 						if (desconectarse == true){
 							notificar_kernel(cpuDesconectada);
@@ -246,7 +250,6 @@ void handshake(t_paquete pa){
 
 	package* handshake = malloc(sizeof(package));
 	package *quantum_package = malloc(sizeof(package));
-
 	switch(pa){
 		case handshakeKernelCPU:
 					handshake = crear_paquete(handshakeKernelCPU,"SOY UNA CPU",strlen("SOY UNA CPU")+1);
@@ -255,8 +258,8 @@ void handshake(t_paquete pa){
 					//handshake =  recibir_paquete(socketKernel);
 					//printf("recibi %s\n", handshake->payload);
 					quantum_package = recibir_paquete(socketKernel);
-					printf("recibi %s\n", quantum_package->payload);
 					memcpy(&quantumKernel,quantum_package->payload,sizeof(t_pun));
+					printf("recibi %d\n",quantumKernel);
 					//handshake= crear_paquete(handshakeKernelCPU,"RECIBIDO OK",strlen("RECIBIDO OK")+1);
 					handshake= crear_paquete(recibiACKDeCPU,"RECIBIDO OK",strlen("RECIBIDO OK")+1);
 					enviar_paquete(handshake,socketKernel);
