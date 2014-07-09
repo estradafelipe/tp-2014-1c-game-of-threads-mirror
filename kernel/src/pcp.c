@@ -140,7 +140,7 @@ int enviar_pcb_a_cpu(t_PCB *pcb,t_CPU *cpu){
 	// habria que asignar el pcb y poner la cpu ocupada aunque aun no haya respondido
 	// para no mandarle otro pcb
 		cpu->pcb=pcb; //Poner en diccionario de PCBs que esta en ejecucion VER CON SILVINA
-		cpu->estado=1;
+		cpu->estado=CPU_CON_PROCESO;
 		return EXITO_ENVIO_PCB_A_CPU;
 	//}
 	destruir_paquete(paquete);
@@ -242,7 +242,9 @@ void opRetornoCPUPorES(uint32_t fd, char * payload, uint32_t longitudMensaje){
 void opRetornoCPUFin(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	printf("Retorno de CPU por Finalizacion\n");
 	t_iPCBaCPU * datosPCB = recibir_pcb_de_cpu(fd);
+	pthread_mutex_lock(&kernel->mutex_cpus);
 	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
+	pthread_mutex_unlock(&kernel->mutex_cpus);
 	modificarPCB(cpu->pcb, datosPCB);
 	pasarACola(cola_exit, cpu->pcb);
 	poner_cpu_no_disponible(cpu);
@@ -261,7 +263,7 @@ void opRetornoCPUExcepcion(uint32_t fd, char * payload, uint32_t longitudMensaje
 		t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",cpu->pcb->id));
 		pthread_mutex_unlock(&kernel->mutex_programas);
 
-		programa->mensajeFIN = malloc(sizeof(longitudMensaje));
+		//programa->mensajeFIN = malloc(sizeof(longitudMensaje));
 		programa->mensajeFIN = payload;
 		poner_cpu_no_disponible(cpu);
 		cola_push(cola_exit,cpu->pcb);
@@ -275,19 +277,25 @@ void opRetornoCPUExcepcion(uint32_t fd, char * payload, uint32_t longitudMensaje
 }
 
 void opExcepcionCPUHardware(uint32_t fd){
-	printf("Retorno de CPU por Excepcion Hardware\n");
-	pthread_mutex_lock(&kernel->mutex_cpus);
-	t_CPU *cpu = dictionary_remove(cpus, string_from_format("%d",fd));
-	pthread_mutex_unlock(&kernel->mutex_cpus);
-	printf("Quite cpu del diccionario cpu\n");
-	pthread_mutex_lock(&kernel->mutex_programas);
-	t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",cpu->pcb->id));
-	pthread_mutex_unlock(&kernel->mutex_programas);
-	programa->mensajeFIN="Error CPU"; // DONDE se pone el mensaje de finalizacion de programa SILVINA
-	printf("actualice el programa\n");
-	pasarACola(cola_exit, cpu->pcb);
-	printf("pase pcb a exit\n");
-	sem_post(sem_exit);
+	printf("EX HARD Retorno de CPU por Excepcion Hardware\n");
+	if (dictionary_has_key(cpus,string_from_format("%d",fd))){
+		pthread_mutex_lock(&kernel->mutex_cpus);
+		t_CPU * cpu = dictionary_remove(cpus, string_from_format("%d",fd));
+		pthread_mutex_unlock(&kernel->mutex_cpus);
+		printf("EX HARD Quite cpu del diccionario cpu\n");
+		if (cpu->estado == CPU_CON_PROCESO){
+			if (dictionary_has_key(kernel->programas,string_from_format("%d",cpu->pcb->id))){
+				pthread_mutex_lock(&kernel->mutex_programas);
+				t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",cpu->pcb->id));
+				pthread_mutex_unlock(&kernel->mutex_programas);
+				programa->mensajeFIN="Error CPU"; // DONDE se pone el mensaje de finalizacion de programa SILVINA
+				printf("EX HARD actualice el programa\n");
+				pasarACola(cola_exit, cpu->pcb);
+				printf("EX HARD pase pcb a exit\n");
+				sem_post(sem_exit);
+			}
+		}
+	}
 }
 
 void pasar_dato_a_imprimir(char * texto, int longitudTexto, uint32_t fd, t_paquete tipoPaquete){
@@ -443,7 +451,7 @@ void recibirCPU(void){
 						printf("selectserver: socket %d hung up\n", i);
 						close(i);
 						FD_CLR(i, &master); // Elimina del conjunto maestro, ¿saca de la copia del read_fs?
-						//opExcepcionCPUHardware(i);
+						opExcepcionCPUHardware(i);
 					}
 					else {
 						if (dictionary_has_key(cpus,string_from_format("%d",i))) {
@@ -479,12 +487,14 @@ void pasarListosAEjecucion(void){
 		t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",pcb->id));
 
 		if (!programa->estado){
+			log_debug(logger,string_from_format("Hilo pasa PCB a Ejecución, No existe el programa no va a ejecucion\n"));
 			pasarACola(cola_exit, pcb);
 			sem_post(sem_exit);
 			sem_post(sem_multiprogramacion);
 			//sem_post(&cpus_disponibles->contador);
 			sem_post(sem_cpu_disponible);
 		} else {
+			log_debug(logger,string_from_format("Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion\n"));
 			t_CPU *cpu = cola_pop(cpus_disponibles);
 			enviar_pcb_a_cpu(pcb,cpu);
 		}
