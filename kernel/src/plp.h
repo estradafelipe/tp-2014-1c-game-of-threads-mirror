@@ -13,5 +13,5 @@
 
 
 void hiloPLP();
-
+void loggeo();
 #endif /* PLP_H_ */
