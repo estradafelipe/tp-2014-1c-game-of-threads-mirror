@@ -126,6 +126,7 @@ void GameOfThread_llamarSinRetorno(t_nombre_etiqueta etiqueta){
 
 	//Guardamos el Contexto de Ejecucion Anterior;
 	log_debug(logger,"Guardando contexto de ejecución actual");
+	log_debug(logger, "CursorStack: %d",pcb->cursorStack);
 	offset =  pcb->sizeContext*5 + pcb->cursorStack;
 	memcpy(buffer,&pcb->cursorStack,sizeof(t_pun));
 	Escribir(pcb->segmentoStack,offset,4,buffer);
@@ -135,12 +136,14 @@ void GameOfThread_llamarSinRetorno(t_nombre_etiqueta etiqueta){
 	offset =  pcb->sizeContext*5 + pcb->cursorStack + 4; //Son los 4 del Contexto Anterior
 	pc = pcb->programcounter;
 	pc++;
+	log_debug(logger, "ProgramCounter siguiente: %d",pc);
 	memcpy(buffer,&pc,sizeof(t_pun));
 	Escribir(pcb->segmentoStack,offset,4,buffer);
 
 	//Cambio de Contexto
 	log_debug(logger,"Cambiando contexto de ejecución");
 	pcb->cursorStack = offset + 4;
+	log_debug(logger, "CursorStack nuevo: %d",pcb->cursorStack);
 	dictionary_clean(diccionarioVariables);
 	GameOfThread_irAlLabel(etiqueta); //Me lleva al procedimiento que debo ejecutar;
 
@@ -154,6 +157,7 @@ void GameOfThread_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_r
 
 	//Guardamos el Contexto de Ejecucion Anterior;
 	log_debug(logger,"Guardando contexto de ejecución actual");
+	log_debug(logger, "CursorStack: %d",pcb->cursorStack);
 	offset =  pcb->sizeContext*5 + pcb->cursorStack;
 	memcpy(buffer,&pcb->cursorStack,sizeof(t_pun));
 	Escribir(pcb->segmentoStack,offset,4,buffer);
@@ -163,12 +167,14 @@ void GameOfThread_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_r
 	offset =  pcb->sizeContext*5 + pcb->cursorStack + 4; //Son los 4 del Contexto Anterior
 	pc = pcb->programcounter;
 	pc++;
+	log_debug(logger, "ProgramCounter siguiente: %d",pc);
 	memcpy(buffer,&pc,sizeof(t_pun));
 	Escribir(pcb->segmentoStack,offset,4,buffer);
 
 
 	//Guardamos a donde retornar;
 	log_debug(logger,"Guardando direccion de retorno");
+	log_debug(logger, "Dir retorno: %d",donde_retornar);
 	offset =  pcb->sizeContext*5 + pcb->cursorStack + 8;
 	memcpy(buffer,&donde_retornar,sizeof(uint32_t));
 	Escribir(pcb->segmentoStack,offset,4,buffer);
@@ -176,6 +182,7 @@ void GameOfThread_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_r
 	//Cambio de Contexto
 	log_debug(logger,"Cambiando contexto de ejecución");
 	pcb->cursorStack = offset + 4;
+	log_debug(logger, "CursorStack: %d",pcb->cursorStack);
 
 	//Limpio el Diccionario
 	log_debug(logger,"Limpiando diccionario");
@@ -187,8 +194,8 @@ void GameOfThread_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_r
 void GameOfThread_finalizar(void){
 	log_trace(logger,"Ejecutando Primitiva GameOfThread_finalizar");
 	package *paquete = malloc(sizeof(package));
-
-	if(pcb->cursorStack == pcb->segmentoStack){
+	log_debug(logger, "CursorStack: %d",pcb->cursorStack);
+	if(pcb->cursorStack == 0){
 		log_debug(logger,"No hay mas instrucciones a ejecutar, finalizando programa");
 		dictionary_clean(diccionarioVariables);
 		notificar_kernel(finPrograma);
