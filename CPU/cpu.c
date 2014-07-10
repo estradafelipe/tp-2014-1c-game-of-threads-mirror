@@ -38,8 +38,8 @@ int main(int argc, char **argv){
 	};
 
 	AnSISOP_kernel funciones_kernel = {
-		.AnSISOP_signal = GameOfThread_wait,
-		.AnSISOP_wait = GameOfThread_signal
+		.AnSISOP_signal = GameOfThread_signal,
+		.AnSISOP_wait = GameOfThread_wait
 	};
 
 	/* Fin Primitivas */

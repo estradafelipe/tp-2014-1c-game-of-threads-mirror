@@ -27,7 +27,7 @@
 
 /* Crear cola ejecutando y disponibles para CPUs*/
 
-t_dictionary *cpus;
+//t_dictionary *cpus;
 t_cola *cpus_disponibles; // contendra los fd de las cpus con el id del PCB e id de cpu
 sem_t *sem_cpu_disponible;
 extern sem_t *sem_exit;
@@ -110,7 +110,7 @@ void opRecibiACKDeCPU(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	t_CPU * cpu=crearEstructuraCPU(fd);
 	char * clave = string_from_format("%d",cpu->fd);
 	pthread_mutex_lock(&kernel->mutex_cpus);
-	dictionary_put(cpus, clave, cpu);
+	dictionary_put(kernel->cpus, clave, cpu);
 	pthread_mutex_unlock(&kernel->mutex_cpus);
 }
 
@@ -180,7 +180,7 @@ void opRetornoCPUQuantum(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	printf("antes del mutex cpus\n");
 	pthread_mutex_lock(&kernel->mutex_cpus);
 	printf("despues del mutex cpus\n");
-	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
+	t_CPU *cpu = dictionary_get(kernel->cpus, string_from_format("%d",fd));
 	pthread_mutex_unlock(&kernel->mutex_cpus);
 	printf("datosPCB id %d, indice %d, pc %d, sizecontext %d, cursor %d\n",datosPCB->id, datosPCB->indiceEtiquetas, datosPCB->programcounter, datosPCB->sizeContext, datosPCB->cursorStack);
 	modificarPCB(cpu->pcb, datosPCB);
@@ -194,9 +194,9 @@ void opRetornoCPUQuantum(uint32_t fd, char * payload, uint32_t longitudMensaje){
 
 void opEstoyDisponible(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	printf("Recibi EstoyDisponbile de la CPU\n");
-	if (dictionary_has_key(cpus,string_from_format("%d",fd))){
+	if (dictionary_has_key(kernel->cpus,string_from_format("%d",fd))){
 		pthread_mutex_lock(&kernel->mutex_cpus);
-		t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
+		t_CPU *cpu = dictionary_get(kernel->cpus, string_from_format("%d",fd));
 		cpu->estado=CPU_DISPONIBLE;
 		pthread_mutex_unlock(&kernel->mutex_cpus);
 		printf("cambie estado de la cpu\n");
@@ -236,11 +236,19 @@ void opRetornoCPUPorES(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	printf("Retorno de CPU por E/S\n");
 	t_iESdeCPU * datosES = deserializar_mensaje_ES(payload);
 	t_iPCBaCPU * datosPCB = recibir_pcb_de_cpu(fd);
-	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
+	t_CPU *cpu = dictionary_get(kernel->cpus, string_from_format("%d",fd));
 	modificarPCB(cpu->pcb, datosPCB);
 	poner_cpu_no_disponible(cpu);
 	t_entradasalida * ES = dictionary_get(kernel->entradasalida, datosES->id);
 	mandarA_ES(ES, cpu->pcb, datosES->tiempo);
+}
+
+void opRetornoCPUBloqueado(uint32_t fd, char * payload, uint32_t longitudMensaje){
+		printf("Retorno CPU x Bloqueado\n");
+		t_CPU *cpu = dictionary_get(kernel->cpus, string_from_format("%d",fd));
+		t_iPCBaCPU *datosPCB = deserializarRetornoPCBdeCPU(payload);
+		modificarPCB(cpu->pcb, datosPCB);
+		poner_cpu_no_disponible(cpu);
 }
 
 void opRetornoCPUFin(uint32_t fd, char * payload, uint32_t longitudMensaje){
@@ -248,12 +256,15 @@ void opRetornoCPUFin(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	//t_iPCBaCPU * datosPCB = recibir_pcb_de_cpu(fd);
 	t_iPCBaCPU * datosPCB = deserializarRetornoPCBdeCPU(payload);
 	pthread_mutex_lock(&kernel->mutex_cpus);
-	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
+	t_CPU *cpu = dictionary_get(kernel->cpus, string_from_format("%d",fd));
+	//printf("datosPCB ANTES DE ACTUALIZAR actualizado id %d, indice %d, pc %d, sizecontext %d, cursor %d\nSEGMENTO DE CODIGO: %d\n",cpu->pcb->id, cpu->pcb->indiceEtiquetas, cpu->pcb->programcounter, cpu->pcb->sizeContext, cpu->pcb->cursorStack,cpu->pcb->segmentoCodigo);
 	pthread_mutex_unlock(&kernel->mutex_cpus);
 	modificarPCB(cpu->pcb, datosPCB);
+	printf("datosPCB actualizado id %d, indice %d, pc %d, sizecontext %d, cursor %d\nSEGMENTO DE CODIGO: %d\n",cpu->pcb->id, cpu->pcb->indiceEtiquetas, cpu->pcb->programcounter, cpu->pcb->sizeContext, cpu->pcb->cursorStack,cpu->pcb->segmentoCodigo);
 	pthread_mutex_lock(&kernel->mutex_programas);
 	t_programa *programa = dictionary_get(kernel->programas,string_from_format("%d",cpu->pcb->id));
 	programa->mensajeFIN="El programa Finalizo correctamente";
+	programa->exit_code=FIN_PROGRAM_SUCCESS;
 	pthread_mutex_unlock(&kernel->mutex_programas);
 	cola_push(cola_exit, cpu->pcb);
 	poner_cpu_no_disponible(cpu);
@@ -265,7 +276,7 @@ void opRetornoCPUExcepcion(uint32_t fd, char * payload, uint32_t longitudMensaje
 	printf("Retorno de CPU por Excepcion logica\n");
 	//char * excepcion = deserializar_mensaje_excepcion(payload, longitudMensaje);
 	pthread_mutex_lock(&kernel->mutex_cpus);
-	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
+	t_CPU *cpu = dictionary_get(kernel->cpus, string_from_format("%d",fd));
 	pthread_mutex_unlock(&kernel->mutex_cpus);
 	printf("tengo cpu, tiene asignado el pcb: %d\n",cpu->pcb->id);
 	if (dictionary_has_key(kernel->programas,string_from_format("%d",cpu->pcb->id))){
@@ -286,9 +297,9 @@ void opRetornoCPUExcepcion(uint32_t fd, char * payload, uint32_t longitudMensaje
 
 void opExcepcionCPUHardware(uint32_t fd){
 	printf("EX HARD Retorno de CPU por Excepcion Hardware\n");
-	if (dictionary_has_key(cpus,string_from_format("%d",fd))){
+	if (dictionary_has_key(kernel->cpus,string_from_format("%d",fd))){
 		pthread_mutex_lock(&kernel->mutex_cpus);
-		t_CPU * cpu = dictionary_remove(cpus, string_from_format("%d",fd));
+		t_CPU * cpu = dictionary_remove(kernel->cpus, string_from_format("%d",fd));
 		pthread_mutex_unlock(&kernel->mutex_cpus);
 		printf("EX HARD Quite cpu del diccionario cpu\n");
 		if (cpu->estado == CPU_CON_PROCESO){
@@ -317,7 +328,7 @@ void pasar_dato_a_imprimir(char * texto, int longitudTexto, uint32_t fd, t_paque
 void opImprimirValor(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	printf("Imprimir Valor \n");
 	pthread_mutex_lock(&kernel->mutex_cpus);
-	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
+	t_CPU *cpu = dictionary_get(kernel->cpus, string_from_format("%d",fd));
 	pthread_mutex_unlock(&kernel->mutex_cpus);
 
 	pthread_mutex_lock(&kernel->mutex_programas);
@@ -332,20 +343,21 @@ void opImprimirValor(uint32_t fd, char * payload, uint32_t longitudMensaje){
 
 void opImprimirTexto(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	printf("Imprimir Texto\n");
-	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
+	t_CPU *cpu = dictionary_get(kernel->cpus, string_from_format("%d",fd));
 	t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d", cpu->pcb->id));
 	pasar_dato_a_imprimir(payload, longitudMensaje, programa->fd, imprimirTexto);// VER Con Silvina ¿imprime el PCP?
 }
 
 void opTomarSemaforo(uint32_t fd, char * payload, uint32_t longitudMensaje){
-	printf("Tomar semaforo\n");
+	printf("Tomar semaforo %sholaquetal\n",payload);
 	char * nombre_semaforo = deserializar_nombre_recurso(payload, longitudMensaje);
+	printf("semaforo deserializado %sholaquetal\n",nombre_semaforo);
 	wait_semaforo(nombre_semaforo, fd);
 }
 
 void opLiberarSemaforo(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	printf("Liberar semaforo\n");
-	char * nombre_semaforo = deserializar_nombre_recurso(payload, longitudMensaje);
+	char * nombre_semaforo = payload;//deserializar_nombre_recurso(payload, longitudMensaje);
 	signal_semaforo(nombre_semaforo);
 }
 
@@ -405,6 +417,7 @@ void (*tabla_operaciones[])(uint32_t, char *, uint32_t) = {
 		opRetornoCPUExcepcion,
 		opRetornoCPUFin,
 		opRetornoCPUPorES,
+		opRetornoCPUBloqueado,
 		opEstoyDisponible,
 		opRespuestaCPU,
 	};
@@ -466,9 +479,9 @@ void recibirCPU(void){
 						opExcepcionCPUHardware(i);
 					}
 					else {
-						if (dictionary_has_key(cpus,string_from_format("%d",i))) {
+						if (dictionary_has_key(kernel->cpus,string_from_format("%d",i))) {
 							pthread_mutex_lock(&kernel->mutex_cpus);
-							t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",i));
+							t_CPU *cpu = dictionary_get(kernel->cpus, string_from_format("%d",i));
 							pthread_mutex_unlock(&kernel->mutex_cpus);
 							if (cpu->pcb!=NULL){
 								pthread_mutex_lock(&kernel->mutex_programas);
@@ -520,7 +533,7 @@ void pasarListosAEjecucion(void){
 
 void hiloPCP(){
 	int thr;
-	cpus =dictionary_create();
+	//cpus =dictionary_create();
 	cpus_disponibles = cola_create();
 	sem_cpu_disponible=malloc(sizeof(sem_t));
 	sem_init(sem_cpu_disponible,0,0);

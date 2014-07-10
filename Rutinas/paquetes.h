@@ -25,6 +25,7 @@ typedef enum nipc_type{
 	retornoCPUExcepcion,
 	retornoCPUFin,
 	retornoCPUPorES,
+	retornoCPUBloqueado,
 	estoyDisponible,
 	respuestaCPU,
 	bloquearProgramaCPU,					// bloquear programa de kernel a CPU

@@ -67,6 +67,7 @@ t_puntero recibirSegmento(){
 		if (segmento!=-1) log_debug(logger,string_from_format("Base del nuevo segmento: %d\n",segmento));
 		else log_debug(logger,string_from_format("No hubo espacio suficiente para el segmento"));
 	}
+	printf("recibi de la umv segmento : %d\n",segmento);
 	destruir_paquete(paquete_recibido);
 	return segmento;
 }
@@ -130,18 +131,18 @@ bool solicitarSegmentosUMV(char *codigo, uint16_t codigoSize, t_medatada_program
 	t_puntero dirSegmento;
 	t_crearSegmentoUMV *crearSegmento = malloc(sizeof(t_crearSegmentoUMV));
 
-
+	printf("solicito segmento de codigo tamanio %d\n",codigoSize);
 	// Segmento de Codigo
 	dirSegmento = solicitudSegmento(pcb->id,codigoSize);
 	if (dirSegmento==-1)
 		return false;
 	else pcb->segmentoCodigo = dirSegmento;
+	printf("SEGMENTO DE CODIGO %d, %d\n",dirSegmento,pcb->segmentoCodigo);
 
-
+	printf("solicito segmento de stack\n");
 	// Segmento de Stack
 	dirSegmento = solicitudSegmento(pcb->id,kernel->sizeStack);
 	if(dirSegmento == -1){
-		return false;
 	} else pcb->segmentoStack = dirSegmento;
 
 	if (programa->etiquetas_size>0){
@@ -307,6 +308,14 @@ t_PCB *crearPCB(int fd, t_medatada_program *element){
 
 	ultimoid++;
 	pcb->id = ultimoid;
+	pcb->indiceCodigo = 0;
+	pcb->indiceEtiquetas = 0;
+	pcb->programcounter = 0;
+	pcb->segmentoCodigo = 0;
+	pcb->segmentoStack = 0;
+	pcb->sizeContext = 0;
+	pcb->sizeIndexLabel = 0;
+	pcb->cursorStack = 0;
 
 	// crea programa
 	programa->fd = fd;

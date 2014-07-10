@@ -29,6 +29,7 @@ typedef struct
 	char** entradasalidaid;
 	char** entradasalidaret;
 	char** semaforosid;
+	char** compartidasid;
 	char** semaforosvalor;
 	int sizeStack; // en bytes
 	t_puntero fd_UMV;

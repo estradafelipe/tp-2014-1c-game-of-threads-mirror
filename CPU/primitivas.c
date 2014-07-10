@@ -317,23 +317,28 @@ void GameOfThread_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
 }
 
 void GameOfThread_wait(t_nombre_semaforo identificador_semaforo){
-	log_trace(logger,"Ejecutando Primitiva GameOfThread_wait");
-
+	log_trace(logger,"Ejecutando Primitiva GameOfThread_wait %sholaquetal",identificador_semaforo);
 	package *paquete;
 	char *payload = malloc(sizeof(t_nombre_semaforo));
 	memcpy(payload,identificador_semaforo,sizeof(t_nombre_semaforo));
+	string_trim(&payload);
 	paquete = crear_paquete(tomarSemaforo,payload,sizeof(t_nombre_semaforo));
 	enviar_paquete(paquete,socketKernel);
 	destruir_paquete(paquete);
 	paquete = recibir_paquete(socketKernel);
-	destruir_paquete(paquete);
+
 	if (paquete->type == semaforolibre){
 		log_debug(logger,"El semaforo %s esta libre",identificador_semaforo);
 	} else if(paquete->type == bloquearProgramaCPU) {
 		log_debug(logger,"El semaforo %s esta bloqueado",identificador_semaforo);
 		quantumPrograma = quantumKernel;
+		char *payload = serializar_datos_pcb_para_cpu(pcb);
+		paquete = crear_paquete(retornoCPUBloqueado,payload,sizeof(t_pun)*5);
+		enviar_paquete(paquete,socketKernel);
+		destruir_paquete(paquete);
+		finprograma = true;
 	}
-
+	destruir_paquete(paquete);
 }
 
 void GameOfThread_signal(t_nombre_semaforo identificador_semaforo){
