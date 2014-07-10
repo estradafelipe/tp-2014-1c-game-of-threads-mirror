@@ -264,10 +264,10 @@ void opRetornoCPUExcepcion(uint32_t fd, char * payload, uint32_t longitudMensaje
 		pthread_mutex_unlock(&kernel->mutex_programas);
 
 		//programa->mensajeFIN = malloc(sizeof(longitudMensaje));
-		programa->mensajeFIN = payload;
+		memcpy(&programa->mensajeFIN, payload, longitudMensaje);
 		poner_cpu_no_disponible(cpu);
 		cola_push(cola_exit,cpu->pcb);
-		printf("pase a exit el pcb");
+		printf("pase a exit el pcb\n");
 		sem_post(sem_exit);
 
 	}
