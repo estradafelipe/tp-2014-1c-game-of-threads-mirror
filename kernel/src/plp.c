@@ -161,6 +161,7 @@ bool solicitarSegmentosUMV(char *codigo, uint16_t codigoSize, t_medatada_program
 		return false;
 	} else pcb->indiceCodigo = dirSegmento;
 
+	pcb->sizeContext=0;
 	pcb->cursorStack = 0; //offset
 	pcb->programcounter = programa->instruccion_inicio;
 
@@ -257,6 +258,7 @@ void enviarMsgPrograma(int fd, char *msg){
 	destruir_paquete(paquete);
 }
 void finalizarPrograma(int pcbid, int fd, int exit_code, char * mensajeFIN){
+	printf("elimino programa definitivamente\n");
 	//armamos payload con cod error
 	if ((exit_code!=PROGRAM_DISCONNECT)&&(exit_code!=PROGRAM_SEGSIZE_FAULT)){
 		package * paquete = crear_paquete(finPrograma,mensajeFIN,strlen(mensajeFIN)+1);
@@ -277,6 +279,7 @@ void eliminarProgramaTabla(int id){
 		dictionary_remove(programasxfd,string_from_format("%d",programa->fd));
 		dictionary_remove(kernel->programas,key);
 		pthread_mutex_unlock(&kernel->mutex_programas);
+		printf("elimine las tablas\n");
 		finalizarPrograma(id,fd,exit_code,mensajeFin);
 	}
 }
@@ -376,8 +379,8 @@ void hiloSacaExit(){
 		log_debug(logger,string_from_format("Hilo Exit, se libero el semaforo\n"));
 		printf("PASO ANTES DE SACAR DE COLA\n");
 		t_PCB *programa = cola_pop(cola_exit);
-		printf("PASO luego DE SACAR DE COLA antes de liberar recursos umv\n");
-		liberarRecursosUMV(programa);
+		printf("PASO luego DE SACAR DE COLA antes de liberar recursos umv programa %d\n",programa->id);
+		liberarRecursosUMV(programa); // pasar programa id?
 		printf("PASO luego DE liberar recursos umv antes de eliminar programa de tabla\n");
 		eliminarProgramaTabla(programa->id);
 		printf("luego de liberar programa de tabla\n");

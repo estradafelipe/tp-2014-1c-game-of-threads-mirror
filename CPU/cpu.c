@@ -12,6 +12,7 @@
 
 
 int main(int argc, char **argv){
+
 	desconectarse = false;
 	signal(SIGUSR1, rutina);
 	pcb = malloc(sizeof(t_PCB));
@@ -45,7 +46,7 @@ int main(int argc, char **argv){
 
 
 	//Creo los logs
-	logger = log_create("loggerCPU.log","CPU_LOG",false,LOG_LEVEL_TRACE);
+	logger = log_create("loggerCPU.log","CPU_LOG",true,LOG_LEVEL_TRACE);
 
 	//Creo el diccionario de variables
 	diccionarioVariables = dictionary_create();
@@ -55,6 +56,7 @@ int main(int argc, char **argv){
 	package* paq = malloc(sizeof(package));
 	package* respuesta = malloc(sizeof(package));
 	char* pcbSerializado;
+	char* instruccionAnsisop;
 	//Defino variables locales
 	int32_t programcounter;
 	//char* solicitudEscritura = malloc(sizeof(t_pun)*3);
@@ -103,70 +105,73 @@ int main(int argc, char **argv){
 
 	while(1){ //para recibir los PCB
 
-			notificar_kernel(estoyDisponible);
-			packagePCB = recibir_paquete(socketKernel);
+		notificar_kernel(estoyDisponible);
+		packagePCB = recibir_paquete(socketKernel);
 
-			if(packagePCB->type == enviarPCBACPU){
+		if(packagePCB->type == enviarPCBACPU){
 
-						notificar_kernel(respuestaCPU);
-
-						pcb = desserializarPCB(packagePCB->payload);
-						destruir_paquete(packagePCB);
-						log_debug(logger,"RECIBIDA UNA PCB. Su program id es: %d\n",pcb->id);
-
-						printf("El sizeContext es: %d\n",pcb->sizeContext);
-						printf("El sizeIndexLabel es: %d\n",pcb->sizeIndexLabel);
-						char* id = malloc(sizeof(t_pun));
-						memcpy(id,&pcb->id,sizeof(t_pun));
-						paq = crear_paquete(cambioProcesoActivo,id,sizeof(t_pun));
-						enviar_paquete(paq,socketUMV);
-						destruir_paquete(paq);
-						paq = recibir_paquete(socketUMV);
-						if(paq->type != respuestaUmv){
-							log_debug(logger,"Fallo proceso cambio activo");
-						}
-						destruir_paquete(paq);
-						
-						cargar_diccionarioVariables(pcb->sizeContext);
-						quantumPrograma = 0;
-						programcounter = pcb->programcounter;
-						
-						while(quantumPrograma<quantumKernel){
-		
-									paq =  Leer(pcb->indiceCodigo,programcounter*8,TAMANIO_INSTRUCCION);
-
-
-									memcpy(&datos->inicio,paq->payload,sizeof(int32_t));
-									memcpy(&datos->longitud,paq->payload + sizeof(int32_t),sizeof(int32_t));
-
-									paq = Leer(pcb->segmentoCodigo,datos->inicio,datos->longitud);
-
-									analizadorLinea(paq->payload,&primitivas,&funciones_kernel);
-
-									quantumPrograma ++;
-									programcounter ++;
-						}
-						log_debug(logger,"FIN QUANTUM");
-						dictionary_clean(diccionarioVariables); //limpio el diccionario de variables
-
-						//TODO: Enviar PCB y loggear envio
-						pcbSerializado = serializar_datos_pcb_para_cpu(pcb);
-						respuesta = crear_paquete(retornoCPUQuantum,pcbSerializado,sizeof(t_pun)*3);
-						enviar_paquete(respuesta,socketKernel);
-						log_debug(logger,"SE ENVIO EL PCB AL KERNEL");
-
-						if (desconectarse == true){
-							notificar_kernel(cpuDesconectada);
-							log_debug(logger,"CPU DESCONECTADA");
-							exit(1);
-								}
-
-			}else{
+			notificar_kernel(respuestaCPU);
+			finprograma=false;
+			pcb = desserializarPCB(packagePCB->payload);
 			destruir_paquete(packagePCB);
-			packagePCB = crear_paquete(respuestaCPU,"",0);
-			enviar_paquete(packagePCB,socketKernel);
-			destruir_paquete(packagePCB);
-			log_debug(logger,"ERROR AL RECIBIR PCB");
+			log_debug(logger,"RECIBIDA UNA PCB. Su program id es: %d\n",pcb->id);
+
+			char* id = malloc(sizeof(t_pun));
+			memcpy(id,&pcb->id,sizeof(t_pun));
+			paq = crear_paquete(cambioProcesoActivo,id,sizeof(t_pun));
+			enviar_paquete(paq,socketUMV);
+			destruir_paquete(paq);
+			paq = recibir_paquete(socketUMV);
+			if(paq->type != respuestaUmv){
+				log_debug(logger,"Fallo proceso cambio activo");
+			}
+			destruir_paquete(paq);
+			log_debug(logger, "Cambio de proceso activo correcto");
+			log_debug(logger, "Cargando diccionario de variables");
+			log_debug(logger, "SizeContext: %d",pcb->sizeContext);
+			log_debug(logger, "SizeIndexLabel es: %d",pcb->sizeIndexLabel);
+			cargar_diccionarioVariables(pcb->sizeContext);
+			quantumPrograma = 0;
+			programcounter = pcb->programcounter;
+			log_debug(logger, "ProgramCounter: %d",programcounter);
+			while(quantumPrograma<quantumKernel){
+
+				paq =  Leer(pcb->indiceCodigo,pcb->programcounter*8,TAMANIO_INSTRUCCION);
+
+				memcpy(&datos->inicio,paq->payload,sizeof(int32_t));
+				memcpy(&datos->longitud,paq->payload + sizeof(int32_t),sizeof(int32_t));
+
+				paq = Leer(pcb->segmentoCodigo,datos->inicio,datos->longitud);
+				instruccionAnsisop = strndup(paq->payload,paq->payloadLength);
+				log_debug(logger, "PC: %d, INSTRUCCION: %s",pcb->programcounter,instruccionAnsisop);
+				analizadorLinea(instruccionAnsisop,&primitivas,&funciones_kernel);
+
+				quantumPrograma ++;
+				pcb->programcounter++;//TODO: ver este tema!!!!!!
+			}
+			if(finprograma==false){
+				log_debug(logger,"FIN QUANTUM");
+				dictionary_clean(diccionarioVariables); //limpio el diccionario de variables
+				printf("datosPCB id %d, indice %d, pc %d, sizecontext %d, cursor %d",pcb->id, pcb->indiceEtiquetas, pcb->programcounter, pcb->sizeContext, pcb->cursorStack);
+				pcbSerializado = serializar_datos_pcb_para_cpu(pcb);
+				respuesta = crear_paquete(retornoCPUQuantum,pcbSerializado,sizeof(t_pun)*5);
+				enviar_paquete(respuesta,socketKernel);
+				log_debug(logger,"SE ENVIO EL PCB AL KERNEL, tipo paquete: %d",respuesta->type);
+				destruir_paquete(respuesta);
+			}
+
+			if (desconectarse == true){
+				notificar_kernel(cpuDesconectada);
+				log_debug(logger,"LLEGO SEÑAL SIGUSR1,NOTIFICO AL KERNEL Y TERMINO EJECUCION");
+				exit(1);
+			}
+
+		} else {
+		destruir_paquete(packagePCB);
+		packagePCB = crear_paquete(respuestaCPU,"",0);
+		enviar_paquete(packagePCB,socketKernel);
+		destruir_paquete(packagePCB);
+		log_debug(logger,"ERROR AL RECIBIR PCB");
 		}
 
 	}
@@ -194,17 +199,13 @@ void rutina(int n){
 void cargar_diccionarioVariables(int32_t cant_var){
 	package* paq = malloc(sizeof(package));
 	int32_t offset;
-	char* var = malloc(sizeof(char));
+	char* var = malloc(sizeof(char)) + 1;
 
 			while(cant_var > 0){
 
 				offset = pcb->cursorStack + (cant_var - 1) * 5;
-				printf("El cursorStack es: %d\n",pcb->cursorStack);
-				printf("El cantVar es: %d\n",cant_var);
-				printf("El sizeContext es: %d\n",pcb->sizeContext);
-				printf("El offset es: %d\n",offset);
 				paq = Leer(pcb->segmentoStack,offset,1);
-				memcpy(var,paq->payload,sizeof(char));
+				memcpy(var,paq->payload,sizeof(char) + 1);
 				dictionary_put(diccionarioVariables, var,(void*)offset);
 				cant_var--;
 			}
@@ -214,22 +215,26 @@ void cargar_diccionarioVariables(int32_t cant_var){
 
 void notificar_kernel(t_paquete pa){
 	package* paquete = malloc(sizeof(package));
+	char *pcbSerializado;
 		switch(pa){
 			case estoyDisponible:
 				paquete = crear_paquete(estoyDisponible,"ESTOY DISPONIBLE",strlen("ESTOY DISPONIBLE")+1);
 				enviar_paquete(paquete,socketKernel);
+				printf("Notifique al kernel que estoy disponible\n");
 				break;
 			case cpuDesconectada:
 				paquete =  crear_paquete(cpuDesconectada,"Me Desconecto",strlen("Me Desconecto")+1);
 				enviar_paquete(paquete,socketKernel);
+				printf("Notifique al kernel que me desconecto\n");
 				exit(1);
 				break;
 			case respuestaCPU:
 				paquete = crear_paquete(respuestaCPU,"OK",strlen("OK")+1);
 				enviar_paquete(paquete,socketKernel);
 				break;
-			case finPrograma:
-				paquete = crear_paquete(finPrograma,"FINALIZO",strlen("FINALIZO")+1);
+			case retornoCPUFin:
+				pcbSerializado = serializar_datos_pcb_para_cpu(pcb);
+				paquete = crear_paquete(retornoCPUFin,pcbSerializado,sizeof(t_pun)*5);
 				enviar_paquete(paquete,socketKernel);
 				break;
 			default:
@@ -306,7 +311,7 @@ package *Leer(t_pun base,t_pun offset,t_pun tamanio){
 	memcpy(&err,solicitud->payload,sizeof(int32_t));
 	if(err == -1){
 		notificarError_kernel("Segmentation Fault");
-		exit(1);
+		//exit(1); no tiene que terminar la cpu
 	}
 
 
@@ -333,6 +338,6 @@ void Escribir(t_pun base, t_pun offset, t_pun tamanio, char* buffer){
 	memcpy(&err,paquete->payload,sizeof(int32_t));
 	if(err == -1){
 		notificarError_kernel("Segmentation Fault");
-		exit(1);
+		//exit(1); no tiene que terminar la cpu
 	}
 }
