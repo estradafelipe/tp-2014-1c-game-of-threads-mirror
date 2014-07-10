@@ -97,7 +97,12 @@ t_valor_variable GameOfThread_asignarValorCompartida(t_nombre_compartida variabl
 	char* payload = serializar_datos_variable(asig,strlen(asig->nombre)+1 + sizeof(int32_t));
 	solicitud =  crear_paquete(asignarValorVariableCompartida,payload,sizeof(t_nombre_compartida)+sizeof(t_valor_variable)+sizeof(int32_t));
 	enviar_paquete(solicitud,socketKernel);
-
+	destruir_paquete(solicitud);
+	solicitud = recibir_paquete(socketKernel);
+	if(solicitud->type != asignarValorVariableCompartida){
+		printf("Fallo asignar variable compartida!!!");
+		log_debug(logger,"Fallo asignar variable compartida!!!");
+	}
 	return valor;
 }
 void GameOfThread_irAlLabel(t_nombre_etiqueta etiqueta){
