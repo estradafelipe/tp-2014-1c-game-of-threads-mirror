@@ -12,6 +12,7 @@
 
 
 int main(int argc, char **argv){
+
 	desconectarse = false;
 	signal(SIGUSR1, rutina);
 	pcb = malloc(sizeof(t_PCB));
@@ -45,7 +46,7 @@ int main(int argc, char **argv){
 
 
 	//Creo los logs
-	logger = log_create("loggerCPU.log","CPU_LOG",false,LOG_LEVEL_TRACE);
+	logger = log_create("loggerCPU.log","CPU_LOG",true,LOG_LEVEL_TRACE);
 
 	//Creo el diccionario de variables
 	diccionarioVariables = dictionary_create();
@@ -110,7 +111,7 @@ int main(int argc, char **argv){
 		if(packagePCB->type == enviarPCBACPU){
 
 			notificar_kernel(respuestaCPU);
-
+			finprograma=false;
 			pcb = desserializarPCB(packagePCB->payload);
 			destruir_paquete(packagePCB);
 			log_debug(logger,"RECIBIDA UNA PCB. Su program id es: %d\n",pcb->id);
@@ -137,7 +138,6 @@ int main(int argc, char **argv){
 
 				paq =  Leer(pcb->indiceCodigo,pcb->programcounter*8,TAMANIO_INSTRUCCION);
 
-
 				memcpy(&datos->inicio,paq->payload,sizeof(int32_t));
 				memcpy(&datos->longitud,paq->payload + sizeof(int32_t),sizeof(int32_t));
 
@@ -149,15 +149,17 @@ int main(int argc, char **argv){
 				quantumPrograma ++;
 				pcb->programcounter++;//TODO: ver este tema!!!!!!
 			}
+			if(finprograma==false){
+				log_debug(logger,"FIN QUANTUM");
+				dictionary_clean(diccionarioVariables); //limpio el diccionario de variables
+				printf("datosPCB id %d, indice %d, pc %d, sizecontext %d, cursor %d",pcb->id, pcb->indiceEtiquetas, pcb->programcounter, pcb->sizeContext, pcb->cursorStack);
+				pcbSerializado = serializar_datos_pcb_para_cpu(pcb);
+				respuesta = crear_paquete(retornoCPUQuantum,pcbSerializado,sizeof(t_pun)*5);
+				enviar_paquete(respuesta,socketKernel);
+				log_debug(logger,"SE ENVIO EL PCB AL KERNEL, tipo paquete: %d",respuesta->type);
+				destruir_paquete(respuesta);
+			}
 
-			log_debug(logger,"FIN QUANTUM");
-			dictionary_clean(diccionarioVariables); //limpio el diccionario de variables
-
-			pcbSerializado = serializar_datos_pcb_para_cpu(pcb);
-			respuesta = crear_paquete(retornoCPUQuantum,pcbSerializado,sizeof(t_pun)*5);
-			enviar_paquete(respuesta,socketKernel);
-			log_debug(logger,"SE ENVIO EL PCB AL KERNEL, tipo paquete: %d",respuesta->type);
-			destruir_paquete(respuesta);
 			if (desconectarse == true){
 				notificar_kernel(cpuDesconectada);
 				log_debug(logger,"LLEGO SEÑAL SIGUSR1,NOTIFICO AL KERNEL Y TERMINO EJECUCION");
@@ -213,6 +215,7 @@ void cargar_diccionarioVariables(int32_t cant_var){
 
 void notificar_kernel(t_paquete pa){
 	package* paquete = malloc(sizeof(package));
+	char *pcbSerializado;
 		switch(pa){
 			case estoyDisponible:
 				paquete = crear_paquete(estoyDisponible,"ESTOY DISPONIBLE",strlen("ESTOY DISPONIBLE")+1);
@@ -229,8 +232,9 @@ void notificar_kernel(t_paquete pa){
 				paquete = crear_paquete(respuestaCPU,"OK",strlen("OK")+1);
 				enviar_paquete(paquete,socketKernel);
 				break;
-			case finPrograma:
-				paquete = crear_paquete(finPrograma,"FINALIZO",strlen("FINALIZO")+1);
+			case retornoCPUFin:
+				pcbSerializado = serializar_datos_pcb_para_cpu(pcb);
+				paquete = crear_paquete(retornoCPUFin,pcbSerializado,sizeof(t_pun)*5);
 				enviar_paquete(paquete,socketKernel);
 				break;
 			default:

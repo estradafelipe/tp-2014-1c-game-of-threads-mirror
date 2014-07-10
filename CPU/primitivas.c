@@ -207,8 +207,9 @@ void GameOfThread_finalizar(void){
 	if(pcb->cursorStack == 0){
 		log_debug(logger,"No hay mas instrucciones a ejecutar, finalizando programa");
 		dictionary_clean(diccionarioVariables);
-		notificar_kernel(finPrograma);
+		notificar_kernel(retornoCPUFin);
 		quantumPrograma = quantumKernel;
+		finprograma = true;
 	} else {
 		log_debug(logger,"Hay instrucciones para seguir ejecutando");
 		//Obtengo el Program Counter (Instruccion Siguiente)
