@@ -125,12 +125,12 @@ void opRespuestaCPU(uint32_t fd, char * payload, uint32_t longitudMensaje){
 
 int enviar_pcb_a_cpu(t_PCB *pcb,t_CPU *cpu){
 	printf("Enviar PCB a CPU\n");
-	printf("envio paquete a cpu %d\n",cpu->fd);
+	printf("envio pcb %d a cpu %d\n",pcb->id, cpu->fd);
 	char * payload = serializarPCB(pcb);
-	int payload_size = sizeof(t_pun)*9;
+	uint16_t payload_size = sizeof(t_pun)*9;
 	package *paquete = crear_paquete(enviarPCBACPU, payload, payload_size);
-
-	if (enviar_paquete(paquete,cpu->fd)==-1){
+	int resu = enviar_paquete(paquete,cpu->fd);
+	if (resu==-1){
 		printf("Error en envio de PCB a CPU: %d", cpu->fd);
 		return ERROR_ENVIO_CPU;
 	}
@@ -143,6 +143,7 @@ int enviar_pcb_a_cpu(t_PCB *pcb,t_CPU *cpu){
 		cpu->estado=CPU_CON_PROCESO;
 		return EXITO_ENVIO_PCB_A_CPU;
 	//}
+		printf("guarde en la cpu, el pcb %d\n",cpu->pcb->id);
 	destruir_paquete(paquete);
 
 	return ERROR_RESPUESTA_CPU;
@@ -179,6 +180,7 @@ void opRetornoCPUQuantum(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	pthread_mutex_lock(&kernel->mutex_cpus);
 	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
 	pthread_mutex_unlock(&kernel->mutex_cpus);
+	printf("datosPCB id %d, indice %d, pc %d, sizecontext %d, cursor %d",datosPCB->id, datosPCB->indiceEtiquetas, datosPCB->programcounter, datosPCB->sizeContext, datosPCB->cursorStack);
 	modificarPCB(cpu->pcb, datosPCB);
 	printf("actualice el pcb\n");
 	//AGREGAR SEMAFOROS en version con varios threads
@@ -197,7 +199,9 @@ void opEstoyDisponible(uint32_t fd, char * payload, uint32_t longitudMensaje){
 		t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
 		cpu->estado=CPU_DISPONIBLE;
 		pthread_mutex_unlock(&kernel->mutex_cpus);
+		printf("cambie estado de la cpu\n");
 		pasarACola(cpus_disponibles, cpu);
+		printf("pase a cola de disponibles\n");
 		//cola_push(cpus_disponibles,cpu);
 		//sem_post(&cpus_disponibles->contador);
 		sem_post(sem_cpu_disponible);
@@ -261,12 +265,10 @@ void opRetornoCPUExcepcion(uint32_t fd, char * payload, uint32_t longitudMensaje
 	if (dictionary_has_key(kernel->programas,string_from_format("%d",cpu->pcb->id))){
 		pthread_mutex_lock(&kernel->mutex_programas);
 		t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",cpu->pcb->id));
-		pthread_mutex_unlock(&kernel->mutex_programas);
-
-		//programa->mensajeFIN = malloc(sizeof(longitudMensaje));
 		programa->mensajeFIN = payload;
-		poner_cpu_no_disponible(cpu);
+		pthread_mutex_unlock(&kernel->mutex_programas);
 		cola_push(cola_exit,cpu->pcb);
+		poner_cpu_no_disponible(cpu);
 		printf("pase a exit el pcb");
 		sem_post(sem_exit);
 
@@ -308,12 +310,15 @@ void pasar_dato_a_imprimir(char * texto, int longitudTexto, uint32_t fd, t_paque
 
 void opImprimirValor(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	printf("Imprimir Valor \n");
+	pthread_mutex_lock(&kernel->mutex_cpus);
 	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
+	pthread_mutex_unlock(&kernel->mutex_cpus);
+	pthread_mutex_lock(&kernel->mutex_programas);
 	t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",cpu->pcb->id));
+	pthread_mutex_unlock(&kernel->mutex_programas);
 	int valor;
 	memcpy(&valor,payload,sizeof(int32_t));
 	printf("valor %d\n",valor);
-
 
 	pasar_dato_a_imprimir(payload, longitudMensaje, programa->fd, imprimirValor);// VER Con Silvina ¿imprime el PCP?
 }
@@ -459,7 +464,9 @@ void recibirCPU(void){
 							t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",i));
 							pthread_mutex_unlock(&kernel->mutex_cpus);
 							if (cpu->pcb!=NULL){
+								pthread_mutex_lock(&kernel->mutex_programas);
 								t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",cpu->pcb->id));
+								pthread_mutex_unlock(&kernel->mutex_programas);
 								if (!programa->estado){ //Verifico  si el programa esta activo
 									pasarACola(cola_exit, cpu->pcb);
 									sem_post(sem_exit);
@@ -481,9 +488,12 @@ void pasarListosAEjecucion(void){
 	while(1){
 		//sem_wait(&cpus_disponibles->contador);
 		sem_wait(sem_cpu_disponible);
+		printf("pase sem de cpu disponible\n");
 		sem_wait(sem_estado_listo);
+		printf("pase sem de listos\n");
 		log_debug(logger,string_from_format("Hilo pasa PCB a Ejecución\n"));
 		t_PCB *pcb = cola_pop(cola_ready);
+		printf("pasa listos a ejecucion - agarro el pcb id: %d\n",pcb->id);
 		t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",pcb->id));
 
 		if (!programa->estado){

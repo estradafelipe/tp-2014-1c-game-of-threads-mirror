@@ -161,6 +161,7 @@ bool solicitarSegmentosUMV(char *codigo, uint16_t codigoSize, t_medatada_program
 		return false;
 	} else pcb->indiceCodigo = dirSegmento;
 
+	pcb->sizeContext=0;
 	pcb->cursorStack = 0; //offset
 	pcb->programcounter = programa->instruccion_inicio;
 
@@ -376,8 +377,8 @@ void hiloSacaExit(){
 		log_debug(logger,string_from_format("Hilo Exit, se libero el semaforo\n"));
 		printf("PASO ANTES DE SACAR DE COLA\n");
 		t_PCB *programa = cola_pop(cola_exit);
-		printf("PASO luego DE SACAR DE COLA antes de liberar recursos umv\n");
-		liberarRecursosUMV(programa);
+		printf("PASO luego DE SACAR DE COLA antes de liberar recursos umv programa %d\n",programa->id);
+		liberarRecursosUMV(programa); // pasar programa id?
 		printf("PASO luego DE liberar recursos umv antes de eliminar programa de tabla\n");
 		eliminarProgramaTabla(programa->id);
 		printf("luego de liberar programa de tabla\n");
