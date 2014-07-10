@@ -332,6 +332,7 @@ void GameOfThread_wait(t_nombre_semaforo identificador_semaforo){
 	} else if(paquete->type == bloquearProgramaCPU) {
 		log_debug(logger,"El semaforo %s esta bloqueado",identificador_semaforo);
 		quantumPrograma = quantumKernel;
+		pcb->programcounter++;
 		char *payload = serializar_datos_pcb_para_cpu(pcb);
 		paquete = crear_paquete(retornoCPUBloqueado,payload,sizeof(t_pun)*5);
 		enviar_paquete(paquete,socketKernel);
