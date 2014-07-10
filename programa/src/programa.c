@@ -103,7 +103,7 @@ int main(int argc, char **argv) {
 					}
 
 					if (paquete_nuevo->type==finPrograma){
-						char *mensajeFIN = malloc(sizeof(paquete_nuevo->payloadLength));
+						char *mensajeFIN = malloc(paquete_nuevo->payloadLength);
 						memcpy(mensajeFIN,paquete_nuevo->payload,paquete_nuevo->payloadLength);
 						//en funcion del codigo  mensaje por consola
 						printf("%s",mensajeFIN);
