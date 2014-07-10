@@ -66,19 +66,21 @@ void crea_tablasSitema(){
 
 	}
 	// Crea tabla variables compartidas
-	i = 0;
-	while (1) {
-		if (kernel->compartidasid[i]!='\0'){
-			pthread_mutex_t *mutex = malloc(sizeof(pthread_mutex_t));
-			pthread_mutex_init(mutex,NULL);
-			t_variable_compartida *VAR = malloc(sizeof(t_variable_compartida));
-			VAR->nombre = kernel->compartidasid[i];
-			VAR->valor = 0; // esto esta bien?
-			VAR->mutex = mutex;
-			dictionary_put(kernel->variables_compartidas,VAR->nombre,VAR);
+	if (kernel->compartidasid!=NULL){
+		i = 0;
+		while (1) {
+			if (kernel->compartidasid[i]!='\0'){
+				pthread_mutex_t *mutex = malloc(sizeof(pthread_mutex_t));
+				pthread_mutex_init(mutex,NULL);
+				t_variable_compartida *VAR = malloc(sizeof(t_variable_compartida));
+				VAR->nombre = kernel->compartidasid[i];
+				VAR->valor = 0; // esto esta bien?
+				VAR->mutex = mutex;
+				dictionary_put(kernel->variables_compartidas,VAR->nombre,VAR);
 
-			i++;
-		}else break;
+				i++;
+			}else break;
+		}
 	}
 	// Crea tabla de IO
 	if (kernel->entradasalidaid!=NULL){

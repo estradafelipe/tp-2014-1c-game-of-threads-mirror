@@ -202,8 +202,6 @@ void opEstoyDisponible(uint32_t fd, char * payload, uint32_t longitudMensaje){
 		printf("cambie estado de la cpu\n");
 		pasarACola(cpus_disponibles, cpu);
 		printf("pase a cola de disponibles\n");
-		//cola_push(cpus_disponibles,cpu);
-		//sem_post(&cpus_disponibles->contador);
 		sem_post(sem_cpu_disponible);
 	}else printf("No guardo en el dictionary el fd de la cpu!\n");
 }
@@ -521,8 +519,6 @@ void pasarListosAEjecucion(void){
 			pasarACola(cola_exit, pcb);
 			sem_post(sem_exit);
 			sem_post(sem_multiprogramacion);
-			//sem_post(&cpus_disponibles->contador);
-			sem_post(sem_cpu_disponible);
 		} else {
 			log_debug(logger,string_from_format("Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion\n"));
 			t_CPU *cpu = cola_pop(cpus_disponibles);
