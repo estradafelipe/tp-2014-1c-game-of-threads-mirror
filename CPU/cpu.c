@@ -229,8 +229,8 @@ void notificar_kernel(t_paquete pa){
 				paquete = crear_paquete(respuestaCPU,"OK",strlen("OK")+1);
 				enviar_paquete(paquete,socketKernel);
 				break;
-			case finPrograma:
-				paquete = crear_paquete(finPrograma,"FINALIZO",strlen("FINALIZO")+1);
+			case retornoCPUFin:
+				paquete = crear_paquete(retornoCPUFin,"FINALIZO",strlen("FINALIZO")+1);
 				enviar_paquete(paquete,socketKernel);
 				break;
 			default:

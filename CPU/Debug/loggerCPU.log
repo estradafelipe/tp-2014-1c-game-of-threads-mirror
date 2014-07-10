@@ -1,133 +1,140 @@
-[DEBUG] 15:40:46:390 CPU_LOG/(10585:10585): CONECTADO AL KERNEL
-[DEBUG] 15:40:46:390 CPU_LOG/(10585:10585): El Quantum es:30
-[DEBUG] 15:40:55:431 CPU_LOG/(10585:10585): RECIBIDA UNA PCB. Su program id es: 1
+[DEBUG] 21:43:33:421 CPU_LOG/(2819:2819): CONECTADO AL KERNEL
+[DEBUG] 21:43:33:421 CPU_LOG/(2819:2819): El Quantum es:30
+[DEBUG] 21:43:50:20 CPU_LOG/(2819:2819): RECIBIDA UNA PCB. Su program id es: 1
 
-[DEBUG] 15:40:55:431 CPU_LOG/(10585:10585): Cambio de proceso activo correcto
-[DEBUG] 15:40:55:431 CPU_LOG/(10585:10585): Cargando diccionario de variables
-[DEBUG] 15:40:55:431 CPU_LOG/(10585:10585): SizeContext: 0
-[DEBUG] 15:40:55:431 CPU_LOG/(10585:10585): SizeIndexLabel es: 11
-[DEBUG] 15:40:55:431 CPU_LOG/(10585:10585): ProgramCounter: 7
-[DEBUG] 15:40:57:433 CPU_LOG/(10585:10585): PC: 7, INSTRUCCION: variables a,b
+[DEBUG] 21:43:50:20 CPU_LOG/(2819:2819): Cambio de proceso activo correcto
+[DEBUG] 21:43:50:20 CPU_LOG/(2819:2819): Cargando diccionario de variables
+[DEBUG] 21:43:50:20 CPU_LOG/(2819:2819): SizeContext: 0
+[DEBUG] 21:43:50:20 CPU_LOG/(2819:2819): SizeIndexLabel es: 11
+[DEBUG] 21:43:50:20 CPU_LOG/(2819:2819): ProgramCounter: 7
+[DEBUG] 21:43:52:23 CPU_LOG/(2819:2819): PC: 7, INSTRUCCION: variables a,b
 
-[TRACE] 15:40:57:433 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_definirVariable
-[DEBUG] 15:40:57:433 CPU_LOG/(10585:10585): Variable a definir: a
-[DEBUG] 15:40:57:433 CPU_LOG/(10585:10585): sizeContext: 0, cursorStack: 0
-[DEBUG] 15:40:58:434 CPU_LOG/(10585:10585): Posicion: 0, sizeContext: 1
-[TRACE] 15:40:58:434 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_definirVariable
-[DEBUG] 15:40:58:434 CPU_LOG/(10585:10585): Variable a definir: b
-[DEBUG] 15:40:58:434 CPU_LOG/(10585:10585): sizeContext: 1, cursorStack: 0
-[DEBUG] 15:40:59:434 CPU_LOG/(10585:10585): Posicion: 5, sizeContext: 2
-[DEBUG] 15:41:01:436 CPU_LOG/(10585:10585): PC: 8, INSTRUCCION: a=20
+[TRACE] 21:43:52:23 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_definirVariable
+[DEBUG] 21:43:52:23 CPU_LOG/(2819:2819): Variable a definir: a
+[DEBUG] 21:43:52:23 CPU_LOG/(2819:2819): sizeContext: 0, cursorStack: 0
+[DEBUG] 21:43:53:24 CPU_LOG/(2819:2819): Posicion: 0, sizeContext: 1
+[TRACE] 21:43:53:24 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_definirVariable
+[DEBUG] 21:43:53:24 CPU_LOG/(2819:2819): Variable a definir: b
+[DEBUG] 21:43:53:24 CPU_LOG/(2819:2819): sizeContext: 1, cursorStack: 0
+[DEBUG] 21:43:54:24 CPU_LOG/(2819:2819): Posicion: 5, sizeContext: 2
+[DEBUG] 21:43:56:25 CPU_LOG/(2819:2819): PC: 8, INSTRUCCION: a=20
 
-[TRACE] 15:41:01:436 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_obtenerPosicionVariable
-[DEBUG] 15:41:01:436 CPU_LOG/(10585:10585): Variable buscada: a, posicion encontrada: 0
-[TRACE] 15:41:01:436 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_asignar
-[DEBUG] 15:41:02:437 CPU_LOG/(10585:10585): Posicion a escribir: 1, valor: 20
-[DEBUG] 15:41:04:438 CPU_LOG/(10585:10585): PC: 9, INSTRUCCION: print a
+[TRACE] 21:43:56:26 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_obtenerPosicionVariable
+[DEBUG] 21:43:56:26 CPU_LOG/(2819:2819): Variable buscada: a, posicion encontrada: 0
+[TRACE] 21:43:56:26 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_asignar
+[DEBUG] 21:43:57:27 CPU_LOG/(2819:2819): Posicion a escribir: 1, valor: 20
+[DEBUG] 21:43:59:28 CPU_LOG/(2819:2819): PC: 9, INSTRUCCION: print a
 
-[TRACE] 15:41:04:438 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_obtenerPosicionVariable
-[DEBUG] 15:41:04:438 CPU_LOG/(10585:10585): Variable buscada: a, posicion encontrada: 0
-[TRACE] 15:41:04:438 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_dereferenciar
-[DEBUG] 15:41:05:438 CPU_LOG/(10585:10585): Posicion buscada: 0, valor encontrado: 20
-[TRACE] 15:41:05:438 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_imprimir
-[DEBUG] 15:41:05:438 CPU_LOG/(10585:10585): Valor a imprimir: 20
-[DEBUG] 15:41:07:440 CPU_LOG/(10585:10585): PC: 10, INSTRUCCION: prueba
+[TRACE] 21:43:59:28 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_obtenerPosicionVariable
+[DEBUG] 21:43:59:28 CPU_LOG/(2819:2819): Variable buscada: a, posicion encontrada: 0
+[TRACE] 21:43:59:28 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_dereferenciar
+[DEBUG] 21:44:00:29 CPU_LOG/(2819:2819): Posicion buscada: 0, valor encontrado: 20
+[TRACE] 21:44:00:29 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_imprimir
+[DEBUG] 21:44:00:29 CPU_LOG/(2819:2819): Valor a imprimir: 20
+[DEBUG] 21:44:02:31 CPU_LOG/(2819:2819): PC: 10, INSTRUCCION: prueba
 
-[TRACE] 15:41:07:441 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_llamarSinRetorno
-[DEBUG] 15:41:07:441 CPU_LOG/(10585:10585): Guardando contexto de ejecución actual
-[DEBUG] 15:41:07:441 CPU_LOG/(10585:10585): CursorStack: 0
-[DEBUG] 15:41:07:441 CPU_LOG/(10585:10585): sizeContext: 2
-[DEBUG] 15:41:08:441 CPU_LOG/(10585:10585): Guardando programCounter siguiente
-[DEBUG] 15:41:08:441 CPU_LOG/(10585:10585): ProgramCounter siguiente: 11
-[DEBUG] 15:41:09:441 CPU_LOG/(10585:10585): Cambiando contexto de ejecución
-[DEBUG] 15:41:09:441 CPU_LOG/(10585:10585): CursorStack nuevo: 18
-[DEBUG] 15:41:09:441 CPU_LOG/(10585:10585): sizeContext nuevo: 0
-[DEBUG] 15:41:09:441 CPU_LOG/(10585:10585): Diccionario vacio: 1
+[TRACE] 21:44:02:31 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_llamarSinRetorno
+[DEBUG] 21:44:02:31 CPU_LOG/(2819:2819): Guardando contexto de ejecución actual
+[DEBUG] 21:44:02:31 CPU_LOG/(2819:2819): CursorStack: 0
+[DEBUG] 21:44:02:31 CPU_LOG/(2819:2819): sizeContext: 2
+[DEBUG] 21:44:03:32 CPU_LOG/(2819:2819): Guardando programCounter siguiente
+[DEBUG] 21:44:03:32 CPU_LOG/(2819:2819): ProgramCounter siguiente: 11
+[DEBUG] 21:44:04:32 CPU_LOG/(2819:2819): Cambiando contexto de ejecución
+[DEBUG] 21:44:04:32 CPU_LOG/(2819:2819): CursorStack nuevo: 18
+[DEBUG] 21:44:04:32 CPU_LOG/(2819:2819): sizeContext nuevo: 0
+[DEBUG] 21:44:04:32 CPU_LOG/(2819:2819): Diccionario vacio: 1
 
-[TRACE] 15:41:09:441 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_irAlLabel
-[DEBUG] 15:41:09:441 CPU_LOG/(10585:10585): Pidiendo indiceEtiquetas a la UMV
-[DEBUG] 15:41:10:442 CPU_LOG/(10585:10585): La etiqueta buscada es: prueba
-[DEBUG] 15:41:10:442 CPU_LOG/(10585:10585): Label encontrada, posicion: 0
-[DEBUG] 15:41:10:442 CPU_LOG/(10585:10585): PC: -1
-[DEBUG] 15:41:12:445 CPU_LOG/(10585:10585): PC: 0, INSTRUCCION: variables x,z
+[TRACE] 21:44:04:32 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_irAlLabel
+[DEBUG] 21:44:04:32 CPU_LOG/(2819:2819): Pidiendo indiceEtiquetas a la UMV
+[DEBUG] 21:44:05:33 CPU_LOG/(2819:2819): La etiqueta buscada es: prueba
+[DEBUG] 21:44:05:33 CPU_LOG/(2819:2819): Label encontrada, posicion: 0
+[DEBUG] 21:44:05:33 CPU_LOG/(2819:2819): PC: -1
+[DEBUG] 21:44:07:34 CPU_LOG/(2819:2819): PC: 0, INSTRUCCION: variables x,z
 
-[TRACE] 15:41:12:445 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_definirVariable
-[DEBUG] 15:41:12:445 CPU_LOG/(10585:10585): Variable a definir: x
-[DEBUG] 15:41:12:445 CPU_LOG/(10585:10585): sizeContext: 0, cursorStack: 18
-[DEBUG] 15:41:13:446 CPU_LOG/(10585:10585): Posicion: 18, sizeContext: 1
-[TRACE] 15:41:13:446 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_definirVariable
-[DEBUG] 15:41:13:446 CPU_LOG/(10585:10585): Variable a definir: z
-[DEBUG] 15:41:13:446 CPU_LOG/(10585:10585): sizeContext: 1, cursorStack: 18
-[DEBUG] 15:41:14:447 CPU_LOG/(10585:10585): Posicion: 23, sizeContext: 2
-[DEBUG] 15:41:16:448 CPU_LOG/(10585:10585): PC: 1, INSTRUCCION: z=2
+[TRACE] 21:44:07:34 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_definirVariable
+[DEBUG] 21:44:07:34 CPU_LOG/(2819:2819): Variable a definir: x
+[DEBUG] 21:44:07:34 CPU_LOG/(2819:2819): sizeContext: 0, cursorStack: 18
+[DEBUG] 21:44:08:35 CPU_LOG/(2819:2819): Posicion: 18, sizeContext: 1
+[TRACE] 21:44:08:35 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_definirVariable
+[DEBUG] 21:44:08:35 CPU_LOG/(2819:2819): Variable a definir: z
+[DEBUG] 21:44:08:35 CPU_LOG/(2819:2819): sizeContext: 1, cursorStack: 18
+[DEBUG] 21:44:09:35 CPU_LOG/(2819:2819): Posicion: 23, sizeContext: 2
+[DEBUG] 21:44:11:37 CPU_LOG/(2819:2819): PC: 1, INSTRUCCION: z=2
 
-[TRACE] 15:41:16:448 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_obtenerPosicionVariable
-[DEBUG] 15:41:16:448 CPU_LOG/(10585:10585): Variable buscada: z, posicion encontrada: 23
-[TRACE] 15:41:16:448 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_asignar
-[DEBUG] 15:41:17:449 CPU_LOG/(10585:10585): Posicion a escribir: 24, valor: 2
-[DEBUG] 15:41:19:450 CPU_LOG/(10585:10585): PC: 2, INSTRUCCION: x=16
+[TRACE] 21:44:11:37 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_obtenerPosicionVariable
+[DEBUG] 21:44:11:37 CPU_LOG/(2819:2819): Variable buscada: z, posicion encontrada: 23
+[TRACE] 21:44:11:37 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_asignar
+[DEBUG] 21:44:12:38 CPU_LOG/(2819:2819): Posicion a escribir: 24, valor: 2
+[DEBUG] 21:44:14:39 CPU_LOG/(2819:2819): PC: 2, INSTRUCCION: x=16
 
-[TRACE] 15:41:19:450 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_obtenerPosicionVariable
-[DEBUG] 15:41:19:450 CPU_LOG/(10585:10585): Variable buscada: x, posicion encontrada: 18
-[TRACE] 15:41:19:450 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_asignar
-[DEBUG] 15:41:20:451 CPU_LOG/(10585:10585): Posicion a escribir: 19, valor: 16
-[DEBUG] 15:41:22:452 CPU_LOG/(10585:10585): PC: 3, INSTRUCCION: print x
+[TRACE] 21:44:14:39 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_obtenerPosicionVariable
+[DEBUG] 21:44:14:39 CPU_LOG/(2819:2819): Variable buscada: x, posicion encontrada: 18
+[TRACE] 21:44:14:39 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_asignar
+[DEBUG] 21:44:15:39 CPU_LOG/(2819:2819): Posicion a escribir: 19, valor: 16
+[DEBUG] 21:44:17:41 CPU_LOG/(2819:2819): PC: 3, INSTRUCCION: print x
 
-[TRACE] 15:41:22:452 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_obtenerPosicionVariable
-[DEBUG] 15:41:22:452 CPU_LOG/(10585:10585): Variable buscada: x, posicion encontrada: 18
-[TRACE] 15:41:22:452 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_dereferenciar
-[DEBUG] 15:41:23:452 CPU_LOG/(10585:10585): Posicion buscada: 18, valor encontrado: 16
-[TRACE] 15:41:23:452 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_imprimir
-[DEBUG] 15:41:23:453 CPU_LOG/(10585:10585): Valor a imprimir: 16
-[DEBUG] 15:41:25:454 CPU_LOG/(10585:10585): PC: 4, INSTRUCCION: print z
+[TRACE] 21:44:17:41 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_obtenerPosicionVariable
+[DEBUG] 21:44:17:41 CPU_LOG/(2819:2819): Variable buscada: x, posicion encontrada: 18
+[TRACE] 21:44:17:41 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_dereferenciar
+[DEBUG] 21:44:18:42 CPU_LOG/(2819:2819): Posicion buscada: 18, valor encontrado: 16
+[TRACE] 21:44:18:42 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_imprimir
+[DEBUG] 21:44:18:42 CPU_LOG/(2819:2819): Valor a imprimir: 16
+[DEBUG] 21:44:20:43 CPU_LOG/(2819:2819): PC: 4, INSTRUCCION: print z
 
-[TRACE] 15:41:25:454 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_obtenerPosicionVariable
-[DEBUG] 15:41:25:454 CPU_LOG/(10585:10585): Variable buscada: z, posicion encontrada: 23
-[TRACE] 15:41:25:454 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_dereferenciar
-[DEBUG] 15:41:26:454 CPU_LOG/(10585:10585): Posicion buscada: 23, valor encontrado: 2
-[TRACE] 15:41:26:454 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_imprimir
-[DEBUG] 15:41:26:455 CPU_LOG/(10585:10585): Valor a imprimir: 2
-[DEBUG] 15:41:28:456 CPU_LOG/(10585:10585): PC: 5, INSTRUCCION: z=x + z
+[TRACE] 21:44:20:43 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_obtenerPosicionVariable
+[DEBUG] 21:44:20:43 CPU_LOG/(2819:2819): Variable buscada: z, posicion encontrada: 23
+[TRACE] 21:44:20:43 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_dereferenciar
+[DEBUG] 21:44:21:44 CPU_LOG/(2819:2819): Posicion buscada: 23, valor encontrado: 2
+[TRACE] 21:44:21:44 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_imprimir
+[DEBUG] 21:44:21:44 CPU_LOG/(2819:2819): Valor a imprimir: 2
+[DEBUG] 21:44:23:45 CPU_LOG/(2819:2819): PC: 5, INSTRUCCION: z=x + z
 
-[TRACE] 15:41:28:456 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_obtenerPosicionVariable
-[DEBUG] 15:41:28:456 CPU_LOG/(10585:10585): Variable buscada: x, posicion encontrada: 18
-[TRACE] 15:41:28:456 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_dereferenciar
-[DEBUG] 15:41:29:456 CPU_LOG/(10585:10585): Posicion buscada: 18, valor encontrado: 16
-[TRACE] 15:41:29:456 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_obtenerPosicionVariable
-[DEBUG] 15:41:29:456 CPU_LOG/(10585:10585): Variable buscada: z, posicion encontrada: 23
-[TRACE] 15:41:29:456 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_dereferenciar
-[DEBUG] 15:41:30:457 CPU_LOG/(10585:10585): Posicion buscada: 23, valor encontrado: 2
-[TRACE] 15:41:30:457 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_obtenerPosicionVariable
-[DEBUG] 15:41:30:457 CPU_LOG/(10585:10585): Variable buscada: z, posicion encontrada: 23
-[TRACE] 15:41:30:457 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_asignar
-[DEBUG] 15:41:31:457 CPU_LOG/(10585:10585): Posicion a escribir: 24, valor: 18
-[DEBUG] 15:41:33:458 CPU_LOG/(10585:10585): PC: 6, INSTRUCCION: end
+[TRACE] 21:44:23:45 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_obtenerPosicionVariable
+[DEBUG] 21:44:23:45 CPU_LOG/(2819:2819): Variable buscada: x, posicion encontrada: 18
+[TRACE] 21:44:23:45 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_dereferenciar
+[DEBUG] 21:44:24:45 CPU_LOG/(2819:2819): Posicion buscada: 18, valor encontrado: 16
+[TRACE] 21:44:24:45 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_obtenerPosicionVariable
+[DEBUG] 21:44:24:46 CPU_LOG/(2819:2819): Variable buscada: z, posicion encontrada: 23
+[TRACE] 21:44:24:46 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_dereferenciar
+[DEBUG] 21:44:25:46 CPU_LOG/(2819:2819): Posicion buscada: 23, valor encontrado: 2
+[TRACE] 21:44:25:46 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_obtenerPosicionVariable
+[DEBUG] 21:44:25:46 CPU_LOG/(2819:2819): Variable buscada: z, posicion encontrada: 23
+[TRACE] 21:44:25:46 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_asignar
+[DEBUG] 21:44:26:47 CPU_LOG/(2819:2819): Posicion a escribir: 24, valor: 18
+[DEBUG] 21:44:28:48 CPU_LOG/(2819:2819): PC: 6, INSTRUCCION: end
 
-[TRACE] 15:41:33:458 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_finalizar
-[DEBUG] 15:41:33:458 CPU_LOG/(10585:10585): CursorStack: 18
-[DEBUG] 15:41:33:458 CPU_LOG/(10585:10585): Hay instrucciones para seguir ejecutando
-[DEBUG] 15:41:34:459 CPU_LOG/(10585:10585): ProgramCounter a ejecutar: 11
-[DEBUG] 15:41:35:460 CPU_LOG/(10585:10585): CursorStack del contexto anterior: 0
-[DEBUG] 15:41:35:460 CPU_LOG/(10585:10585): Limpiando diccionario de variables
-[DEBUG] 15:41:35:460 CPU_LOG/(10585:10585): Cargando diccionario de variables
-[DEBUG] 15:41:37:462 CPU_LOG/(10585:10585): PC: 12, INSTRUCCION: en
-[TRACE] 15:41:37:462 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_llamarSinRetorno
-[DEBUG] 15:41:37:462 CPU_LOG/(10585:10585): Guardando contexto de ejecución actual
-[DEBUG] 15:41:37:462 CPU_LOG/(10585:10585): CursorStack: 0
-[DEBUG] 15:41:37:462 CPU_LOG/(10585:10585): sizeContext: 2
-[DEBUG] 15:41:38:463 CPU_LOG/(10585:10585): Guardando programCounter siguiente
-[DEBUG] 15:41:38:463 CPU_LOG/(10585:10585): ProgramCounter siguiente: 13
-[DEBUG] 15:41:39:464 CPU_LOG/(10585:10585): Cambiando contexto de ejecución
-[DEBUG] 15:41:39:464 CPU_LOG/(10585:10585): CursorStack nuevo: 18
-[DEBUG] 15:41:39:464 CPU_LOG/(10585:10585): sizeContext nuevo: 0
-[DEBUG] 15:41:39:464 CPU_LOG/(10585:10585): Diccionario vacio: 1
+[TRACE] 21:44:28:48 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_finalizar
+[DEBUG] 21:44:28:48 CPU_LOG/(2819:2819): CursorStack: 18
+[DEBUG] 21:44:28:48 CPU_LOG/(2819:2819): Hay instrucciones para seguir ejecutando
+[DEBUG] 21:44:29:48 CPU_LOG/(2819:2819): ProgramCounter a ejecutar: 10
+[DEBUG] 21:44:30:49 CPU_LOG/(2819:2819): CursorStack del contexto anterior: 0
+[DEBUG] 21:44:30:49 CPU_LOG/(2819:2819): Limpiando diccionario de variables
+[DEBUG] 21:44:30:49 CPU_LOG/(2819:2819): Cargando diccionario de variables
+[DEBUG] 21:44:32:50 CPU_LOG/(2819:2819): PC: 11, INSTRUCCION: print a
 
-[TRACE] 15:41:39:464 CPU_LOG/(10585:10585): Ejecutando Primitiva GameOfThread_irAlLabel
-[DEBUG] 15:41:39:464 CPU_LOG/(10585:10585): Pidiendo indiceEtiquetas a la UMV
-[DEBUG] 15:41:40:465 CPU_LOG/(10585:10585): La etiqueta buscada es: e
-[DEBUG] 15:41:40:465 CPU_LOG/(10585:10585): Error al encontrar label
-[DEBUG] 15:41:40:465 CPU_LOG/(10585:10585): Label encontrada, posicion: -1
-[DEBUG] 15:41:40:465 CPU_LOG/(10585:10585): PC: -2
-[DEBUG] 15:41:40:465 CPU_LOG/(10585:10585): FIN QUANTUM
-[DEBUG] 15:41:40:465 CPU_LOG/(10585:10585): SE ENVIO EL PCB AL KERNEL, tipo paquete: 1
-[DEBUG] 15:41:40:720 CPU_LOG/(10585:10585): ERROR AL RECIBIR PCB
+[TRACE] 21:44:32:50 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_obtenerPosicionVariable
+[DEBUG] 21:44:32:50 CPU_LOG/(2819:2819): Variable buscada: a, posicion encontrada: 0
+[TRACE] 21:44:32:50 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_dereferenciar
+[DEBUG] 21:44:33:50 CPU_LOG/(2819:2819): Posicion buscada: 0, valor encontrado: 20
+[TRACE] 21:44:33:50 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_imprimir
+[DEBUG] 21:44:33:50 CPU_LOG/(2819:2819): Valor a imprimir: 20
+[DEBUG] 21:44:35:51 CPU_LOG/(2819:2819): PC: 12, INSTRUCCION: en
+[TRACE] 21:44:35:51 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_llamarSinRetorno
+[DEBUG] 21:44:35:51 CPU_LOG/(2819:2819): Guardando contexto de ejecución actual
+[DEBUG] 21:44:35:51 CPU_LOG/(2819:2819): CursorStack: 0
+[DEBUG] 21:44:35:51 CPU_LOG/(2819:2819): sizeContext: 2
+[DEBUG] 21:44:36:52 CPU_LOG/(2819:2819): Guardando programCounter siguiente
+[DEBUG] 21:44:36:52 CPU_LOG/(2819:2819): ProgramCounter siguiente: 13
+[DEBUG] 21:44:37:53 CPU_LOG/(2819:2819): Cambiando contexto de ejecución
+[DEBUG] 21:44:37:53 CPU_LOG/(2819:2819): CursorStack nuevo: 18
+[DEBUG] 21:44:37:53 CPU_LOG/(2819:2819): sizeContext nuevo: 0
+[DEBUG] 21:44:37:53 CPU_LOG/(2819:2819): Diccionario vacio: 1
+
+[TRACE] 21:44:37:53 CPU_LOG/(2819:2819): Ejecutando Primitiva GameOfThread_irAlLabel
+[DEBUG] 21:44:37:53 CPU_LOG/(2819:2819): Pidiendo indiceEtiquetas a la UMV
+[DEBUG] 21:44:38:54 CPU_LOG/(2819:2819): La etiqueta buscada es: e
+[DEBUG] 21:44:38:54 CPU_LOG/(2819:2819): Error al encontrar label
+[DEBUG] 21:44:38:54 CPU_LOG/(2819:2819): Label encontrada, posicion: -1
+[DEBUG] 21:44:38:54 CPU_LOG/(2819:2819): PC: -2
+[DEBUG] 21:44:38:54 CPU_LOG/(2819:2819): FIN QUANTUM
+[DEBUG] 21:44:38:54 CPU_LOG/(2819:2819): SE ENVIO EL PCB AL KERNEL, tipo paquete: 1
