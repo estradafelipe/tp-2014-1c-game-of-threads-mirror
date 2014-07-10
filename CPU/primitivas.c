@@ -216,6 +216,7 @@ void GameOfThread_finalizar(void){
 		paquete = Leer(pcb->segmentoStack,pcb->cursorStack - 4, 4);
 		memcpy(&pcb->programcounter,paquete->payload,sizeof(t_pun));
 		destruir_paquete(paquete);
+		pcb->programcounter--;
 		log_debug(logger,"ProgramCounter a ejecutar: %d", pcb->programcounter);
 
 		//Obtengo el Cursor del Contexto Anterior
@@ -257,6 +258,7 @@ void GameOfThread_retornar(t_valor_variable retorno){
 	//Obtengo la proxima instruccion (Program Counter)
 	paquete = Leer(base,offset_tmp - 8, tamanio);
 	memcpy(&pcb->programcounter,paquete->payload,sizeof(t_pun));
+	pcb->programcounter--;
 	log_debug(logger, "Proxima instruccion a ejecutar: %d",pcb->programcounter);
 	destruir_paquete(paquete);
 	//Cambio de Contexto
