@@ -258,6 +258,7 @@ void enviarMsgPrograma(int fd, char *msg){
 	destruir_paquete(paquete);
 }
 void finalizarPrograma(int pcbid, int fd, int exit_code, char * mensajeFIN){
+	printf("elimino programa definitivamente\n");
 	//armamos payload con cod error
 	if ((exit_code!=PROGRAM_DISCONNECT)&&(exit_code!=PROGRAM_SEGSIZE_FAULT)){
 		package * paquete = crear_paquete(finPrograma,mensajeFIN,strlen(mensajeFIN)+1);
@@ -278,6 +279,7 @@ void eliminarProgramaTabla(int id){
 		dictionary_remove(programasxfd,string_from_format("%d",programa->fd));
 		dictionary_remove(kernel->programas,key);
 		pthread_mutex_unlock(&kernel->mutex_programas);
+		printf("elimine las tablas\n");
 		finalizarPrograma(id,fd,exit_code,mensajeFin);
 	}
 }

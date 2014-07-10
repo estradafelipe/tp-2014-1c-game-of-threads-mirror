@@ -177,19 +177,19 @@ void modificarPCB(t_PCB *pcb, t_iPCBaCPU *datosPCB){
 void opRetornoCPUQuantum(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	printf("Retorno de CPU por Quantum\n");
 	t_iPCBaCPU *datosPCB = deserializarRetornoPCBdeCPU(payload);
+	printf("antes del mutex cpus\n");
 	pthread_mutex_lock(&kernel->mutex_cpus);
+	printf("despues del mutex cpus\n");
 	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
 	pthread_mutex_unlock(&kernel->mutex_cpus);
-	printf("datosPCB id %d, indice %d, pc %d, sizecontext %d, cursor %d",datosPCB->id, datosPCB->indiceEtiquetas, datosPCB->programcounter, datosPCB->sizeContext, datosPCB->cursorStack);
+	printf("datosPCB id %d, indice %d, pc %d, sizecontext %d, cursor %d\n",datosPCB->id, datosPCB->indiceEtiquetas, datosPCB->programcounter, datosPCB->sizeContext, datosPCB->cursorStack);
 	modificarPCB(cpu->pcb, datosPCB);
 	printf("actualice el pcb\n");
-	//AGREGAR SEMAFOROS en version con varios threads
-	//pasarACola(cola_ready, cpu->pcb);
+	printf("datosPCB actualizado id %d, indice %d, pc %d, sizecontext %d, cursor %d\n",cpu->pcb->id, cpu->pcb->indiceEtiquetas, cpu->pcb->programcounter, cpu->pcb->sizeContext, cpu->pcb->cursorStack);
 	cola_push(cola_ready, cpu->pcb);
 	printf("pase a ready el pcb\n");
 	poner_cpu_no_disponible(cpu);
 	sem_post(sem_estado_listo);
-
 }
 
 void opEstoyDisponible(uint32_t fd, char * payload, uint32_t longitudMensaje){
@@ -245,13 +245,19 @@ void opRetornoCPUPorES(uint32_t fd, char * payload, uint32_t longitudMensaje){
 
 void opRetornoCPUFin(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	printf("Retorno de CPU por Finalizacion\n");
-	t_iPCBaCPU * datosPCB = recibir_pcb_de_cpu(fd);
+	//t_iPCBaCPU * datosPCB = recibir_pcb_de_cpu(fd);
+	t_iPCBaCPU * datosPCB = deserializarRetornoPCBdeCPU(payload);
 	pthread_mutex_lock(&kernel->mutex_cpus);
 	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
 	pthread_mutex_unlock(&kernel->mutex_cpus);
 	modificarPCB(cpu->pcb, datosPCB);
-	pasarACola(cola_exit, cpu->pcb);
+	pthread_mutex_lock(&kernel->mutex_programas);
+	t_programa *programa = dictionary_get(kernel->programas,string_from_format("%d",cpu->pcb->id));
+	programa->mensajeFIN="El programa Finalizo correctamente";
+	pthread_mutex_unlock(&kernel->mutex_programas);
+	cola_push(cola_exit, cpu->pcb);
 	poner_cpu_no_disponible(cpu);
+	// poner un mensaje de fin lindo
 	sem_post(sem_exit);
 }
 
@@ -313,6 +319,7 @@ void opImprimirValor(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	pthread_mutex_lock(&kernel->mutex_cpus);
 	t_CPU *cpu = dictionary_get(cpus, string_from_format("%d",fd));
 	pthread_mutex_unlock(&kernel->mutex_cpus);
+
 	pthread_mutex_lock(&kernel->mutex_programas);
 	t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",cpu->pcb->id));
 	pthread_mutex_unlock(&kernel->mutex_programas);
@@ -320,7 +327,7 @@ void opImprimirValor(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	memcpy(&valor,payload,sizeof(int32_t));
 	printf("valor %d\n",valor);
 
-	pasar_dato_a_imprimir(payload, longitudMensaje, programa->fd, imprimirValor);// VER Con Silvina ¿imprime el PCP?
+	pasar_dato_a_imprimir(payload, longitudMensaje, programa->fd, imprimirValor);
 }
 
 void opImprimirTexto(uint32_t fd, char * payload, uint32_t longitudMensaje){
