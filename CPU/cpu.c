@@ -38,8 +38,8 @@ int main(int argc, char **argv){
 	};
 
 	AnSISOP_kernel funciones_kernel = {
-		.AnSISOP_signal = GameOfThread_wait,
-		.AnSISOP_wait = GameOfThread_signal
+		.AnSISOP_signal = GameOfThread_signal,
+		.AnSISOP_wait = GameOfThread_wait
 	};
 
 	/* Fin Primitivas */
@@ -308,6 +308,7 @@ package *Leer(t_pun base,t_pun offset,t_pun tamanio){
 	enviar_paquete(solicitud,socketUMV);
 	destruir_paquete(solicitud);
 	solicitud = recibir_paquete(socketUMV);
+	// analizar tipo de mensaje recibido si es error ....b;eh
 	memcpy(&err,solicitud->payload,sizeof(int32_t));
 	if(err == -1){
 		notificarError_kernel("Segmentation Fault");

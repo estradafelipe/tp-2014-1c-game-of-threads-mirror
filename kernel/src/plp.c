@@ -59,22 +59,23 @@ void destruirSegmentos(int pcbid){
 
 }
 
-t_puntero recibirSegmento(){
-	t_puntero segmento;
+int32_t recibirSegmento(){
+	int32_t segmento;
 	package *paquete_recibido = recibir_paquete(kernel->fd_UMV);
 	if (paquete_recibido->type == respuestaUmv){
-		memcpy(&segmento,paquete_recibido->payload, sizeof(t_puntero));
+		memcpy(&segmento,paquete_recibido->payload, sizeof(int32_t));
 		if (segmento!=-1) log_debug(logger,string_from_format("Base del nuevo segmento: %d\n",segmento));
 		else log_debug(logger,string_from_format("No hubo espacio suficiente para el segmento"));
 	}
+	printf("recibi de la umv segmento : %d\n",segmento);
 	destruir_paquete(paquete_recibido);
 	return segmento;
 }
-t_puntero recibirRespuestaEscritura(){
-	t_puntero bytesEscritos;
+int32_t recibirRespuestaEscritura(){
+	int32_t bytesEscritos;
 	package *paquete_recibido = recibir_paquete(kernel->fd_UMV);
 	if (paquete_recibido->type == respuestaUmv){
-		memcpy(&bytesEscritos,paquete_recibido->payload, sizeof(t_puntero));
+		memcpy(&bytesEscritos,paquete_recibido->payload, sizeof(int32_t));
 		if (bytesEscritos==-1) log_debug(logger,string_from_format("Error al escribir en el segmento (UMV)\n"));
 		else log_debug(logger,string_from_format("Escritura en el segmento: %d\n",bytesEscritos));
 	}
@@ -82,7 +83,7 @@ t_puntero recibirRespuestaEscritura(){
 	return bytesEscritos;
 }
 //base,offset,size,buffer
-int enviarBytesUMV(t_puntero base, t_puntero size, void * buffer){
+int32_t enviarBytesUMV(t_puntero base, t_puntero size, void * buffer){
 	log_debug(logger,string_from_format("solicito escritura en segmento %d, tamanio: %d\n ",base,size));
 	t_solicitudEscritura *envioBytes = malloc(sizeof(t_solicitudEscritura));
 	// Segmento de Codigo
@@ -112,8 +113,8 @@ t_puntero solicitarSegmento(t_crearSegmentoUMV *segmento){
 	return recibirSegmento();
 }
 
-t_puntero solicitudSegmento(t_puntero id, t_puntero size){
-	t_puntero dirSegmento;
+int32_t solicitudSegmento(t_puntero id, t_puntero size){
+	int32_t dirSegmento;
 	t_crearSegmentoUMV *crearSegmento = malloc(sizeof(t_crearSegmentoUMV));
 	crearSegmento->programid = id;
 	crearSegmento->size = size;
@@ -127,24 +128,27 @@ t_puntero solicitudSegmento(t_puntero id, t_puntero size){
 
 bool solicitarSegmentosUMV(char *codigo, uint16_t codigoSize, t_medatada_program *programa, t_PCB *pcb){
 
-	t_puntero dirSegmento;
+	int32_t dirSegmento;
 	t_crearSegmentoUMV *crearSegmento = malloc(sizeof(t_crearSegmentoUMV));
 
-
+	printf("solicito segmento de codigo tamanio %d\n",codigoSize);
 	// Segmento de Codigo
 	dirSegmento = solicitudSegmento(pcb->id,codigoSize);
 	if (dirSegmento==-1)
 		return false;
 	else pcb->segmentoCodigo = dirSegmento;
+	printf("SEGMENTO DE CODIGO %d, %d\n",dirSegmento,pcb->segmentoCodigo);
 
-
+	printf("solicito segmento de stack tamanio %d\n",kernel->sizeStack);
 	// Segmento de Stack
 	dirSegmento = solicitudSegmento(pcb->id,kernel->sizeStack);
 	if(dirSegmento == -1){
-		return false;
 	} else pcb->segmentoStack = dirSegmento;
+	printf("SEGMENTO DE STACK %d, %d\n",dirSegmento,pcb->segmentoStack);
+
 
 	if (programa->etiquetas_size>0){
+		printf("solicito INDICE DE ETIQUETAS tamanio %d\n",programa->etiquetas_size);
 		//Indice de Etiquetas
 		dirSegmento = solicitudSegmento(pcb->id,programa->etiquetas_size);
 		if(dirSegmento == -1){
@@ -154,18 +158,20 @@ bool solicitarSegmentosUMV(char *codigo, uint16_t codigoSize, t_medatada_program
 			pcb->sizeIndexLabel = programa->etiquetas_size;
 		}
 	}
+	printf("INDICE DE ETIQUETAS %d, %d\n",dirSegmento,pcb->indiceEtiquetas);
 
+	printf("solicito INDICE DE CODIGO tamanio %d\n",(programa->instrucciones_size*8));
 	//Indice de Codigo
 	dirSegmento = solicitudSegmento(pcb->id,(programa->instrucciones_size*8));
 	if(dirSegmento == -1){
 		return false;
 	} else pcb->indiceCodigo = dirSegmento;
-
+	printf("INDICE DE codigo %d, %d\n",dirSegmento,pcb->indiceCodigo);
 	pcb->sizeContext=0;
 	pcb->cursorStack = 0; //offset
 	pcb->programcounter = programa->instruccion_inicio;
 
-	int rta;
+	int32_t rta;
 	rta = enviarBytesUMV(pcb->segmentoCodigo,codigoSize,codigo); // Segmento de Codigo
 	if (rta==-1){
 		destruirSegmentos(pcb->id);
@@ -307,6 +313,14 @@ t_PCB *crearPCB(int fd, t_medatada_program *element){
 
 	ultimoid++;
 	pcb->id = ultimoid;
+	pcb->indiceCodigo = 0;
+	pcb->indiceEtiquetas = 0;
+	pcb->programcounter = 0;
+	pcb->segmentoCodigo = 0;
+	pcb->segmentoStack = 0;
+	pcb->sizeContext = 0;
+	pcb->sizeIndexLabel = 0;
+	pcb->cursorStack = 0;
 
 	// crea programa
 	programa->fd = fd;

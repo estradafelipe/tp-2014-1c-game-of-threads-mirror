@@ -16,11 +16,11 @@ char *pathconfig;
 
 /* Envia mensaje a cpu de que el programa se debe bloquear
  * como respuesta a un WAIT */
-void bloqueo_por_semaforo(t_CPU *cpu){
+void bloqueo_por_semaforo(uint32_t fd){
 	char *payload = "bloquear"; // por mandar algo
 	int size = strlen(payload) +1;
 	package *paquete = crear_paquete(bloquearProgramaCPU,payload,size);
-	enviar_paquete(paquete,cpu->fd);
+	enviar_paquete(paquete,fd);
 	destruir_paquete(paquete);
 }
 
@@ -43,41 +43,65 @@ void crea_tablasSitema(){
 	kernel->semaforos = dictionary_create();
 	kernel->entradasalida = dictionary_create();
 	kernel->cpus = dictionary_create();
+	kernel->variables_compartidas = dictionary_create();
 	// Crea tabla de semaforos
 	i = 0;
 	while (1) {
 		if (kernel->semaforosid[i]!='\0'){
+			pthread_mutex_t *mutex = malloc(sizeof(pthread_mutex_t));
+			pthread_mutex_init(mutex,NULL);
 			t_semaforo *SEM = malloc(sizeof(t_semaforo));
-			SEM->id = kernel->semaforosid[i];
+			char * nombre = kernel->semaforosid[i];
+			//SEM->id = strdup(kernel->semaforosid[i]);
+			//memcpy(SEM->id,nombre,strlen(nombre)+1);
+			SEM->id = string_duplicate(nombre);
 			SEM->valor = atoi(kernel->semaforosvalor[i]);
 			SEM->cola = cola_create();
-			SEM->mutex = malloc(sizeof(pthread_mutex_t));
-			pthread_mutex_init(SEM->mutex,NULL);
-			dictionary_put(kernel->semaforos,kernel->semaforosid[i],SEM);
+			SEM->mutex = mutex;
+			printf("Se crea semaforo %s, valor %d strlen %d\n",SEM->id, SEM->valor,strlen(SEM->id));
+			dictionary_put(kernel->semaforos,SEM->id,SEM);
+
 			i++;
 		}else break;
 
 	}
+	// Crea tabla variables compartidas
+	if (kernel->compartidasid!=NULL){
+		i = 0;
+		while (1) {
+			if (kernel->compartidasid[i]!='\0'){
+				pthread_mutex_t *mutex = malloc(sizeof(pthread_mutex_t));
+				pthread_mutex_init(mutex,NULL);
+				t_variable_compartida *VAR = malloc(sizeof(t_variable_compartida));
+				VAR->nombre = kernel->compartidasid[i];
+				VAR->valor = 0; // esto esta bien?
+				VAR->mutex = mutex;
+				dictionary_put(kernel->variables_compartidas,VAR->nombre,VAR);
 
+				i++;
+			}else break;
+		}
+	}
 	// Crea tabla de IO
-	i = 0;
-	while (1) {
-		if (kernel->entradasalidaid[i]!='\0'){
-
-			t_entradasalida *IO = malloc(sizeof(t_entradasalida));
-			IO->id = kernel->entradasalidaid[i];
-			IO->retardo = atoi(kernel->entradasalidaret[i]);
-			IO->semaforo_IO = malloc(sizeof(sem_t));
-			IO->cola = cola_create();
-			sem_init(IO->semaforo_IO,0,0); //inicializo semaforo del hilo en 0
-			dictionary_put(kernel->entradasalida,IO->id,IO);
-			i++;
-		}else break;
+	if (kernel->entradasalidaid!=NULL){
+		i = 0;
+		while (1) {
+			if (kernel->entradasalidaid[i]!='\0'){
+				t_entradasalida *IO = malloc(sizeof(t_entradasalida));
+				IO->id = kernel->entradasalidaid[i];
+				IO->retardo = atoi(kernel->entradasalidaret[i]);
+				IO->semaforo_IO = malloc(sizeof(sem_t));
+				IO->cola = cola_create();
+				sem_init(IO->semaforo_IO,0,0); //inicializo semaforo del hilo en 0
+				dictionary_put(kernel->entradasalida,IO->id,IO);
+				i++;
+			}else break;
+		}
 	}
-
 }
 
 void wait_semaforo(char *semaforo,uint32_t fd){
+	printf("wait al semaforo %s\n", semaforo);
 
 	if (dictionary_has_key(kernel->semaforos,semaforo)){
 		t_semaforo *SEM = dictionary_get(kernel->semaforos,semaforo);
@@ -87,11 +111,11 @@ void wait_semaforo(char *semaforo,uint32_t fd){
 		SEM->valor --;
 		log_debug(logger, string_from_format(" y ahora pasa a tener el valor %d ",SEM->valor));
 		if (SEM->valor<0){
-			bloqueo_por_semaforo(cpu);
-			t_iPCBaCPU * datosPCB = recibir_pcb_de_cpu(cpu->fd);
-			modificarPCB(cpu->pcb, datosPCB);
+
+			bloqueo_por_semaforo(fd);
+			printf("Envio mensaje a la cpu");
 			cola_push(SEM->cola, cpu->pcb);
-			poner_cpu_no_disponible(cpu);
+			printf("puse el pcb en la cola de bloqueados del SEM");
 		}else semaforo_libre(cpu);
 
 		pthread_mutex_unlock(SEM->mutex);
@@ -100,6 +124,8 @@ void wait_semaforo(char *semaforo,uint32_t fd){
 }
 
 void signal_semaforo(char *semaforo){
+	printf("Signal al semaforo %s strlen %d\n",semaforo,strlen(semaforo));
+	if (dictionary_has_key(kernel->semaforos,semaforo)){
 	t_semaforo *SEM = dictionary_get(kernel->semaforos,semaforo);
 	pthread_mutex_lock(SEM->mutex);
 	SEM->valor ++;
@@ -107,9 +133,10 @@ void signal_semaforo(char *semaforo){
 	if (SEM->valor<=0){
 		t_PCB *PCB = cola_pop(SEM->cola);
 		cola_push(cola_ready, PCB);	// sacar a un programa de la cola
-		// envia una confirmacion?
+		sem_post(sem_estado_listo);
 	}
 	pthread_mutex_unlock(SEM->mutex);
+	}else printf("no existe el semaforo!");
 }
 
 

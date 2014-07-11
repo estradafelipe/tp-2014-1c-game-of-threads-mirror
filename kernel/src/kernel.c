@@ -76,10 +76,14 @@ void leerconfiguracion(char *path_config){
 	key = "ID_HIO";
 	if (config_has_property(config,key))
 		kernel->entradasalidaid =	config_get_array_value(config,key);
+	else kernel->entradasalidaid = NULL;
 	key = "HIO";
 	if (config_has_property(config,key))
 		kernel->entradasalidaret =	config_get_array_value(config,key);
-
+	key = "COMPARTIDAS";
+	if (config_has_property(config,key))
+		kernel->compartidasid =	config_get_array_value(config,key);
+	else  kernel->compartidasid =NULL;
 	kernel->programas = dictionary_create();
 	kernel->cpus = dictionary_create();
 	pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
