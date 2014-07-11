@@ -70,8 +70,6 @@ t_valor_variable GameOfThread_obtenerValorCompartida(t_nombre_compartida variabl
 	log_trace(logger,"Ejecutando Primitiva GameOfThread_obtenerValorCompartida");
 	package *paquete;
 	t_valor_variable val;
-	//char * nombre = strdup(variable);
-	//string_trim(&nombre);
 
 	char *payload = malloc(strlen(variable));
 	memcpy(payload,variable,strlen(variable));
@@ -80,7 +78,7 @@ t_valor_variable GameOfThread_obtenerValorCompartida(t_nombre_compartida variabl
 
 
 	printf("variable compartida: %s\n",varcomp);
-	paquete = crear_paquete(solicitarValorVariableCompartida,varcomp,strlen(varcomp));
+	paquete = crear_paquete(solicitarValorVariableCompartida,varcomp,strlen(varcomp)+1);
 	enviar_paquete(paquete,socketKernel);
 	destruir_paquete(paquete);
 	paquete = recibir_paquete(socketKernel);
@@ -357,10 +355,12 @@ void GameOfThread_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
 void GameOfThread_wait(t_nombre_semaforo identificador_semaforo){
 	log_trace(logger,"Ejecutando Primitiva GameOfThread_wait");
 	package *paquete;
+
 	char *payload = malloc(strlen(identificador_semaforo));
 	memcpy(payload,identificador_semaforo,strlen(identificador_semaforo));
 	char *semaforo=strdup(identificador_semaforo);
 	string_trim(&semaforo);
+
 	paquete = crear_paquete(tomarSemaforo,semaforo,strlen(semaforo));
 	enviar_paquete(paquete,socketKernel);
 	destruir_paquete(paquete);
@@ -388,10 +388,14 @@ void GameOfThread_signal(t_nombre_semaforo identificador_semaforo){
 	log_trace(logger,"Ejecutando Primitiva GameOfThread_signal");
 
 	package *paquete;
+
+
 	char *payload = malloc(strlen(identificador_semaforo));
 	memcpy(payload,identificador_semaforo,strlen(identificador_semaforo));
-	string_trim(&payload);
-	paquete = crear_paquete(liberarSemaforo,payload,strlen(identificador_semaforo));
+	char *semaforo=strdup(identificador_semaforo);
+	string_trim(&semaforo);
+
+	paquete = crear_paquete(liberarSemaforo,semaforo,strlen(semaforo));
 	enviar_paquete(paquete,socketKernel);
 	destruir_paquete(paquete);
 	log_debug(logger,"Hubo un signal del semaforo %s ",identificador_semaforo);
