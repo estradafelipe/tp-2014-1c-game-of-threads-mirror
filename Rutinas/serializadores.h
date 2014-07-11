@@ -105,7 +105,7 @@ char * serializar_datos_pcb_para_cpu(t_PCB * pcb);
 t_iPCBaCPU * deserializarRetornoPCBdeCPU(char *);
 
 char* serializar_mensaje_ES(t_iESdeCPU*);
-t_iESdeCPU * deserializar_mensaje_ES(char *);
+t_iESdeCPU * deserializar_mensaje_ES(char *, uint32_t);
 
 char * deserializar_mensaje_excepcion(char *, uint32_t);
 
