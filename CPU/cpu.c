@@ -142,7 +142,6 @@ int main(int argc, char **argv){
 				memcpy(&datos->longitud,paq->payload + sizeof(int32_t),sizeof(int32_t));
 
 				paq = Leer(pcb->segmentoCodigo,datos->inicio,datos->longitud);
-				log_debug(logger,"Inicio :%d , Longitud:%d",datos->inicio,datos->longitud);
 				instruccionAnsisop = strndup(paq->payload,paq->payloadLength);
 				log_debug(logger, "PC: %d, INSTRUCCION: %s",pcb->programcounter,instruccionAnsisop);
 				analizadorLinea(instruccionAnsisop,&primitivas,&funciones_kernel);
@@ -309,6 +308,7 @@ package *Leer(t_pun base,t_pun offset,t_pun tamanio){
 	enviar_paquete(solicitud,socketUMV);
 	destruir_paquete(solicitud);
 	solicitud = recibir_paquete(socketUMV);
+	// analizar tipo de mensaje recibido si es error ....b;eh
 	memcpy(&err,solicitud->payload,sizeof(int32_t));
 	if(err == -1){
 		notificarError_kernel("Segmentation Fault");

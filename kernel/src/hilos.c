@@ -133,7 +133,7 @@ void signal_semaforo(char *semaforo){
 	if (SEM->valor<=0){
 		t_PCB *PCB = cola_pop(SEM->cola);
 		cola_push(cola_ready, PCB);	// sacar a un programa de la cola
-		// envia una confirmacion?
+		sem_post(sem_estado_listo);
 	}
 	pthread_mutex_unlock(SEM->mutex);
 	}else printf("no existe el semaforo!");
