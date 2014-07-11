@@ -119,7 +119,7 @@ t_valor_variable GameOfThread_asignarValorCompartida(t_nombre_compartida variabl
 }
 void GameOfThread_irAlLabel(t_nombre_etiqueta etiqueta){
 	log_trace(logger,"Ejecutando Primitiva GameOfThread_irAlLabel");
-	char* etiq = strndup(etiqueta,strlen(etiqueta)- 1);
+	char* etiq = strndup(etiqueta,strlen(etiqueta)); //-1
 	package* paq = malloc(sizeof(package));
 	t_puntero_instruccion instruccion;
 	log_debug(logger, "Pidiendo indiceEtiquetas a la UMV");
@@ -226,6 +226,8 @@ void GameOfThread_finalizar(void){
 		dictionary_clean(diccionarioVariables);
 		notificar_kernel(retornoCPUFin);
 		quantumPrograma = quantumKernel;
+		paquete=recibir_paquete(socketKernel);
+		destruir_paquete(paquete);
 		finprograma = true;
 	} else {
 		log_debug(logger,"Hay instrucciones para seguir ejecutando");
@@ -375,6 +377,8 @@ void GameOfThread_wait(t_nombre_semaforo identificador_semaforo){
 		destruir_paquete(paquete);
 		paquete = crear_paquete(retornoCPUBloqueado,payload,sizeof(t_pun)*5);
 		enviar_paquete(paquete,socketKernel);
+		destruir_paquete(paquete);
+		paquete=recibir_paquete(socketKernel);
 		finprograma = true;
 	}
 	destruir_paquete(paquete);
