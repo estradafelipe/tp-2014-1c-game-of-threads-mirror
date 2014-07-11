@@ -56,7 +56,9 @@ void destruirSegmentos(int pcbid){
 	printf("Solicito destruccion segmentos\n");
 	package *paquete = crear_paquete(destruccionSegmentos,payload,sizeof(int));
 	enviar_paquete(paquete,kernel->fd_UMV);
-
+	destruir_paquete(paquete);
+	paquete=recibir_paquete(kernel->fd_UMV);
+	destruir_paquete(paquete);
 }
 
 int32_t recibirSegmento(){
