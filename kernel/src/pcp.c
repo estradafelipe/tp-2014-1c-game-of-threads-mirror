@@ -233,7 +233,10 @@ void mandarA_ES(t_entradasalida *dispositivo, t_PCB * pcb, int tiempo){
 void opRetornoCPUPorES(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	printf("Retorno de CPU por E/S\n");
 	t_iESdeCPU * datosES = deserializar_mensaje_ES(payload);
-	t_iPCBaCPU * datosPCB = recibir_pcb_de_cpu(fd);
+	char * streamPCB;
+	int tamanioDatosES = sizeof(int32_t)+datosES->tamanioID;
+	memcpy(streamPCB, payload+tamanioDatosES, longitudMensaje- tamanioDatosES);
+	t_iPCBaCPU * datosPCB = deserializarRetornoPCBdeCPU(streamPCB);
 	t_CPU *cpu = dictionary_get(kernel->cpus, string_from_format("%d",fd));
 	modificarPCB(cpu->pcb, datosPCB);
 	poner_cpu_no_disponible(cpu);
