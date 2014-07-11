@@ -575,6 +575,7 @@ void hiloPLP(){
 	sem_new = malloc(sizeof(sem_t));
 	sem_init(sem_new,0,0);
 	sem_init(sem_multiprogramacion,0,kernel->multiprogramacion);
+
 	// Conectarse a la UMV
 	int resconn = conectarConUMV();
 
