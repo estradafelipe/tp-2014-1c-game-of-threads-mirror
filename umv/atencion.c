@@ -69,6 +69,7 @@ int atenderKernel(int fd){
 		paquete = recibir_paquete(fd);
 		bytesRecibidos = paquete->payloadLength;
 		tipo = paquete->type;
+		printf("tipo paquete: %d    tamañoPayload: %d\n",tipo, bytesRecibidos);
 		if(bytesRecibidos>0){
 			log_debug(logger, "Se recibio algo del KERNEL");
 			switch(tipo){

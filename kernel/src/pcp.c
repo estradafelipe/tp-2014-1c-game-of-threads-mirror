@@ -251,7 +251,9 @@ void opRetornoCPUPorES(uint32_t fd, char * payload, uint32_t longitudMensaje){
 
 void opRetornoCPUBloqueado(uint32_t fd, char * payload, uint32_t longitudMensaje){
 		printf("Retorno CPU x Bloqueado\n");
+		pthread_mutex_lock(&kernel->mutex_cpus);
 		t_CPU *cpu = dictionary_get(kernel->cpus, string_from_format("%d",fd));
+		pthread_mutex_unlock(&kernel->mutex_cpus);
 		t_iPCBaCPU *datosPCB = deserializarRetornoPCBdeCPU(payload);
 		modificarPCB(cpu->pcb, datosPCB);
 		printf("datosPCB actualizado id %d, indice %d, pc %d, sizecontext %d, cursor %d\nSEGMENTO DE CODIGO: %d\n",cpu->pcb->id, cpu->pcb->indiceEtiquetas, cpu->pcb->programcounter, cpu->pcb->sizeContext, cpu->pcb->cursorStack,cpu->pcb->segmentoCodigo);

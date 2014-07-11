@@ -144,6 +144,7 @@ int main(int argc, char **argv){
 				paq = Leer(pcb->segmentoCodigo,datos->inicio,datos->longitud);
 				instruccionAnsisop = strndup(paq->payload,paq->payloadLength);
 				log_debug(logger, "PC: %d, INSTRUCCION: %s",pcb->programcounter,instruccionAnsisop);
+				printf("Instruccion: %s", instruccionAnsisop);
 				analizadorLinea(instruccionAnsisop,&primitivas,&funciones_kernel);
 
 				quantumPrograma ++;
