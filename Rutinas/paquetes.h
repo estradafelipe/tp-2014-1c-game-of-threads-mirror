@@ -48,6 +48,7 @@ typedef enum nipc_type{
 	entrada_salida,
 	error_label,							//No se encuentra la instruccion asociada a la etiqueta
 	cpuDesconectada,
+	mandaPCB
 }t_paquete;
 
 
