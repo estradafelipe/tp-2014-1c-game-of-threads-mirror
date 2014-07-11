@@ -347,3 +347,14 @@ void Escribir(t_pun base, t_pun offset, t_pun tamanio, char* buffer){
 		//exit(1); no tiene que terminar la cpu
 	}
 }
+
+char* quitarSaltoLinea(char* cadena){
+	int i;
+	while(cadena[i]!= '\0'){
+		if(cadena[i]=='\n'){
+			cadena[i]='\0';
+		}
+		i++;
+	}
+	return cadena;
+}

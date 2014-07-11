@@ -37,6 +37,7 @@ void handshake(t_paquete);
 
 package *Leer(t_pun base,t_pun offset,t_pun tamanio);
 void Escribir(t_pun base, t_pun offset, t_pun tamanio, char* buffer);
+char* quitarSaltoLinea(char* cadena);
 
 //Defino variables globales a la CPU
 t_dictionary *diccionarioVariables;

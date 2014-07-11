@@ -265,6 +265,7 @@ t_iESdeCPU * deserializar_mensaje_ES(char * payload, uint32_t longitud){
 		datosES->id = malloc(datosES->tamanioID);
 		memcpy(datosES->id, payload+offset, size);
 		return datosES;
+
 }
 
 char * deserializar_mensaje_excepcion(char * cadena, uint32_t longitud){

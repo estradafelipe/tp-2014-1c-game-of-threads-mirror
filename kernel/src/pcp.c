@@ -259,7 +259,7 @@ void opRetornoCPUBloqueado(uint32_t fd, char * payload, uint32_t longitudMensaje
 		printf("datosPCB actualizado id %d, indice %d, pc %d, sizecontext %d, cursor %d\nSEGMENTO DE CODIGO: %d\n",cpu->pcb->id, cpu->pcb->indiceEtiquetas, cpu->pcb->programcounter, cpu->pcb->sizeContext, cpu->pcb->cursorStack,cpu->pcb->segmentoCodigo);
 		poner_cpu_no_disponible(cpu);
 		package *respuesta = crear_paquete(respuestaCPU, "respuesta",9);
-		enviar_paquete(respuesta,fd); // agregar recibir este mensaje en el wait del cpu
+		enviar_paquete(respuesta,fd);
 }
 
 void opRetornoCPUFin(uint32_t fd, char * payload, uint32_t longitudMensaje){
@@ -365,6 +365,7 @@ void opImprimirTexto(uint32_t fd, char * payload, uint32_t longitudMensaje){
 }
 
 void opTomarSemaforo(uint32_t fd, char * payload, uint32_t longitudMensaje){
+
 	printf("Tomar semaforo %sholaquetal\n",payload);
 	char * nombre_semaforo = deserializar_nombre_recurso(payload, longitudMensaje);
 	printf("semaforo deserializado %sholaquetal\n",nombre_semaforo);
@@ -373,7 +374,7 @@ void opTomarSemaforo(uint32_t fd, char * payload, uint32_t longitudMensaje){
 
 void opLiberarSemaforo(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	printf("Liberar semaforo\n");
-	char * nombre_semaforo = payload;//deserializar_nombre_recurso(payload, longitudMensaje);
+	char * nombre_semaforo = deserializar_nombre_recurso(payload, longitudMensaje);
 	signal_semaforo(nombre_semaforo);
 }
 
@@ -384,9 +385,12 @@ char * serializar_valor_variable_compartida(int32_t valor){
 }
 
 void opSolicitarValorVariableCompartida(uint32_t fd, char * payload, uint32_t longitudMensaje){
-	printf("Solicitud de variable %s\n",payload);
-	if (dictionary_has_key(kernel->variables_compartidas,string_from_format("%s",payload))){
-		t_variable_compartida * variable_compartida = dictionary_get(kernel->variables_compartidas, string_from_format("%s",payload));
+
+	char * variable = malloc(sizeof(longitudMensaje));
+	memcpy(variable,payload,longitudMensaje);
+	printf("Solicitud de variable %s\n",variable);
+	if (dictionary_has_key(kernel->variables_compartidas,variable)){
+		t_variable_compartida * variable_compartida = dictionary_get(kernel->variables_compartidas, variable);
 		pthread_mutex_lock(variable_compartida->mutex);
 		char * valor_variable_compartida = serializar_valor_variable_compartida(variable_compartida->valor);
 		package *paquete = crear_paquete(solicitarValorVariableCompartida, valor_variable_compartida, sizeof(int32_t));
@@ -420,6 +424,7 @@ void opAsignarValorVariableCompartida(uint32_t fd, char * payload, uint32_t long
 		destruir_paquete(paquete);
 	}
 	else printf("No encontro la avariable compartida\n");
+
 }
 
 void pasarACola(t_cola* cola, void *element){
