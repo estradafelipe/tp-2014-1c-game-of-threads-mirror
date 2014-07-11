@@ -268,6 +268,10 @@ void opRetornoCPUFin(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	pthread_mutex_unlock(&kernel->mutex_cpus);
 	modificarPCB(cpu->pcb, datosPCB);
 	printf("datosPCB actualizado id %d, indice %d, pc %d, sizecontext %d, cursor %d\nSEGMENTO DE CODIGO: %d\n",cpu->pcb->id, cpu->pcb->indiceEtiquetas, cpu->pcb->programcounter, cpu->pcb->sizeContext, cpu->pcb->cursorStack,cpu->pcb->segmentoCodigo);
+
+	package *respuesta = crear_paquete(respuestaCPU, "respuesta",9);
+	enviar_paquete(respuesta,fd);
+
 	pthread_mutex_lock(&kernel->mutex_programas);
 	t_programa *programa = dictionary_get(kernel->programas,string_from_format("%d",cpu->pcb->id));
 	programa->mensajeFIN="El programa Finalizo correctamente";

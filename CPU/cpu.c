@@ -255,6 +255,7 @@ void notificarError_kernel(char* error){
 //	free(pcb);
 	log_debug(logger,error);
 	quantumPrograma = quantumKernel;
+	finprograma = true;
 }
 
 void handshake(t_paquete pa){
