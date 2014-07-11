@@ -320,16 +320,35 @@ void GameOfThread_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
 	t_iESdeCPU *es = malloc(sizeof(t_iESdeCPU));
 	package *paquete;
 
-	memcpy(es->id,dispositivo,strlen(dispositivo));
+	char *nombre = malloc(strlen(dispositivo));
+	memcpy(nombre,dispositivo,strlen(dispositivo));
+	string_trim(&nombre);
+
+	quantumPrograma = quantumKernel;
+	pcb->programcounter++;
+
+	es->id = nombre;
+	//memcpy(es->id,dispositivo,strlen(dispositivo));
 	es->tiempo = tiempo;
 	es->tamanioID = strlen(dispositivo);
 
-	char* payload = serializar_mensaje_ES(es);
+	int tamanioDatosES = strlen(dispositivo) + sizeof(int32_t)*2;
+	char* IOSerializada = serializar_mensaje_ES(es);
 
-	paquete = crear_paquete(entrada_salida,payload,sizeof(int32_t)*2 + strlen(es->id));
+	char* PCBSerializado = serializar_datos_pcb_para_cpu(pcb);
+	int size = (sizeof(int32_t)*2) + (sizeof(t_pun)*5) + strlen(dispositivo);
+
+	char* payload = malloc(size);
+	memcpy(payload,IOSerializada,tamanioDatosES);
+	memcpy(payload + tamanioDatosES,PCBSerializado,sizeof(t_pun)*5);
+
+	paquete = crear_paquete(retornoCPUPorES,payload,size);
 	enviar_paquete(paquete,socketKernel);
+
+	paquete=recibir_paquete(socketKernel);
+	printf("recibi respuesta\n");
 	destruir_paquete(paquete);
-	quantumPrograma = quantumKernel;
+	finprograma = true;
 
 }
 

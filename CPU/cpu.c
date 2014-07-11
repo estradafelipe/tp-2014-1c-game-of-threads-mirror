@@ -158,6 +158,9 @@ int main(int argc, char **argv){
 				enviar_paquete(respuesta,socketKernel);
 				log_debug(logger,"SE ENVIO EL PCB AL KERNEL, tipo paquete: %d",respuesta->type);
 				destruir_paquete(respuesta);
+				respuesta=recibir_paquete(socketKernel);
+				printf("recibi respuesta\n");
+				destruir_paquete(respuesta);
 			}
 
 			if (desconectarse == true){
@@ -219,8 +222,8 @@ void notificar_kernel(t_paquete pa){
 		switch(pa){
 			case estoyDisponible:
 				paquete = crear_paquete(estoyDisponible,"ESTOY DISPONIBLE",strlen("ESTOY DISPONIBLE")+1);
-				enviar_paquete(paquete,socketKernel);
-				printf("Notifique al kernel que estoy disponible\n");
+				int resu=enviar_paquete(paquete,socketKernel);
+				printf("Notifique al kernel que estoy disponible %d\n",resu);
 				break;
 			case cpuDesconectada:
 				paquete =  crear_paquete(cpuDesconectada,"Me Desconecto",strlen("Me Desconecto")+1);

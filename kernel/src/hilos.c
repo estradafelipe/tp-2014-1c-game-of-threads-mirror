@@ -9,6 +9,7 @@
 extern t_kernel *kernel;
 extern sem_t *sem_estado_listo;
 extern sem_t *sem_exit;
+extern sem_t *sem_multiprogramacion;
 extern t_cola *cola_ready;
 extern t_log *logger;
 extern t_cola *cola_exit;
@@ -95,6 +96,7 @@ void crea_tablasSitema(){
 				sem_init(IO->semaforo_IO,0,0); //inicializo semaforo del hilo en 0
 				dictionary_put(kernel->entradasalida,IO->id,IO);
 				i++;
+				printf("Se crea IO %s, retardo %d strlen %d\n",IO->id, IO->retardo,strlen(IO->id));
 			}else break;
 		}
 	}
@@ -144,6 +146,7 @@ void hiloIO(t_entradasalida *IO){
 	// hilo de entrada salida
 	while(1){
 		sem_wait(IO->semaforo_IO); // cuando deba ejecutar este hilo, darle signal
+		printf("Va a ejecutar el dispositivo: %s",IO->id);
 		t_progIO *elemento = cola_pop(IO->cola);
 		// controlar que este activo el programa para no desperdiciar recurso
 		int retardo = IO->retardo * elemento->unidadesTiempo;
@@ -152,7 +155,9 @@ void hiloIO(t_entradasalida *IO){
 		if (!programa->estado){ 				//Verifico  si el programa esta activo
 			pasarACola(cola_exit, elemento->PCB);
 			sem_post(sem_exit);
+			sem_post(sem_multiprogramacion);
 		} else {
+			printf("Termino de ejecutar, para a Ready\n");
 			cola_push(cola_ready,elemento->PCB);
 			sem_post(sem_estado_listo);
 		}

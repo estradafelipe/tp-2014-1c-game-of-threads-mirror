@@ -58,7 +58,7 @@ void leerconfiguracion(char *path_config){
 	key = "QUANTUM";
 	if (config_has_property(config, key))
 		kernel->quantum = config_get_int_value(config, key);
-	key = "RETARDO";
+	key = "RETARDO_QUANTUM";
 	if (config_has_property(config, key))
 		kernel->retardo = config_get_int_value(config, key);
 	key = "MULTIPROGRAMACION";
@@ -73,7 +73,7 @@ void leerconfiguracion(char *path_config){
 	key = "VALOR_SEMAFORO";
 	if (config_has_property(config,key))
 		kernel->semaforosvalor =config_get_array_value(config,key);
-	key = "ID_HIO";
+	key = "ID_IO";
 	if (config_has_property(config,key))
 		kernel->entradasalidaid =	config_get_array_value(config,key);
 	else kernel->entradasalidaid = NULL;
