@@ -161,7 +161,7 @@ int32_t recibir(uint32_t descriptor, package* paquete) {
 //Destruir paquete
 
 void destruir_paquete(package *paquete) {
-	if ((paquete!=NULL)&&(paquete->payloadLength!=0)) {
+	if ((paquete!=NULL)&(paquete->payloadLength!=0)) {
 		if (paquete->payload !=NULL)
 			free(paquete->payload);
 		free(paquete);

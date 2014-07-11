@@ -100,12 +100,13 @@ t_valor_variable GameOfThread_asignarValorCompartida(t_nombre_compartida variabl
 	log_trace(logger,"Ejecutando Primitiva GameOfThread_asignarValorCompartida");
 	package *solicitud;
 	t_iVARCOM *asig = malloc(sizeof(t_iVARCOM));
-
+	asig->nombre = malloc(strlen(variable)+1);
 	asig->valor = valor;
-	asig->nombre = variable;
+	memcpy(asig->nombre,variable,strlen(variable)+1);
+	//asig->nombre = variable;
 	printf("variable compartida tamanio %d",sizeof(variable));
-	log_debug(logger, "Variable compartida: %s, valor a asignar: %d",variable,valor);
-	int32_t size = strlen(asig->nombre);
+	log_debug(logger, "Variable compartida: %s, valor a asignar: %d",asig->nombre,asig->valor);
+	int32_t size = strlen(asig->nombre)+1;
 	char* payload = serializar_datos_variable(asig,size);
 	solicitud =  crear_paquete(asignarValorVariableCompartida,payload,size+sizeof(int32_t));
 	enviar_paquete(solicitud,socketKernel);
@@ -119,14 +120,14 @@ t_valor_variable GameOfThread_asignarValorCompartida(t_nombre_compartida variabl
 }
 void GameOfThread_irAlLabel(t_nombre_etiqueta etiqueta){
 	log_trace(logger,"Ejecutando Primitiva GameOfThread_irAlLabel");
-	char* etiq = strndup(etiqueta,strlen(etiqueta)); //-1
+	char* etiq = strndup(etiqueta,strlen(etiqueta)-1);
 	package* paq = malloc(sizeof(package));
 	t_puntero_instruccion instruccion;
 	log_debug(logger, "Pidiendo indiceEtiquetas a la UMV");
 	paq=Leer(pcb->indiceEtiquetas,0,pcb->sizeIndexLabel);
 		
-	log_debug(logger, "La etiqueta buscada es: %s",etiq);
-	instruccion = metadata_buscar_etiqueta(etiq, paq->payload, pcb->sizeIndexLabel);
+	log_debug(logger, "La etiqueta buscada es: %s",quitarSaltoLinea(etiq));
+	instruccion = metadata_buscar_etiqueta(quitarSaltoLinea(etiq), paq->payload, pcb->sizeIndexLabel);
 	if (instruccion == -1){
 		notificarError_kernel("Error al encontrar label");
 	}
@@ -235,9 +236,8 @@ void GameOfThread_finalizar(void){
 		paquete = Leer(pcb->segmentoStack,pcb->cursorStack - 4, 4);
 		memcpy(&pcb->programcounter,paquete->payload,sizeof(t_pun));
 		destruir_paquete(paquete);
-		pcb->programcounter--;
 		log_debug(logger,"ProgramCounter a ejecutar: %d", pcb->programcounter);
-
+		pcb->programcounter--;
 		//Obtengo el Cursor del Contexto Anterior
 		paquete = Leer(pcb->segmentoStack,pcb->cursorStack - 8 , 4);
 		memcpy(&pcb->cursorStack,paquete->payload,sizeof(t_pun));
@@ -277,8 +277,8 @@ void GameOfThread_retornar(t_valor_variable retorno){
 	//Obtengo la proxima instruccion (Program Counter)
 	paquete = Leer(base,offset_tmp - 8, tamanio);
 	memcpy(&pcb->programcounter,paquete->payload,sizeof(t_pun));
-	pcb->programcounter--;
 	log_debug(logger, "Proxima instruccion a ejecutar: %d",pcb->programcounter);
+	pcb->programcounter--;
 	destruir_paquete(paquete);
 	//Cambio de Contexto
 	paquete = Leer(base,offset_tmp - 12, tamanio);

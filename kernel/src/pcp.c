@@ -418,6 +418,7 @@ void opAsignarValorVariableCompartida(uint32_t fd, char * payload, uint32_t long
 		destruir_paquete(paquete);
 	}
 	else printf("No encontro la avariable compartida\n");
+
 }
 
 void pasarACola(t_cola* cola, void *element){

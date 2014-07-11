@@ -62,7 +62,7 @@ void destruirSegmentos(int pcbid){
 }
 
 int32_t recibirSegmento(){
-	int32_t segmento=0;
+	int32_t segmento;
 	package *paquete_recibido = recibir_paquete(kernel->fd_UMV);
 	if (paquete_recibido->type == respuestaUmv){
 		memcpy(&segmento,paquete_recibido->payload, sizeof(int32_t));
