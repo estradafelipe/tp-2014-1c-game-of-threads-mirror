@@ -350,7 +350,7 @@ void Escribir(t_pun base, t_pun offset, t_pun tamanio, char* buffer){
 }
 
 char* quitarSaltoLinea(char* cadena){
-	int i;
+	int i=0;
 	while(cadena[i]!= '\0'){
 		if(cadena[i]=='\n'){
 			cadena[i]='\0';

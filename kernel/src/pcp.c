@@ -137,7 +137,7 @@ int enviar_pcb_a_cpu(t_PCB *pcb,t_CPU *cpu){
 	pthread_mutex_lock(&kernel->mutex_cpus);
 	cpu->pcb=pcb; //Poner en diccionario de PCBs que esta en ejecucion VER CON SILVINA
 	cpu->estado=CPU_CON_PROCESO;
-	printf("guarde en la cpu, el pcb %d\n",cpu->pcb->id);
+	printf("guarde en la cpu %d, el pcb %d. Estado %d\n",cpu->fd,cpu->pcb->id,cpu->estado);
 	pthread_mutex_unlock(&kernel->mutex_cpus);
 	return EXITO_ENVIO_PCB_A_CPU;
 }
@@ -173,7 +173,10 @@ void opRetornoCPUQuantum(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	pthread_mutex_lock(&kernel->mutex_cpus);
 	t_CPU *cpu = dictionary_get(kernel->cpus, string_from_format("%d",fd));
 	pthread_mutex_unlock(&kernel->mutex_cpus);
-	modificarPCB(cpu->pcb, datosPCB);
+	if(cpu->pcb!=NULL)
+		modificarPCB(cpu->pcb, datosPCB);
+	else
+		printf("La cpu no tenia PCB WTF!!\n");
 	printf("datosPCB actualizado id %d, indice %d, pc %d, sizecontext %d, cursor %d\n",cpu->pcb->id, cpu->pcb->indiceEtiquetas, cpu->pcb->programcounter, cpu->pcb->sizeContext, cpu->pcb->cursorStack);
 	cola_push(cola_ready, cpu->pcb);
 	printf("pase a ready el pcb\n");
@@ -307,12 +310,13 @@ void opRetornoCPUExcepcion(uint32_t fd, char * payload, uint32_t longitudMensaje
 }
 
 void opExcepcionCPUHardware(uint32_t fd){
-	printf("EX HARD Retorno de CPU por Excepcion Hardware\n");
+	printf("EX HARD Retorno de CPU %d por Excepcion Hardware\n",fd);
 	if (dictionary_has_key(kernel->cpus,string_from_format("%d",fd))){
 		pthread_mutex_lock(&kernel->mutex_cpus);
 		t_CPU * cpu = dictionary_remove(kernel->cpus, string_from_format("%d",fd));
 		pthread_mutex_unlock(&kernel->mutex_cpus);
 		printf("EX HARD Quite cpu del diccionario cpu\n");
+		printf("Estado de la CPU al desconectarse: %d\n",cpu->estado);
 		if (cpu->estado == CPU_CON_PROCESO){
 			if (dictionary_has_key(kernel->programas,string_from_format("%d",cpu->pcb->id))){
 				pthread_mutex_lock(&kernel->mutex_programas);
@@ -327,6 +331,7 @@ void opExcepcionCPUHardware(uint32_t fd){
 			}
 		} else {
 				cpu->estado=CPU_DESCONECTADA;
+				printf("Actualizo el estado de la CPU a %d\n",cpu->estado);
 		}
 	}
 }
@@ -566,11 +571,15 @@ void pasarListosAEjecucion(void){
 		} else {
 			log_debug(logger,string_from_format("Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion\n"));
 			t_CPU *cpu = cola_pop(cpus_disponibles);
+			printf("saque de la cola, la cpu %d, con Estado %d\n",cpu->fd,cpu->estado);
 			while(cpu->estado==CPU_DESCONECTADA){
+				printf("Encontre la CPU %d desconectada, la elimino\n",cpu->fd);
 				free(cpu);
 				sem_wait(sem_cpu_disponible);
-				t_CPU *cpu = cola_pop(cpus_disponibles);
+				cpu = cola_pop(cpus_disponibles);
+				printf("saque de la cola, la cpu %d, con Estado %d\n",cpu->fd,cpu->estado);
 			}
+			printf("Esta no estaba desconectada! %d\n",cpu->fd);
 			enviar_pcb_a_cpu(pcb,cpu);
 		}
 	}
