@@ -326,7 +326,7 @@ void opExcepcionCPUHardware(uint32_t fd){
 				sem_post(sem_multiprogramacion);
 			}
 		} else {
-				cpu->estado=-2;
+				cpu->estado=CPU_DESCONECTADA;
 		}
 	}
 }
@@ -555,9 +555,9 @@ void pasarListosAEjecucion(void){
 		} else {
 			log_debug(logger,string_from_format("Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion\n"));
 			t_CPU *cpu = cola_pop(cpus_disponibles);
-			while(cpu->estado==-2){
+			while(cpu->estado==CPU_DESCONECTADA){
 				free(cpu);
-				sem_post(sem_cpu_disponible);
+				sem_wait(sem_cpu_disponible);
 				t_CPU *cpu = cola_pop(cpus_disponibles);
 			}
 			enviar_pcb_a_cpu(pcb,cpu);
