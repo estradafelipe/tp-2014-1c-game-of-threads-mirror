@@ -77,7 +77,7 @@ typedef struct
 typedef struct
 {
 	uint32_t fd;     // file descriptor para socket del CPU
-	uint16_t estado;	// 0 Disponible 1 Ocupada -1 No Disponible
+	uint16_t estado;	// 0 Disponible 1 Ocupada -1 No Disponible -2 Se desconecto
 	t_PCB * pcb; // PCB
 }t_CPU;
 

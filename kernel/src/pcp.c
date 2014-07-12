@@ -325,6 +325,8 @@ void opExcepcionCPUHardware(uint32_t fd){
 				sem_post(sem_exit);
 				sem_post(sem_multiprogramacion);
 			}
+		} else {
+				cpu->estado=-2;
 		}
 	}
 }
@@ -502,7 +504,7 @@ void recibirCPU(void){
 						// conexión cerrada por el cliente
 						printf("selectserver: socket %d hung up\n", i);
 						close(i);
-						FD_CLR(i, &master); // Elimina del conjunto maestro, ¿saca de la copia del read_fs?
+						FD_CLR(i, &master); // Elimina del conjunto maestro
 						opExcepcionCPUHardware(i);
 					}
 					else {
@@ -553,6 +555,11 @@ void pasarListosAEjecucion(void){
 		} else {
 			log_debug(logger,string_from_format("Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion\n"));
 			t_CPU *cpu = cola_pop(cpus_disponibles);
+			while(cpu->estado==-2){
+				free(cpu);
+				sem_post(sem_cpu_disponible);
+				t_CPU *cpu = cola_pop(cpus_disponibles);
+			}
 			enviar_pcb_a_cpu(pcb,cpu);
 		}
 	}
