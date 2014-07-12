@@ -151,8 +151,6 @@ int32_t recibir(uint32_t descriptor, package* paquete) {
 	paquete->type=paquete_recibido->type;
 	paquete->payloadLength=paquete_recibido->payloadLength;
 	paquete->payload=paquete_recibido->payload;
-	printf("Tipo Paquete: %d   ", paquete->type);
-	printf("Tamaño del paquete: %d\n", bytes_recibidos);
 	free(paquete_recibido);		//NO HAGO DESTROY PORQUE EL PAYLOAD TODAVIA SIRVE!
 
 	return 1;

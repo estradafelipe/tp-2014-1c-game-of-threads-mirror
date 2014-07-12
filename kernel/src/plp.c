@@ -53,7 +53,7 @@ void destruirSegmentos(int pcbid){
 
 	char *payload = malloc(sizeof(int));
 	memcpy(payload,&pcbid,sizeof(int));
-	printf("Solicito destruccion segmentos\n");
+	log_debug(logger,"Solicito destruccion segmentos\n");
 	package *paquete = crear_paquete(destruccionSegmentos,payload,sizeof(int));
 	enviar_paquete(paquete,kernel->fd_UMV);
 	destruir_paquete(paquete);
@@ -133,24 +133,19 @@ bool solicitarSegmentosUMV(char *codigo, uint16_t codigoSize, t_medatada_program
 	int32_t dirSegmento;
 	t_crearSegmentoUMV *crearSegmento = malloc(sizeof(t_crearSegmentoUMV));
 
-	printf("solicito segmento de codigo tamanio %d\n",codigoSize);
 	// Segmento de Codigo
 	dirSegmento = solicitudSegmento(pcb->id,codigoSize);
 	if (dirSegmento==-1)
 		return false;
 	else pcb->segmentoCodigo = dirSegmento;
-	printf("SEGMENTO DE CODIGO %d, %d\n",dirSegmento,pcb->segmentoCodigo);
 
-	printf("solicito segmento de stack tamanio %d\n",kernel->sizeStack);
 	// Segmento de Stack
 	dirSegmento = solicitudSegmento(pcb->id,kernel->sizeStack);
 	if(dirSegmento == -1){
 	} else pcb->segmentoStack = dirSegmento;
-	printf("SEGMENTO DE STACK %d, %d\n",dirSegmento,pcb->segmentoStack);
-
 
 	if (programa->etiquetas_size>0){
-		printf("solicito INDICE DE ETIQUETAS tamanio %d\n",programa->etiquetas_size);
+		//printf("solicito INDICE DE ETIQUETAS tamanio %d\n",programa->etiquetas_size);
 		//Indice de Etiquetas
 		dirSegmento = solicitudSegmento(pcb->id,programa->etiquetas_size);
 		if(dirSegmento == -1){
@@ -160,15 +155,15 @@ bool solicitarSegmentosUMV(char *codigo, uint16_t codigoSize, t_medatada_program
 			pcb->sizeIndexLabel = programa->etiquetas_size;
 		}
 	}
-	printf("INDICE DE ETIQUETAS %d, %d\n",dirSegmento,pcb->indiceEtiquetas);
+	//printf("INDICE DE ETIQUETAS %d, %d\n",dirSegmento,pcb->indiceEtiquetas);
 
-	printf("solicito INDICE DE CODIGO tamanio %d\n",(programa->instrucciones_size*8));
+	//printf("solicito INDICE DE CODIGO tamanio %d\n",(programa->instrucciones_size*8));
 	//Indice de Codigo
 	dirSegmento = solicitudSegmento(pcb->id,(programa->instrucciones_size*8));
 	if(dirSegmento == -1){
 		return false;
 	} else pcb->indiceCodigo = dirSegmento;
-	printf("INDICE DE codigo %d, %d\n",dirSegmento,pcb->indiceCodigo);
+	//printf("INDICE DE codigo %d, %d\n",dirSegmento,pcb->indiceCodigo);
 	pcb->sizeContext=0;
 	pcb->cursorStack = 0; //offset
 	pcb->programcounter = programa->instruccion_inicio;
@@ -266,7 +261,6 @@ void enviarMsgPrograma(int fd, char *msg){
 	destruir_paquete(paquete);
 }
 void finalizarPrograma(int pcbid, int fd, int exit_code, char * mensajeFIN){
-	printf("elimino programa definitivamente\n");
 	//armamos payload con cod error
 	if ((exit_code!=PROGRAM_DISCONNECT)&&(exit_code!=PROGRAM_SEGSIZE_FAULT)){
 		package * paquete = crear_paquete(finPrograma,mensajeFIN,strlen(mensajeFIN)+1);
@@ -287,7 +281,6 @@ void eliminarProgramaTabla(int id){
 		dictionary_remove(programasxfd,string_from_format("%d",programa->fd));
 		dictionary_remove(kernel->programas,key);
 		pthread_mutex_unlock(&kernel->mutex_programas);
-		printf("elimine las tablas\n");
 		finalizarPrograma(id,fd,exit_code,mensajeFin);
 	}
 }
@@ -393,14 +386,11 @@ void hiloSacaExit(){
 	while(1){
 		sem_wait(sem_exit);
 		log_debug(logger,string_from_format("Hilo Exit, se libero el semaforo\n"));
-		printf("PASO ANTES DE SACAR DE COLA\n");
+
 		t_PCB *programa = cola_pop(cola_exit);
-		printf("PASO luego DE SACAR DE COLA antes de liberar recursos umv programa %d\n",programa->id);
+		printf("Terminando Programa %d\n",programa->id);
 		liberarRecursosUMV(programa); // pasar programa id?
-		printf("PASO luego DE liberar recursos umv antes de eliminar programa de tabla\n");
 		eliminarProgramaTabla(programa->id);
-		printf("luego de liberar programa de tabla\n");
-		//free(programa);
 		//sem_post(sem_multiprogramacion); este semaforo se incrementa cuando pasa a Exit!!!!
 	}
 }
@@ -413,7 +403,6 @@ void hiloMultiprogramacion(){
 		log_debug(logger,string_from_format("paso el sem de multiprogramacion y de new\n"));
 		siguienteSJN(cola_new);
 		// informar NEW -> Programa X -> READY
-
 	}
 }
 void saludarPrograma(int fd){

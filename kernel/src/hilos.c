@@ -128,27 +128,17 @@ void wait_semaforo(char *semaforo,uint32_t fd){
 void signal_semaforo(char *semaforo){
 	printf("Signal al semaforo %s strlen %d\n",semaforo,strlen(semaforo));
 	if (dictionary_has_key(kernel->semaforos,semaforo)){
-		t_semaforo *SEM = dictionary_get(kernel->semaforos,semaforo);
-		pthread_mutex_lock(SEM->mutex);
-		SEM->valor ++;
-		log_debug(logger, string_from_format("signal al semaforo %s, valor final: %d",semaforo,SEM->valor));
-		if (SEM->valor<=0){
-			t_PCB *PCB = cola_pop(SEM->cola);
-			pthread_mutex_lock(&kernel->mutex_programas);
-			t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",PCB->id));
-			pthread_mutex_unlock(&kernel->mutex_programas);
-			if (!programa->estado){ 				//Verifico  si el programa esta activo
-				pasarACola(cola_exit, PCB);
-				sem_post(sem_exit);
-				sem_post(sem_multiprogramacion);
-			} else {
-				printf("Termino de ejecutar, para a Ready\n");
-				cola_push(cola_ready, PCB);
-				sem_post(sem_estado_listo);
-			}
-		}
-		pthread_mutex_unlock(SEM->mutex);
-		}else printf("no existe el semaforo!");
+	t_semaforo *SEM = dictionary_get(kernel->semaforos,semaforo);
+	pthread_mutex_lock(SEM->mutex);
+	SEM->valor ++;
+	log_debug(logger, string_from_format("signal al semaforo %s, valor final: %d",semaforo,SEM->valor));
+	if (SEM->valor<=0){
+		t_PCB *PCB = cola_pop(SEM->cola);
+		cola_push(cola_ready, PCB);	// sacar a un programa de la cola
+		sem_post(sem_estado_listo);
+	}
+	pthread_mutex_unlock(SEM->mutex);
+	}else printf("no existe el semaforo!");
 }
 
 
@@ -161,9 +151,7 @@ void hiloIO(t_entradasalida *IO){
 		// controlar que este activo el programa para no desperdiciar recurso
 		int retardo = IO->retardo * elemento->unidadesTiempo;
 		usleep(retardo);
-		pthread_mutex_lock(&kernel->mutex_programas);
 		t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",elemento->PCB->id));
-		pthread_mutex_unlock(&kernel->mutex_programas);
 		if (!programa->estado){ 				//Verifico  si el programa esta activo
 			pasarACola(cola_exit, elemento->PCB);
 			sem_post(sem_exit);

@@ -13,42 +13,41 @@
 // Cabecera paquetes
 
 typedef enum nipc_type{
-	handshakeKernelCPU,						//00
-	retornoCPUQuantum,						//01
-	recibiACKDeCPU,							//02
-	solicitarValorVariableCompartida,		//03
-	asignarValorVariableCompartida,			//04
-	liberarSemaforo,						//05
-	tomarSemaforo,							//06
-	imprimirTexto,							//07
-	imprimirValor,							//08
-	retornoCPUExcepcion,					//09
-	retornoCPUFin,							//10
-	retornoCPUPorES,						//11
-	retornoCPUBloqueado,					//12
-	estoyDisponible,						//13
-	respuestaCPU,							//14
-	bloquearProgramaCPU,					//15 bloquear programa de kernel a CPU
-	semaforolibre,							//16 via libre kernel a CPU como respuesta a un wait
-	enviarPCBACPU,							//17
-	envioPCBES,								//18
-	handshakeCpuUmv,						//19
-	creacionSegmentos,						//20 - solicitar creacion de segmentos a la UMV
-	destruccionSegmentos,					//21 - solicitar destruccion de segmentos a la UMV
-	lectura,								//22 - solicitud de lectura a la UMV
-	escritura,								//23 - solicitud de escritura a la UMV
-	cambioProcesoActivo,					//24 - cambio de proceso activo
-	respuestaUmv,							//25 - respuesta de la UMV a una solicitud
-	handshakeProgKernel,					//26
-	programaNuevo,							//27
-	rechazoPrograma,						//28 - respuesta del Kernel de rechazo al programa
-	handshakeKernelUmv,						//29
-	finPrograma,							//30
-	violacionSegmento,						//31
-	entrada_salida,							//32
-	error_label,							//33 No se encuentra la instruccion asociada a la etiqueta
-	cpuDesconectada,						//34
-	mandaPCB,								//35
+	handshakeKernelCPU,
+	retornoCPUQuantum,
+	recibiACKDeCPU,
+	solicitarValorVariableCompartida,
+	asignarValorVariableCompartida,
+	liberarSemaforo,						// signal de la CPU al kernel
+	tomarSemaforo,							// wait de la CPU al Kernel
+	imprimirTexto,
+	imprimirValor,
+	retornoCPUExcepcion,
+	retornoCPUFin,
+	retornoCPUPorES,
+	retornoCPUBloqueado,
+	estoyDisponible,
+	respuestaCPU,
+	bloquearProgramaCPU,					// bloquear programa de kernel a CPU
+	semaforolibre,							// via libre kernel a CPU como respuesta a un wait
+	enviarPCBACPU,
+	envioPCBES,
+	handshakeCpuUmv,						//01
+	creacionSegmentos,						//02 - solicitar creacion de segmentos a la UMV
+	destruccionSegmentos,					//03 - solicitar destruccion de segmentos a la UMV
+	lectura,								//04 - solicitud de lectura a la UMV
+	escritura,								//05 - solicitud de escritura a la UMV
+	cambioProcesoActivo,					//06 - cambio de proceso activo
+	respuestaUmv,							//07 - respuesta de la UMV a una solicitud
+	handshakeProgKernel,					//08
+	programaNuevo,							//09
+	rechazoPrograma,						//10 - respuesta del Kernel de rechazo al programa
+	handshakeKernelUmv,						//11
+	finPrograma,							//
+	violacionSegmento,
+	entrada_salida,
+	error_label,							//No se encuentra la instruccion asociada a la etiqueta
+	cpuDesconectada,
 }t_paquete;
 
 

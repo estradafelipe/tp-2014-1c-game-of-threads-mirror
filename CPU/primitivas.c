@@ -276,7 +276,7 @@ void GameOfThread_retornar(t_valor_variable retorno){
 	char* buffer = malloc(sizeof(t_valor_variable));
 	memcpy(buffer,&retorno,sizeof(t_valor_variable));
 	Escribir(base,dirRetorno,tamanio,buffer);
-	destruir_paquete(paquete);
+
 	if (finprograma==false){
 		//Obtengo la proxima instruccion (Program Counter)
 		paquete = Leer(base,offset_tmp - 8, tamanio);
@@ -296,6 +296,7 @@ void GameOfThread_retornar(t_valor_variable retorno){
 				int32_t cant_var = (offset_tmp - 12)/5;
 				log_debug(logger, "Cargando diccionario de variables");
 				cargar_diccionarioVariables(cant_var);
+				destruir_paquete(paquete);
 			}
 		}
 	}

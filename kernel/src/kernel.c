@@ -108,7 +108,8 @@ int main(int argc, char**argv) {
 	leerconfiguracion(path);
 	crea_tablasSitema();
 	/* Creo loggers */
-	logger = log_create("loggerKERNEL.log", "KERNEL", true, LOG_LEVEL_DEBUG);
+	logger = log_create("loggerKERNEL.log", "KERNEL", false, LOG_LEVEL_DEBUG);
+
 	// ** codigo debug para ver que levanto el archivo de config
 	log_debug(logger, string_from_format("\nCONFIGURACION:\nPUERTO_PROG:%d\nPUERTO_CPU:%d\nQUANTUM:%d\nRETARDO:%d\nMULTIPROGRAMACION:%d\n",kernel->puertoprog,kernel->puertocpu,kernel->quantum,kernel->retardo,kernel->multiprogramacion));
 
