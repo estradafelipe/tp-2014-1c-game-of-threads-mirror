@@ -314,15 +314,16 @@ package *Leer(t_pun base,t_pun offset,t_pun tamanio){
 	log_debug(logger, "Envio paquete correcto");
 	destruir_paquete(solicitud);
 	solicitud = recibir_paquete(socketUMV);
-	// analizar tipo de mensaje recibido si es error ....b;eh
-	memcpy(&err,solicitud->payload,sizeof(int32_t));
-	if(err == -1){
-		notificarError_kernel("Segmentation Fault");
-		//exit(1); no tiene que terminar la cpu
+	if(solicitud->type==violacionSegmento){
+		memcpy(&err,solicitud->payload,sizeof(int32_t));
+		if(err == -1){
+			notificarError_kernel("Segmentation Fault");
+			log_debug(logger, "Segmentation Fault!");
+			//exit(1); no tiene que terminar la cpu
+		}
 	}
-	log_debug(logger, "Lectura correcta");
-
-	free(payload);
+	else log_debug(logger, "Lectura correcta");
+	destruir_paquete(solicitud);
 	return solicitud;
 }
 
@@ -342,11 +343,14 @@ void Escribir(t_pun base, t_pun offset, t_pun tamanio, char* buffer){
 	enviar_paquete(paquete,socketUMV);
 	destruir_paquete(paquete);
 	paquete = recibir_paquete(socketUMV);
-	memcpy(&err,paquete->payload,sizeof(int32_t));
-	if(err == -1){
-		notificarError_kernel("Segmentation Fault");
-		//exit(1); no tiene que terminar la cpu
+	if (paquete->type==violacionSegmento){
+		memcpy(&err,paquete->payload,sizeof(int32_t));
+		if(err == -1){
+			notificarError_kernel("Segmentation Fault");
+			//exit(1); no tiene que terminar la cpu
+		}
 	}
+	destruir_paquete(paquete);
 }
 
 char* quitarSaltoLinea(char* cadena){

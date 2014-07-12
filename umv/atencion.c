@@ -69,7 +69,6 @@ int atenderKernel(int fd){
 		paquete = recibir_paquete(fd);
 		bytesRecibidos = paquete->payloadLength;
 		tipo = paquete->type;
-		printf("tipo paquete: %d    tamañoPayload: %d\n",tipo, bytesRecibidos);
 		if(bytesRecibidos>0){
 			log_debug(logger, "Se recibio algo del KERNEL");
 			switch(tipo){
@@ -273,7 +272,7 @@ int atenderCpu(int fd){
 						log_debug(logger, "Violación de segmento!");
 						resultado = -1;
 						memcpy(answer, &resultado, sizeof(t_pun));
-						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_pun));
+						respuesta = crear_paquete(violacionSegmento,answer,sizeof(t_pun));
 						enviar_paquete(respuesta,fd);
 					}
 					destruir_paquete(respuesta);
@@ -669,6 +668,7 @@ int crear_segmento(t_crearSegmentoUMV* datos){
 			pthread_rwlock_unlock(&lockAlgoritmo);
 			log_debug(logger, "Creando segmento del programa %d con tamaño %d con algoritmo Worst-Fit",datos->programid,datos->size);
 			resultado = worst_fit(segmentos,datos->programid,datos->size);
+			log_debug(logger, "Segmento: %d",resultado);
 			break;
 		case FIRSTFIT:
 			pthread_rwlock_unlock(&lockAlgoritmo);
