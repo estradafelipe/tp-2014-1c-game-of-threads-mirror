@@ -249,7 +249,7 @@ int atenderCpu(int fd){
 						log_debug(logger, "Violación de segmento!");
 						resultado = -1;
 						memcpy(answer, &resultado, sizeof(t_pun));
-						respuesta = crear_paquete(respuestaUmv,answer,sizeof(t_pun));
+						respuesta = crear_paquete(violacionSegmento,answer,sizeof(t_pun));
 						enviar_paquete(respuesta,fd);
 					}
 					destruir_paquete(respuesta);

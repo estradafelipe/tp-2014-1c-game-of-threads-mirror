@@ -54,6 +54,7 @@ t_valor_variable GameOfThread_dereferenciar(t_puntero direccion_variable){
 }
 
 void GameOfThread_asignar(t_puntero direccion_variable, t_valor_variable valor){
+	if(finprograma==false){
 	log_trace(logger,"Ejecutando Primitiva GameOfThread_asignar");
 	t_pun offset;
 	char* buffer = malloc(sizeof(int32_t));
@@ -65,7 +66,7 @@ void GameOfThread_asignar(t_puntero direccion_variable, t_valor_variable valor){
 	Escribir(pcb->segmentoStack,offset,4,buffer);
 	log_debug(logger, "Posicion a escribir: %d, valor: %d",direccion_variable + 1,valor);
 	}
-
+}
 t_valor_variable GameOfThread_obtenerValorCompartida(t_nombre_compartida variable){
 	log_trace(logger,"Ejecutando Primitiva GameOfThread_obtenerValorCompartida");
 	package *paquete;
@@ -119,7 +120,7 @@ t_valor_variable GameOfThread_asignarValorCompartida(t_nombre_compartida variabl
 void GameOfThread_irAlLabel(t_nombre_etiqueta etiqueta){
 	log_trace(logger,"Ejecutando Primitiva GameOfThread_irAlLabel");
 	char* etiq = strndup(etiqueta,strlen(etiqueta));
-	package* paq = malloc(sizeof(package));
+	package* paq;
 	t_puntero_instruccion instruccion;
 	log_debug(logger, "Pidiendo indiceEtiquetas a la UMV");
 	paq=Leer(pcb->indiceEtiquetas,0,pcb->sizeIndexLabel);
@@ -149,26 +150,27 @@ void GameOfThread_llamarSinRetorno(t_nombre_etiqueta etiqueta){
 	offset =  pcb->sizeContext*5 + pcb->cursorStack;
 	memcpy(buffer,&pcb->cursorStack,sizeof(t_pun));
 	Escribir(pcb->segmentoStack,offset,4,buffer);
-
-	//Guardamos el Program Counter siguiente;
-	log_debug(logger,"Guardando programCounter siguiente");
-	offset =  pcb->sizeContext*5 + pcb->cursorStack + 4; //Son los 4 del Contexto Anterior
-	pc = pcb->programcounter;
-	pc++;
-	log_debug(logger, "ProgramCounter siguiente: %d",pc);
-	memcpy(buffer,&pc,sizeof(t_pun));
-	Escribir(pcb->segmentoStack,offset,4,buffer);
-
-	//Cambio de Contexto
-	log_debug(logger,"Cambiando contexto de ejecución");
-	pcb->cursorStack = offset + 4;
-	log_debug(logger, "CursorStack nuevo: %d",pcb->cursorStack);
-	pcb->sizeContext = 0;
-	log_debug(logger, "sizeContext nuevo: %d",pcb->sizeContext);
-	dictionary_clean(diccionarioVariables);
-	log_debug(logger,"Diccionario vacio: %d\n",dictionary_is_empty(diccionarioVariables));
-	GameOfThread_irAlLabel(etiqueta); //Me lleva al procedimiento que debo ejecutar;
-
+	if (finprograma==false){
+		//Guardamos el Program Counter siguiente;
+		log_debug(logger,"Guardando programCounter siguiente");
+		offset =  pcb->sizeContext*5 + pcb->cursorStack + 4; //Son los 4 del Contexto Anterior
+		pc = pcb->programcounter;
+		pc++;
+		log_debug(logger, "ProgramCounter siguiente: %d",pc);
+		memcpy(buffer,&pc,sizeof(t_pun));
+		Escribir(pcb->segmentoStack,offset,4,buffer);
+		if (finprograma==false){
+			//Cambio de Contexto
+			log_debug(logger,"Cambiando contexto de ejecución");
+			pcb->cursorStack = offset + 4;
+			log_debug(logger, "CursorStack nuevo: %d",pcb->cursorStack);
+			pcb->sizeContext = 0;
+			log_debug(logger, "sizeContext nuevo: %d",pcb->sizeContext);
+			dictionary_clean(diccionarioVariables);
+			log_debug(logger,"Diccionario vacio: %d\n",dictionary_is_empty(diccionarioVariables));
+			GameOfThread_irAlLabel(etiqueta); //Me lleva al procedimiento que debo ejecutar;
+		}
+	}
 }
 
 void GameOfThread_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar){
@@ -184,70 +186,73 @@ void GameOfThread_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_r
 	offset =  pcb->sizeContext*5 + pcb->cursorStack;
 	memcpy(buffer,&pcb->cursorStack,sizeof(t_pun));
 	Escribir(pcb->segmentoStack,offset,4,buffer);
+	if (finprograma==false){
+		//Guardamos el Program Counter siguiente;
+		log_debug(logger,"Guardando programCounter siguiente");
+		offset =  pcb->sizeContext*5 + pcb->cursorStack + 4; //Son los 4 del Contexto Anterior
+		pc = pcb->programcounter;
+		pc++;
+		log_debug(logger, "ProgramCounter siguiente: %d",pc);
+		memcpy(buffer,&pc,sizeof(t_pun));
+		Escribir(pcb->segmentoStack,offset,4,buffer);
+		if (finprograma==false){
 
-	//Guardamos el Program Counter siguiente;
-	log_debug(logger,"Guardando programCounter siguiente");
-	offset =  pcb->sizeContext*5 + pcb->cursorStack + 4; //Son los 4 del Contexto Anterior
-	pc = pcb->programcounter;
-	pc++;
-	log_debug(logger, "ProgramCounter siguiente: %d",pc);
-	memcpy(buffer,&pc,sizeof(t_pun));
-	Escribir(pcb->segmentoStack,offset,4,buffer);
+			//Guardamos a donde retornar;
+			log_debug(logger,"Guardando direccion de retorno");
+			log_debug(logger, "Dir retorno: %d",donde_retornar);
+			offset =  pcb->sizeContext*5 + pcb->cursorStack + 8;
+			memcpy(buffer,&donde_retornar,sizeof(uint32_t));
+			Escribir(pcb->segmentoStack,offset,4,buffer);
+			if (finprograma==false){
+				//Cambio de Contexto
+				log_debug(logger,"Cambiando contexto de ejecución");
+				pcb->cursorStack = offset + 4;
+				log_debug(logger, "CursorStack: %d",pcb->cursorStack);
+				pcb->sizeContext = 0;
+				log_debug(logger, "sizeContext nuevo: %d",pcb->sizeContext);
 
-
-	//Guardamos a donde retornar;
-	log_debug(logger,"Guardando direccion de retorno");
-	log_debug(logger, "Dir retorno: %d",donde_retornar);
-	offset =  pcb->sizeContext*5 + pcb->cursorStack + 8;
-	memcpy(buffer,&donde_retornar,sizeof(uint32_t));
-	Escribir(pcb->segmentoStack,offset,4,buffer);
-
-	//Cambio de Contexto
-	log_debug(logger,"Cambiando contexto de ejecución");
-	pcb->cursorStack = offset + 4;
-	log_debug(logger, "CursorStack: %d",pcb->cursorStack);
-	pcb->sizeContext = 0;
-	log_debug(logger, "sizeContext nuevo: %d",pcb->sizeContext);
-
-	//Limpio el Diccionario
-	log_debug(logger,"Limpiando diccionario");
-	dictionary_clean(diccionarioVariables);
-	GameOfThread_irAlLabel(etiqueta); //Me lleva al procedimiento que debo ejecutar;
-
+				//Limpio el Diccionario
+				log_debug(logger,"Limpiando diccionario");
+				dictionary_clean(diccionarioVariables);
+				GameOfThread_irAlLabel(etiqueta); //Me lleva al procedimiento que debo ejecutar;
+			}
+		}
+	}
 }
 
 void GameOfThread_finalizar(void){
 	log_trace(logger,"Ejecutando Primitiva GameOfThread_finalizar");
-	package *paquete = malloc(sizeof(package));
-	log_debug(logger, "CursorStack: %d",pcb->cursorStack);
-	if(pcb->cursorStack == 0){
-		log_debug(logger,"No hay mas instrucciones a ejecutar, finalizando programa");
-		dictionary_clean(diccionarioVariables);
-		notificar_kernel(retornoCPUFin);
-		quantumPrograma = quantumKernel;
-		paquete=recibir_paquete(socketKernel);
-		destruir_paquete(paquete);
-		finprograma = true;
-	} else {
-		log_debug(logger,"Hay instrucciones para seguir ejecutando");
-		//Obtengo el Program Counter (Instruccion Siguiente)
-		paquete = Leer(pcb->segmentoStack,pcb->cursorStack - 4, 4);
-		memcpy(&pcb->programcounter,paquete->payload,sizeof(t_pun));
-		destruir_paquete(paquete);
-		log_debug(logger,"ProgramCounter a ejecutar: %d", pcb->programcounter);
-		pcb->programcounter--;
-		//Obtengo el Cursor del Contexto Anterior
-		paquete = Leer(pcb->segmentoStack,pcb->cursorStack - 8 , 4);
-		memcpy(&pcb->cursorStack,paquete->payload,sizeof(t_pun));
-		log_debug(logger,"CursorStack del contexto anterior: %d", pcb->cursorStack);
-		//Limpio el diccionario y lo cargo
-		log_debug(logger, "Limpiando diccionario de variables");
-		dictionary_clean(diccionarioVariables);
-		int32_t cant_var = (pcb->cursorStack - 8)/5;
-		log_debug(logger, "Cargando diccionario de variables");
-		cargar_diccionarioVariables(cant_var);
+	if (finprograma==false){
+		package *paquete = malloc(sizeof(package));
+		log_debug(logger, "CursorStack: %d",pcb->cursorStack);
+		if(pcb->cursorStack == 0){
+			log_debug(logger,"No hay mas instrucciones a ejecutar, finalizando programa");
+			dictionary_clean(diccionarioVariables);
+			notificar_kernel(retornoCPUFin);
+			quantumPrograma = quantumKernel;
+			paquete=recibir_paquete(socketKernel);
+			destruir_paquete(paquete);
+			finprograma = true;
+		} else {
+			log_debug(logger,"Hay instrucciones para seguir ejecutando");
+			//Obtengo el Program Counter (Instruccion Siguiente)
+			paquete = Leer(pcb->segmentoStack,pcb->cursorStack - 4, 4);
+			memcpy(&pcb->programcounter,paquete->payload,sizeof(t_pun));
+			destruir_paquete(paquete);
+			log_debug(logger,"ProgramCounter a ejecutar: %d", pcb->programcounter);
+			pcb->programcounter--;
+			//Obtengo el Cursor del Contexto Anterior
+			paquete = Leer(pcb->segmentoStack,pcb->cursorStack - 8 , 4);
+			memcpy(&pcb->cursorStack,paquete->payload,sizeof(t_pun));
+			log_debug(logger,"CursorStack del contexto anterior: %d", pcb->cursorStack);
+			//Limpio el diccionario y lo cargo
+			log_debug(logger, "Limpiando diccionario de variables");
+			dictionary_clean(diccionarioVariables);
+			int32_t cant_var = (pcb->cursorStack - 8)/5;
+			log_debug(logger, "Cargando diccionario de variables");
+			cargar_diccionarioVariables(cant_var);
+		}
 	}
-
 }
 
 void GameOfThread_retornar(t_valor_variable retorno){
@@ -272,88 +277,97 @@ void GameOfThread_retornar(t_valor_variable retorno){
 	memcpy(buffer,&retorno,sizeof(t_valor_variable));
 	Escribir(base,dirRetorno,tamanio,buffer);
 	destruir_paquete(paquete);
-	//Obtengo la proxima instruccion (Program Counter)
-	paquete = Leer(base,offset_tmp - 8, tamanio);
-	memcpy(&pcb->programcounter,paquete->payload,sizeof(t_pun));
-	log_debug(logger, "Proxima instruccion a ejecutar: %d",pcb->programcounter);
-	pcb->programcounter--;
-	destruir_paquete(paquete);
-	//Cambio de Contexto
-	paquete = Leer(base,offset_tmp - 12, tamanio);
-	memcpy(&pcb->cursorStack,paquete->payload,sizeof(t_pun));
-	log_debug(logger, "CursorStack: %d",pcb->cursorStack);
-	//Limpio el diccionario y lo cargo
-	log_debug(logger, "Limpiando diccionario de variables");
-	dictionary_clean(diccionarioVariables);
-	int32_t cant_var = (offset_tmp - 12)/5;
-	log_debug(logger, "Cargando diccionario de variables");
-	cargar_diccionarioVariables(cant_var);
-
+	if (finprograma==false){
+		//Obtengo la proxima instruccion (Program Counter)
+		paquete = Leer(base,offset_tmp - 8, tamanio);
+		if (finprograma==false){
+			memcpy(&pcb->programcounter,paquete->payload,sizeof(t_pun));
+			log_debug(logger, "Proxima instruccion a ejecutar: %d",pcb->programcounter);
+			pcb->programcounter--;
+			destruir_paquete(paquete);
+			//Cambio de Contexto
+			paquete = Leer(base,offset_tmp - 12, tamanio);
+			if (finprograma==false){
+				memcpy(&pcb->cursorStack,paquete->payload,sizeof(t_pun));
+				log_debug(logger, "CursorStack: %d",pcb->cursorStack);
+				//Limpio el diccionario y lo cargo
+				log_debug(logger, "Limpiando diccionario de variables");
+				dictionary_clean(diccionarioVariables);
+				int32_t cant_var = (offset_tmp - 12)/5;
+				log_debug(logger, "Cargando diccionario de variables");
+				cargar_diccionarioVariables(cant_var);
+			}
+		}
+	}
 }
 
 void GameOfThread_imprimir(t_valor_variable retorno){
-	log_trace(logger,"Ejecutando Primitiva GameOfThread_imprimir");
-	log_debug(logger, "Valor a imprimir: %d", retorno);
-	package* paquete = malloc(sizeof(package));
-	char* payload = malloc(sizeof(t_valor_variable));
-	memcpy(payload,&retorno,sizeof(int32_t));
-	paquete = crear_paquete(imprimirValor,payload,sizeof(int32_t));
-	enviar_paquete(paquete,socketKernel);
-	destruir_paquete(paquete);
-	paquete = recibir_paquete(socketKernel);
-	destruir_paquete(paquete);
-
+	if (finprograma==false){
+		log_trace(logger,"Ejecutando Primitiva GameOfThread_imprimir");
+		log_debug(logger, "Valor a imprimir: %d", retorno);
+		package* paquete = malloc(sizeof(package));
+		char* payload = malloc(sizeof(t_valor_variable));
+		memcpy(payload,&retorno,sizeof(int32_t));
+		paquete = crear_paquete(imprimirValor,payload,sizeof(int32_t));
+		enviar_paquete(paquete,socketKernel);
+		destruir_paquete(paquete);
+		paquete = recibir_paquete(socketKernel);
+		destruir_paquete(paquete);
+	}
 }
 
 
 void GameOfThread_imprimirTexto(char* texto){
 	log_trace(logger,"Ejecutando Primitiva GameOfThread_imprimirTexto");
-	log_debug(logger,"Texto a imprimir: %s",texto);
-	package* paquete = malloc(sizeof(package));
-	paquete = crear_paquete(imprimirTexto,texto,strlen(texto));
-	enviar_paquete(paquete,socketKernel);
-	destruir_paquete(paquete);
-	paquete = recibir_paquete(socketKernel);
-	destruir_paquete(paquete);
-
+	if (finprograma==false){
+		log_debug(logger,"Texto a imprimir: %s",texto);
+		package* paquete = malloc(sizeof(package));
+		paquete = crear_paquete(imprimirTexto,texto,strlen(texto)+1);
+		enviar_paquete(paquete,socketKernel);
+		destruir_paquete(paquete);
+		paquete = recibir_paquete(socketKernel);
+		destruir_paquete(paquete);
+	}
 }
 
 void GameOfThread_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
+
 	log_trace(logger,"Ejecutando Primitiva GameOfThread_entradaSalida");
-	log_debug(logger,"Dispositivo: %s, tiempo: %d",dispositivo,tiempo);
-	t_iESdeCPU *es = malloc(sizeof(t_iESdeCPU));
-	package *paquete;
+	if (finprograma==false){
+		log_debug(logger,"Dispositivo: %s, tiempo: %d",dispositivo,tiempo);
+		t_iESdeCPU *es = malloc(sizeof(t_iESdeCPU));
+		package *paquete;
 
-	char *nombre = malloc(strlen(dispositivo));
-	memcpy(nombre,dispositivo,strlen(dispositivo));
-	string_trim(&nombre);
+		char *nombre = malloc(strlen(dispositivo));
+		memcpy(nombre,dispositivo,strlen(dispositivo));
+		string_trim(&nombre);
 
-	quantumPrograma = quantumKernel;
-	pcb->programcounter++;
+		quantumPrograma = quantumKernel;
+		pcb->programcounter++;
 
-	es->id = nombre;
-	//memcpy(es->id,dispositivo,strlen(dispositivo));
-	es->tiempo = tiempo;
-	es->tamanioID = strlen(dispositivo);
+		es->id = nombre;
+		//memcpy(es->id,dispositivo,strlen(dispositivo));
+		es->tiempo = tiempo;
+		es->tamanioID = strlen(dispositivo);
 
-	int tamanioDatosES = strlen(dispositivo) + sizeof(int32_t)*2;
-	char* IOSerializada = serializar_mensaje_ES(es);
+		int tamanioDatosES = strlen(dispositivo) + sizeof(int32_t)*2;
+		char* IOSerializada = serializar_mensaje_ES(es);
 
-	char* PCBSerializado = serializar_datos_pcb_para_cpu(pcb);
-	int size = (sizeof(int32_t)*2) + (sizeof(t_pun)*5) + strlen(dispositivo);
+		char* PCBSerializado = serializar_datos_pcb_para_cpu(pcb);
+		int size = (sizeof(int32_t)*2) + (sizeof(t_pun)*5) + strlen(dispositivo);
 
-	char* payload = malloc(size);
-	memcpy(payload,IOSerializada,tamanioDatosES);
-	memcpy(payload + tamanioDatosES,PCBSerializado,sizeof(t_pun)*5);
+		char* payload = malloc(size);
+		memcpy(payload,IOSerializada,tamanioDatosES);
+		memcpy(payload + tamanioDatosES,PCBSerializado,sizeof(t_pun)*5);
 
-	paquete = crear_paquete(retornoCPUPorES,payload,size);
-	enviar_paquete(paquete,socketKernel);
+		paquete = crear_paquete(retornoCPUPorES,payload,size);
+		enviar_paquete(paquete,socketKernel);
 
-	paquete=recibir_paquete(socketKernel);
-	printf("recibi respuesta\n");
-	destruir_paquete(paquete);
-	finprograma = true;
-
+		paquete=recibir_paquete(socketKernel);
+		printf("recibi respuesta\n");
+		destruir_paquete(paquete);
+		finprograma = true;
+	}
 }
 
 void GameOfThread_wait(t_nombre_semaforo identificador_semaforo){

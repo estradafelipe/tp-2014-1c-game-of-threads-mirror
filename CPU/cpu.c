@@ -302,7 +302,7 @@ void handshake(t_paquete pa){
 package *Leer(t_pun base,t_pun offset,t_pun tamanio){
 	t_solicitudLectura *sol = malloc(sizeof(t_solicitudLectura));
 	int32_t err;
-	package *solicitud = malloc(sizeof(package));
+	package *solicitud;
 	char* payload = malloc(sizeof(t_pun)*3);
 	sol->base = base;
 	sol->offset = offset;
@@ -323,13 +323,12 @@ package *Leer(t_pun base,t_pun offset,t_pun tamanio){
 		}
 	}
 	else log_debug(logger, "Lectura correcta");
-	destruir_paquete(solicitud);
 	return solicitud;
 }
 
 void Escribir(t_pun base, t_pun offset, t_pun tamanio, char* buffer){
 	t_solicitudEscritura *sol = malloc(sizeof(t_solicitudEscritura));
-	package *paquete = malloc(sizeof(package));
+	package *paquete;
 	int32_t err;
 	sol->base = base;
 	sol->offset = offset;
@@ -349,7 +348,7 @@ void Escribir(t_pun base, t_pun offset, t_pun tamanio, char* buffer){
 			notificarError_kernel("Segmentation Fault");
 			//exit(1); no tiene que terminar la cpu
 		}
-	}
+	}else printf("Escritura Correcta\n");
 	destruir_paquete(paquete);
 }
 
