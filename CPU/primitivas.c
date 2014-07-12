@@ -118,7 +118,7 @@ t_valor_variable GameOfThread_asignarValorCompartida(t_nombre_compartida variabl
 }
 void GameOfThread_irAlLabel(t_nombre_etiqueta etiqueta){
 	log_trace(logger,"Ejecutando Primitiva GameOfThread_irAlLabel");
-	char* etiq = strndup(etiqueta,strlen(etiqueta)-1);
+	char* etiq = strndup(etiqueta,strlen(etiqueta));
 	package* paq = malloc(sizeof(package));
 	t_puntero_instruccion instruccion;
 	log_debug(logger, "Pidiendo indiceEtiquetas a la UMV");
@@ -300,6 +300,8 @@ void GameOfThread_imprimir(t_valor_variable retorno){
 	paquete = crear_paquete(imprimirValor,payload,sizeof(int32_t));
 	enviar_paquete(paquete,socketKernel);
 	destruir_paquete(paquete);
+	paquete = recibir_paquete(socketKernel);
+	destruir_paquete(paquete);
 
 }
 
@@ -310,6 +312,8 @@ void GameOfThread_imprimirTexto(char* texto){
 	package* paquete = malloc(sizeof(package));
 	paquete = crear_paquete(imprimirTexto,texto,strlen(texto));
 	enviar_paquete(paquete,socketKernel);
+	destruir_paquete(paquete);
+	paquete = recibir_paquete(socketKernel);
 	destruir_paquete(paquete);
 
 }
@@ -361,7 +365,8 @@ void GameOfThread_wait(t_nombre_semaforo identificador_semaforo){
 	char *semaforo=strdup(identificador_semaforo);
 	string_trim(&semaforo);
 
-	paquete = crear_paquete(tomarSemaforo,semaforo,strlen(semaforo));
+	paquete = crear_paquete(tomarSemaforo,semaforo,strlen(semaforo)+1);
+	log_debug(logger,"Identificador: %s, semaforo: %s, paquete: %s",identificador_semaforo,semaforo,paquete->payload);
 	enviar_paquete(paquete,socketKernel);
 	destruir_paquete(paquete);
 	paquete = recibir_paquete(socketKernel);
@@ -395,8 +400,10 @@ void GameOfThread_signal(t_nombre_semaforo identificador_semaforo){
 	char *semaforo=strdup(identificador_semaforo);
 	string_trim(&semaforo);
 
-	paquete = crear_paquete(liberarSemaforo,semaforo,strlen(semaforo));
+	paquete = crear_paquete(liberarSemaforo,semaforo,strlen(semaforo)+1);
 	enviar_paquete(paquete,socketKernel);
+	destruir_paquete(paquete);
+	paquete = recibir_paquete(socketKernel);
 	destruir_paquete(paquete);
 	log_debug(logger,"Hubo un signal del semaforo %s ",identificador_semaforo);
 

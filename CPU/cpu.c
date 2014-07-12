@@ -144,7 +144,6 @@ int main(int argc, char **argv){
 				paq = Leer(pcb->segmentoCodigo,datos->inicio,datos->longitud);
 				instruccionAnsisop = strndup(paq->payload,paq->payloadLength);
 				log_debug(logger, "PC: %d, INSTRUCCION: %s",pcb->programcounter,instruccionAnsisop);
-				printf("Instruccion: %s", instruccionAnsisop);
 				analizadorLinea(instruccionAnsisop,&primitivas,&funciones_kernel);
 
 				quantumPrograma ++;
@@ -203,16 +202,16 @@ void rutina(int n){
 void cargar_diccionarioVariables(int32_t cant_var){
 	package* paq = malloc(sizeof(package));
 	int32_t offset;
-	char* var = malloc(sizeof(char)) + 1;
-
-			while(cant_var > 0){
-
-				offset = pcb->cursorStack + (cant_var - 1) * 5;
-				paq = Leer(pcb->segmentoStack,offset,1);
-				memcpy(var,paq->payload,sizeof(char) + 1);
-				dictionary_put(diccionarioVariables, var,(void*)offset);
-				cant_var--;
-			}
+	char* var = malloc(sizeof(char)+1);
+	while(cant_var > 0){
+		offset = pcb->cursorStack + (cant_var - 1) * 5;
+		paq = Leer(pcb->segmentoStack,offset,1);
+		memcpy(var,paq->payload,sizeof(char));
+		var[1]='\0';
+		dictionary_put(diccionarioVariables, var,(void*)offset);
+		log_debug(logger,"Variable: %s, posicion: %d",var,offset);
+		cant_var--;
+	}
 
 }
 
@@ -309,8 +308,10 @@ package *Leer(t_pun base,t_pun offset,t_pun tamanio){
 	sol->offset = offset;
 	sol->tamanio = tamanio;
 	payload = serializarSolicitudLectura(sol);
+	log_debug(logger, "Serializacion correcta");
 	solicitud = crear_paquete(lectura,payload,sizeof(t_pun)*3);
 	enviar_paquete(solicitud,socketUMV);
+	log_debug(logger, "Envio paquete correcto");
 	destruir_paquete(solicitud);
 	solicitud = recibir_paquete(socketUMV);
 	// analizar tipo de mensaje recibido si es error ....b;eh
@@ -319,7 +320,7 @@ package *Leer(t_pun base,t_pun offset,t_pun tamanio){
 		notificarError_kernel("Segmentation Fault");
 		//exit(1); no tiene que terminar la cpu
 	}
-
+	log_debug(logger, "Lectura correcta");
 
 	free(payload);
 	return solicitud;
