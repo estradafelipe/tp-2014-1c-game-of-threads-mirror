@@ -352,6 +352,10 @@ void opImprimirValor(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	memcpy(&valor,payload,sizeof(int32_t));
 	printf("valor %d\n",valor);
 
+	package *respuesta = crear_paquete(respuestaCPU,"Listo",6);
+	enviar_paquete(respuesta,fd);
+	destruir_paquete(respuesta);
+
 	pasar_dato_a_imprimir(payload, longitudMensaje, programa->fd, imprimirValor);
 }
 
@@ -363,6 +367,9 @@ void opImprimirTexto(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	pthread_mutex_lock(&kernel->mutex_programas);
 	t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d", cpu->pcb->id));
 	pthread_mutex_unlock(&kernel->mutex_programas);
+	package *respuesta = crear_paquete(respuestaCPU,"Listo",6);
+	enviar_paquete(respuesta,fd);
+	destruir_paquete(respuesta);
 	pasar_dato_a_imprimir(payload, longitudMensaje, programa->fd, imprimirTexto);
 }
 
@@ -378,6 +385,10 @@ void opLiberarSemaforo(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	printf("Liberar semaforo\n");
 	char * nombre_semaforo = deserializar_nombre_recurso(payload, longitudMensaje);
 	signal_semaforo(nombre_semaforo);
+
+	package *respuesta = crear_paquete(respuestaCPU,"Listo",6);
+	enviar_paquete(respuesta,fd);
+	destruir_paquete(respuesta);
 }
 
 char * serializar_valor_variable_compartida(int32_t valor){
