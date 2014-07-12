@@ -69,7 +69,7 @@ int32_t recibirSegmento(){
 		if (segmento!=-1) log_debug(logger,string_from_format("Base del nuevo segmento: %d\n",segmento));
 		else log_debug(logger,string_from_format("No hubo espacio suficiente para el segmento"));
 	}
-	printf("recibi de la umv segmento : %d\n",segmento);
+	//printf("recibi de la umv segmento : %d\n",segmento);
 	destruir_paquete(paquete_recibido);
 	return segmento;
 }
@@ -129,7 +129,7 @@ int32_t solicitudSegmento(t_puntero id, t_puntero size){
 }
 
 bool solicitarSegmentosUMV(char *codigo, uint16_t codigoSize, t_medatada_program *programa, t_PCB *pcb){
-
+	printf("Reservando Memoria...\n");
 	int32_t dirSegmento;
 	t_crearSegmentoUMV *crearSegmento = malloc(sizeof(t_crearSegmentoUMV));
 
@@ -144,7 +144,7 @@ bool solicitarSegmentosUMV(char *codigo, uint16_t codigoSize, t_medatada_program
 	if(dirSegmento == -1){
 	} else {
 		pcb->segmentoStack = dirSegmento;
-		printf("segmento stack:%d",pcb->segmentoStack);
+		//printf("segmento stack:%d",pcb->segmentoStack);
 	}
 
 	if (programa->etiquetas_size>0){
@@ -218,12 +218,14 @@ int conectarConUMV(){
 }
 
 void agregarProgramaNuevo(t_list *cola_new, t_PCB *element){
+	printf("Programa %d pasa a New\n",element->id);
 	pthread_mutex_lock(&mutex_new);
 	list_add(cola_new,element);
 	pthread_mutex_unlock(&mutex_new);
 }
 
 void pasarAReady(t_PCB *element){
+	printf("Programa %d pasa a Ready\n",element->id);
 	cola_push(cola_ready,element);
 	log_debug(logger,string_from_format("Pasa a READY: Programa %d\n",element->id));
 	sem_post(sem_estado_listo);

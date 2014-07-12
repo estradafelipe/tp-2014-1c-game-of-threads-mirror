@@ -1,4 +1,4 @@
-src/kernel.d: ../src/kernel.c \
+src/hilos.d: ../src/hilos.c ../src/hilos.h \
  /home/utnso/workspace/parser/parser/metadata_program.h \
  /home/utnso/workspace/parser/parser/parser.h \
  /home/utnso/workspace/parser/parser/sintax.h \
@@ -17,9 +17,11 @@ src/kernel.d: ../src/kernel.c \
  /home/utnso/workspace/commons/commons/collections/queue.h \
  /home/utnso/workspace/commons/commons/collections/list.h \
  /home/utnso/workspace/parser/parser/parser.h \
- /home/utnso/workspace/Rutinas/obtener_config.h ../src/plp.h \
- /home/utnso/workspace/Rutinas/colas.h ../src/pcp.h \
- /home/utnso/workspace/Rutinas/paquetes.h ../src/hilos.h
+ /home/utnso/workspace/Rutinas/obtener_config.h ../src/plp.h ../src/pcp.h \
+ /home/utnso/workspace/Rutinas/paquetes.h \
+ /home/utnso/workspace/Rutinas/colas.h
+
+../src/hilos.h:
 
 /home/utnso/workspace/parser/parser/metadata_program.h:
 
@@ -63,10 +65,8 @@ src/kernel.d: ../src/kernel.c \
 
 ../src/plp.h:
 
-/home/utnso/workspace/Rutinas/colas.h:
-
 ../src/pcp.h:
 
 /home/utnso/workspace/Rutinas/paquetes.h:
 
-../src/hilos.h:
+/home/utnso/workspace/Rutinas/colas.h:

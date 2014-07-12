@@ -1,0 +1,2862 @@
+[DEBUG] 11:50:37:921 KERNEL/(15340:15340): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 11:50:38:271 KERNEL/(15340:15340): Se creo el hilo lo mas bien
+
+[DEBUG] 11:50:38:668 KERNEL/(15340:15345): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 11:50:38:828 KERNEL/(15340:15343): Se conecto con UMV!
+
+[DEBUG] 11:50:38:835 KERNEL/(15340:15345): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 11:50:38:948 KERNEL/(15340:15343): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 11:50:38:970 KERNEL/(15340:15348): HILO recibirProgramas
+
+[DEBUG] 11:50:38:975 KERNEL/(15340:15343): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 11:50:39:58 KERNEL/(15340:15343): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 11:50:57:414 KERNEL/(15340:15348): Handshake del socket 10, tamanio:10
+
+[DEBUG] 11:50:57:425 KERNEL/(15340:15348): Recibi handshake del progrmaa
+
+[DEBUG] 11:50:57:501 KERNEL/(15340:15348): Mensaje del socket 10, tamanio:100
+
+[DEBUG] 11:50:57:570 KERNEL/(15340:15348): Cantidad de Etiquetas:0
+
+[DEBUG] 11:50:57:582 KERNEL/(15340:15348): Cantidad de Funciones:0
+
+[DEBUG] 11:50:57:588 KERNEL/(15340:15348): Cantidad de Instrucciones:5
+
+[DEBUG] 11:50:57:614 KERNEL/(15340:15348): Creo PCB: Programa 1, Peso 5
+
+[DEBUG] 11:50:58:648 KERNEL/(15340:15348): Base del nuevo segmento: 663610
+
+[DEBUG] 11:50:59:668 KERNEL/(15340:15348): Base del nuevo segmento: 226871
+
+[DEBUG] 11:51:00:685 KERNEL/(15340:15348): Base del nuevo segmento: 130267
+
+[DEBUG] 11:51:00:693 KERNEL/(15340:15348): solicito escritura en segmento 663610, tamanio: 100
+ 
+[DEBUG] 11:51:01:723 KERNEL/(15340:15348): Escritura en el segmento: 100
+
+[DEBUG] 11:51:01:726 KERNEL/(15340:15348): solicito escritura en segmento 130267, tamanio: 40
+ 
+[DEBUG] 11:51:02:738 KERNEL/(15340:15348): Escritura en el segmento: 40
+
+[DEBUG] 11:51:02:748 KERNEL/(15340:15348): Pasa a NEW: Programa 1
+
+[DEBUG] 11:51:02:757 KERNEL/(15340:15349): paso el sem de multiprogramacion y de new
+
+[DEBUG] 11:51:02:783 KERNEL/(15340:15349): Pasa a READY: Programa 1
+
+[DEBUG] 11:51:02:798 KERNEL/(15340:15347): Hilo pasa PCB a Ejecución
+
+[DEBUG] 11:51:02:819 KERNEL/(15340:15347): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 11:51:12:986 KERNEL/(15340:15347): Hilo pasa PCB a Ejecución
+
+[DEBUG] 11:51:12:3 KERNEL/(15340:15347): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 11:51:21:352 KERNEL/(15340:15350): Hilo Exit, se libero el semaforo
+
+[DEBUG] 11:51:21:380 KERNEL/(15340:15350): Elimina programa de los dictionary
+
+[DEBUG] 11:51:21:481 KERNEL/(15340:15348): detecto la desconexion, actualiza estado del programa
+
+[DEBUG] 11:51:32:650 KERNEL/(15340:15348): Handshake del socket 10, tamanio:10
+
+[DEBUG] 11:51:32:658 KERNEL/(15340:15348): Recibi handshake del progrmaa
+
+[DEBUG] 11:51:32:667 KERNEL/(15340:15348): Mensaje del socket 10, tamanio:146
+
+[DEBUG] 11:51:32:684 KERNEL/(15340:15348): Cantidad de Etiquetas:1
+
+[DEBUG] 11:51:32:694 KERNEL/(15340:15348): Cantidad de Funciones:0
+
+[DEBUG] 11:51:32:695 KERNEL/(15340:15348): Cantidad de Instrucciones:5
+
+[DEBUG] 11:51:32:698 KERNEL/(15340:15348): Creo PCB: Programa 2, Peso 10
+
+[DEBUG] 11:51:32:708 KERNEL/(15340:15348): Base del nuevo segmento: 1
+
+[DEBUG] 11:51:33:712 KERNEL/(15340:15348): Base del nuevo segmento: 237243
+
+[DEBUG] 11:51:34:721 KERNEL/(15340:15348): Base del nuevo segmento: 788615
+
+[DEBUG] 11:51:35:733 KERNEL/(15340:15348): Base del nuevo segmento: 978861
+
+[DEBUG] 11:51:35:735 KERNEL/(15340:15348): solicito escritura en segmento 1, tamanio: 146
+ 
+[DEBUG] 11:51:36:742 KERNEL/(15340:15348): Escritura en el segmento: 647368
+
+[DEBUG] 11:51:36:749 KERNEL/(15340:15348): solicito escritura en segmento 788615, tamanio: 13
+ 
+[DEBUG] 11:51:37:751 KERNEL/(15340:15348): Error al escribir en el segmento (UMV)
+
+[DEBUG] 11:51:37:761 KERNEL/(15340:15348): PROGRAMA RECHAZADO: Programa 2
+
+[DEBUG] 11:51:37:768 KERNEL/(15340:15348): Elimina programa de los dictionary
+
+[DEBUG] 11:51:37:794 KERNEL/(15340:15348): detecto la desconexion, actualiza estado del programa
+
+[DEBUG] 11:54:16:154 KERNEL/(15340:15348): Handshake del socket 10, tamanio:10
+
+[DEBUG] 11:54:16:159 KERNEL/(15340:15348): Recibi handshake del progrmaa
+
+[DEBUG] 11:54:16:166 KERNEL/(15340:15348): Mensaje del socket 10, tamanio:146
+
+[DEBUG] 11:54:16:172 KERNEL/(15340:15348): Cantidad de Etiquetas:1
+
+[DEBUG] 11:54:16:182 KERNEL/(15340:15348): Cantidad de Funciones:0
+
+[DEBUG] 11:54:16:183 KERNEL/(15340:15348): Cantidad de Instrucciones:5
+
+[DEBUG] 11:54:16:192 KERNEL/(15340:15348): Creo PCB: Programa 3, Peso 10
+
+[DEBUG] 11:54:16:198 KERNEL/(15340:15348): Base del nuevo segmento: 13
+
+[DEBUG] 11:54:17:200 KERNEL/(15340:15348): Base del nuevo segmento: 181344
+
+[DEBUG] 11:54:18:208 KERNEL/(15340:15348): Base del nuevo segmento: 942259
+
+[DEBUG] 11:54:19:223 KERNEL/(15340:15348): Base del nuevo segmento: 673384
+
+[DEBUG] 11:54:19:228 KERNEL/(15340:15348): solicito escritura en segmento 13, tamanio: 146
+ 
+[DEBUG] 11:54:20:234 KERNEL/(15340:15348): Error al escribir en el segmento (UMV)
+
+[DEBUG] 11:54:20:235 KERNEL/(15340:15348): PROGRAMA RECHAZADO: Programa 3
+
+[DEBUG] 11:54:20:243 KERNEL/(15340:15348): Elimina programa de los dictionary
+
+[DEBUG] 11:54:20:260 KERNEL/(15340:15348): detecto la desconexion, actualiza estado del programa
+
+[DEBUG] 11:58:37:645 KERNEL/(15340:15348): Handshake del socket 8, tamanio:10
+
+[DEBUG] 11:58:37:652 KERNEL/(15340:15348): Recibi handshake del progrmaa
+
+[DEBUG] 11:58:37:661 KERNEL/(15340:15348): Mensaje del socket 8, tamanio:146
+
+[DEBUG] 11:58:37:670 KERNEL/(15340:15348): Cantidad de Etiquetas:1
+
+[DEBUG] 11:58:37:678 KERNEL/(15340:15348): Cantidad de Funciones:0
+
+[DEBUG] 11:58:37:680 KERNEL/(15340:15348): Cantidad de Instrucciones:5
+
+[DEBUG] 11:58:37:688 KERNEL/(15340:15348): Creo PCB: Programa 4, Peso 10
+
+[DEBUG] 11:58:37:696 KERNEL/(15340:15348): Base del nuevo segmento: 1
+
+[DEBUG] 11:58:38:696 KERNEL/(15340:15348): Base del nuevo segmento: 423778
+
+[DEBUG] 11:58:39:708 KERNEL/(15340:15348): Base del nuevo segmento: 689433
+
+[DEBUG] 11:58:40:713 KERNEL/(15340:15348): Base del nuevo segmento: 34067
+
+[DEBUG] 11:58:40:719 KERNEL/(15340:15348): solicito escritura en segmento 1, tamanio: 146
+ 
+[DEBUG] 11:58:41:728 KERNEL/(15340:15348): Escritura en el segmento: 593546
+
+[DEBUG] 11:58:41:733 KERNEL/(15340:15348): solicito escritura en segmento 689433, tamanio: 13
+ 
+[DEBUG] 11:58:42:743 KERNEL/(15340:15348): Error al escribir en el segmento (UMV)
+
+[DEBUG] 11:58:42:757 KERNEL/(15340:15348): PROGRAMA RECHAZADO: Programa 4
+
+[DEBUG] 11:58:42:762 KERNEL/(15340:15348): Elimina programa de los dictionary
+
+[DEBUG] 11:58:42:787 KERNEL/(15340:15348): detecto la desconexion, actualiza estado del programa
+
+[DEBUG] 12:04:56:124 KERNEL/(15434:15434): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 12:04:57:435 KERNEL/(15434:15434): Se creo el hilo lo mas bien
+
+[DEBUG] 12:04:57:780 KERNEL/(15434:15438): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 12:04:58:48 KERNEL/(15434:15438): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 12:04:58:105 KERNEL/(15434:15437): Se conecto con UMV!
+
+[DEBUG] 12:04:58:180 KERNEL/(15434:15442): HILO recibirProgramas
+
+[DEBUG] 12:04:58:181 KERNEL/(15434:15437): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 12:04:58:288 KERNEL/(15434:15437): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 12:04:58:378 KERNEL/(15434:15437): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 12:05:18:760 KERNEL/(15434:15442): Handshake del socket 10, tamanio:10
+
+[DEBUG] 12:05:18:778 KERNEL/(15434:15442): Recibi handshake del progrmaa
+
+[DEBUG] 12:05:18:870 KERNEL/(15434:15442): Mensaje del socket 10, tamanio:100
+
+[DEBUG] 12:05:18:979 KERNEL/(15434:15442): Cantidad de Etiquetas:0
+
+[DEBUG] 12:05:18:990 KERNEL/(15434:15442): Cantidad de Funciones:0
+
+[DEBUG] 12:05:18:996 KERNEL/(15434:15442): Cantidad de Instrucciones:5
+
+[DEBUG] 12:05:19:24 KERNEL/(15434:15442): Creo PCB: Programa 1, Peso 5
+
+[DEBUG] 12:05:20:77 KERNEL/(15434:15442): Base del nuevo segmento: 696362
+
+[DEBUG] 12:05:21:82 KERNEL/(15434:15442): Base del nuevo segmento: 189260
+
+[DEBUG] 12:05:22:93 KERNEL/(15434:15442): Base del nuevo segmento: 914170
+
+[DEBUG] 12:05:22:98 KERNEL/(15434:15442): solicito escritura en segmento 696362, tamanio: 100
+ 
+[DEBUG] 12:05:23:116 KERNEL/(15434:15442): Escritura en el segmento: 100
+
+[DEBUG] 12:05:23:122 KERNEL/(15434:15442): solicito escritura en segmento 914170, tamanio: 40
+ 
+[DEBUG] 12:05:24:127 KERNEL/(15434:15442): Escritura en el segmento: 40
+
+[DEBUG] 12:05:24:139 KERNEL/(15434:15442): Pasa a NEW: Programa 1
+
+[DEBUG] 12:05:24:143 KERNEL/(15434:15443): paso el sem de multiprogramacion y de new
+
+[DEBUG] 12:05:24:149 KERNEL/(15434:15443): Pasa a READY: Programa 1
+
+[DEBUG] 12:05:24:167 KERNEL/(15434:15441): Hilo pasa PCB a Ejecución
+
+[DEBUG] 12:05:24:199 KERNEL/(15434:15441): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 12:05:34:386 KERNEL/(15434:15441): Hilo pasa PCB a Ejecución
+
+[DEBUG] 12:05:34:420 KERNEL/(15434:15441): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 12:05:42:896 KERNEL/(15434:15444): Hilo Exit, se libero el semaforo
+
+[DEBUG] 12:05:42:963 KERNEL/(15434:15444): Elimina programa de los dictionary
+
+[DEBUG] 12:05:43:117 KERNEL/(15434:15442): detecto la desconexion, actualiza estado del programa
+
+[DEBUG] 12:06:31:438 KERNEL/(15434:15442): Handshake del socket 10, tamanio:10
+
+[DEBUG] 12:06:31:445 KERNEL/(15434:15442): Recibi handshake del progrmaa
+
+[DEBUG] 12:06:31:455 KERNEL/(15434:15442): Mensaje del socket 10, tamanio:146
+
+[DEBUG] 12:06:31:472 KERNEL/(15434:15442): Cantidad de Etiquetas:1
+
+[DEBUG] 12:06:31:479 KERNEL/(15434:15442): Cantidad de Funciones:0
+
+[DEBUG] 12:06:31:482 KERNEL/(15434:15442): Cantidad de Instrucciones:5
+
+[DEBUG] 12:06:31:486 KERNEL/(15434:15442): Creo PCB: Programa 2, Peso 10
+
+[DEBUG] 12:06:31:494 KERNEL/(15434:15442): Base del nuevo segmento: 1
+
+[DEBUG] 12:06:32:497 KERNEL/(15434:15442): Base del nuevo segmento: 909420
+
+[DEBUG] 12:06:33:508 KERNEL/(15434:15442): Base del nuevo segmento: 544762
+
+[DEBUG] 12:06:34:518 KERNEL/(15434:15442): Base del nuevo segmento: 176200
+
+[DEBUG] 12:06:34:523 KERNEL/(15434:15442): solicito escritura en segmento 1, tamanio: 146
+ 
+[DEBUG] 12:06:35:528 KERNEL/(15434:15442): Escritura en el segmento: 520304
+
+[DEBUG] 12:06:35:529 KERNEL/(15434:15442): solicito escritura en segmento 544762, tamanio: 13
+ 
+[DEBUG] 12:06:36:540 KERNEL/(15434:15442): Escritura en el segmento: 13
+
+[DEBUG] 12:06:36:548 KERNEL/(15434:15442): solicito escritura en segmento 176200, tamanio: 40
+ 
+[DEBUG] 12:06:37:555 KERNEL/(15434:15442): Error al escribir en el segmento (UMV)
+
+[DEBUG] 12:06:37:568 KERNEL/(15434:15442): PROGRAMA RECHAZADO: Programa 2
+
+[DEBUG] 12:06:37:574 KERNEL/(15434:15442): Elimina programa de los dictionary
+
+[DEBUG] 12:06:37:599 KERNEL/(15434:15442): detecto la desconexion, actualiza estado del programa
+
+[DEBUG] 12:17:32:837 KERNEL/(15552:15552): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 12:17:32:3 KERNEL/(15552:15552): Se creo el hilo lo mas bien
+
+[DEBUG] 12:17:33:218 KERNEL/(15552:15556): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 12:17:33:363 KERNEL/(15552:15556): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 12:17:33:431 KERNEL/(15552:15555): Se conecto con UMV!
+
+[DEBUG] 12:17:33:555 KERNEL/(15552:15555): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 12:17:33:573 KERNEL/(15552:15560): HILO recibirProgramas
+
+[DEBUG] 12:17:33:585 KERNEL/(15552:15555): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 12:17:33:702 KERNEL/(15552:15555): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 12:17:47:556 KERNEL/(15552:15560): Handshake del socket 10, tamanio:10
+
+[DEBUG] 12:17:47:599 KERNEL/(15552:15560): Recibi handshake del progrmaa
+
+[DEBUG] 12:17:47:620 KERNEL/(15552:15560): Mensaje del socket 10, tamanio:146
+
+[DEBUG] 12:17:47:735 KERNEL/(15552:15560): Cantidad de Etiquetas:1
+
+[DEBUG] 12:17:47:740 KERNEL/(15552:15560): Cantidad de Funciones:0
+
+[DEBUG] 12:17:47:744 KERNEL/(15552:15560): Cantidad de Instrucciones:5
+
+[DEBUG] 12:17:47:761 KERNEL/(15552:15560): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 12:17:48:795 KERNEL/(15552:15560): Base del nuevo segmento: 949961
+
+[DEBUG] 12:17:49:812 KERNEL/(15552:15560): Base del nuevo segmento: 589598
+
+[DEBUG] 12:17:50:829 KERNEL/(15552:15560): Base del nuevo segmento: 793691
+
+[DEBUG] 12:17:51:858 KERNEL/(15552:15560): Base del nuevo segmento: 845484
+
+[DEBUG] 12:17:51:858 KERNEL/(15552:15560): solicito escritura en segmento 949961, tamanio: 146
+ 
+[DEBUG] 12:17:52:872 KERNEL/(15552:15560): Escritura en el segmento: 146
+
+[DEBUG] 12:17:52:874 KERNEL/(15552:15560): solicito escritura en segmento 793691, tamanio: 13
+ 
+[DEBUG] 12:17:53:898 KERNEL/(15552:15560): Escritura en el segmento: 13
+
+[DEBUG] 12:17:53:898 KERNEL/(15552:15560): solicito escritura en segmento 845484, tamanio: 40
+ 
+[DEBUG] 12:17:54:906 KERNEL/(15552:15560): Escritura en el segmento: 40
+
+[DEBUG] 12:17:54:910 KERNEL/(15552:15560): Pasa a NEW: Programa 1
+
+[DEBUG] 12:17:54:918 KERNEL/(15552:15561): paso el sem de multiprogramacion y de new
+
+[DEBUG] 12:17:54:922 KERNEL/(15552:15561): Pasa a READY: Programa 1
+
+[DEBUG] 12:17:54:954 KERNEL/(15552:15559): Hilo pasa PCB a Ejecución
+
+[DEBUG] 12:17:54:978 KERNEL/(15552:15559): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 12:34:42:764 KERNEL/(15680:15680): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 12:34:43:29 KERNEL/(15680:15680): Se creo el hilo lo mas bien
+
+[DEBUG] 12:34:43:557 KERNEL/(15680:15685): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 12:34:43:818 KERNEL/(15680:15683): Se conecto con UMV!
+
+[DEBUG] 12:34:43:820 KERNEL/(15680:15685): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 12:34:44:65 KERNEL/(15680:15683): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 12:34:44:95 KERNEL/(15680:15688): HILO recibirProgramas
+
+[DEBUG] 12:34:44:119 KERNEL/(15680:15683): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 12:34:44:295 KERNEL/(15680:15683): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 12:35:27:562 KERNEL/(15680:15688): Handshake del socket 10, tamanio:10
+
+[DEBUG] 12:35:27:571 KERNEL/(15680:15688): Recibi handshake del progrmaa
+
+[DEBUG] 12:35:27:591 KERNEL/(15680:15688): Mensaje del socket 10, tamanio:146
+
+[DEBUG] 12:35:27:658 KERNEL/(15680:15688): Cantidad de Etiquetas:1
+
+[DEBUG] 12:35:27:665 KERNEL/(15680:15688): Cantidad de Funciones:0
+
+[DEBUG] 12:35:27:668 KERNEL/(15680:15688): Cantidad de Instrucciones:5
+
+[DEBUG] 12:35:27:686 KERNEL/(15680:15688): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 12:35:28:717 KERNEL/(15680:15688): Base del nuevo segmento: 807940
+
+[DEBUG] 12:35:29:735 KERNEL/(15680:15688): Base del nuevo segmento: 350482
+
+[DEBUG] 12:35:30:747 KERNEL/(15680:15688): Base del nuevo segmento: 41695
+
+[DEBUG] 12:35:31:761 KERNEL/(15680:15688): Base del nuevo segmento: 579883
+
+[DEBUG] 12:35:31:771 KERNEL/(15680:15688): solicito escritura en segmento 807940, tamanio: 146
+ 
+[DEBUG] 12:35:32:786 KERNEL/(15680:15688): Escritura en el segmento: 146
+
+[DEBUG] 12:35:32:792 KERNEL/(15680:15688): solicito escritura en segmento 41695, tamanio: 13
+ 
+[DEBUG] 12:35:33:801 KERNEL/(15680:15688): Escritura en el segmento: 13
+
+[DEBUG] 12:35:33:811 KERNEL/(15680:15688): solicito escritura en segmento 579883, tamanio: 40
+ 
+[DEBUG] 12:35:34:819 KERNEL/(15680:15688): Escritura en el segmento: 40
+
+[DEBUG] 12:35:34:829 KERNEL/(15680:15688): Pasa a NEW: Programa 1
+
+[DEBUG] 12:35:34:835 KERNEL/(15680:15689): paso el sem de multiprogramacion y de new
+
+[DEBUG] 12:35:34:838 KERNEL/(15680:15689): Pasa a READY: Programa 1
+
+[DEBUG] 12:35:34:856 KERNEL/(15680:15687): Hilo pasa PCB a Ejecución
+
+[DEBUG] 12:35:34:880 KERNEL/(15680:15687): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 12:49:33:749 KERNEL/(15829:15829): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 12:49:33:898 KERNEL/(15829:15829): Se creo el hilo lo mas bien
+
+[DEBUG] 12:49:34:84 KERNEL/(15829:15833): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 12:49:34:232 KERNEL/(15829:15833): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 12:49:34:259 KERNEL/(15829:15832): Se conecto con UMV!
+
+[DEBUG] 12:49:34:354 KERNEL/(15829:15832): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 12:49:34:359 KERNEL/(15829:15837): HILO recibirProgramas
+
+[DEBUG] 12:49:34:381 KERNEL/(15829:15832): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 12:49:34:469 KERNEL/(15829:15832): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 12:49:40:940 KERNEL/(15829:15837): Handshake del socket 9, tamanio:10
+
+[DEBUG] 12:49:40:960 KERNEL/(15829:15837): Recibi handshake del progrmaa
+
+[DEBUG] 12:49:40:978 KERNEL/(15829:15837): Mensaje del socket 9, tamanio:146
+
+[DEBUG] 12:49:41:50 KERNEL/(15829:15837): Cantidad de Etiquetas:1
+
+[DEBUG] 12:49:41:58 KERNEL/(15829:15837): Cantidad de Funciones:0
+
+[DEBUG] 12:49:41:63 KERNEL/(15829:15837): Cantidad de Instrucciones:5
+
+[DEBUG] 12:49:41:87 KERNEL/(15829:15837): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 12:49:42:114 KERNEL/(15829:15837): Base del nuevo segmento: 923648
+
+[DEBUG] 12:49:43:142 KERNEL/(15829:15837): Base del nuevo segmento: 350617
+
+[DEBUG] 12:49:44:153 KERNEL/(15829:15837): Base del nuevo segmento: 580756
+
+[DEBUG] 12:49:45:164 KERNEL/(15829:15837): Base del nuevo segmento: 420229
+
+[DEBUG] 12:49:45:168 KERNEL/(15829:15837): solicito escritura en segmento 923648, tamanio: 146
+ 
+[DEBUG] 12:49:46:189 KERNEL/(15829:15837): Escritura en el segmento: 146
+
+[DEBUG] 12:49:46:196 KERNEL/(15829:15837): solicito escritura en segmento 580756, tamanio: 13
+ 
+[DEBUG] 12:49:47:214 KERNEL/(15829:15837): Escritura en el segmento: 13
+
+[DEBUG] 12:49:47:219 KERNEL/(15829:15837): solicito escritura en segmento 420229, tamanio: 40
+ 
+[DEBUG] 12:49:48:228 KERNEL/(15829:15837): Escritura en el segmento: 40
+
+[DEBUG] 12:49:48:236 KERNEL/(15829:15837): Pasa a NEW: Programa 1
+
+[DEBUG] 12:49:48:247 KERNEL/(15829:15838): paso el sem de multiprogramacion y de new
+
+[DEBUG] 12:49:48:280 KERNEL/(15829:15838): Pasa a READY: Programa 1
+
+[DEBUG] 12:49:48:297 KERNEL/(15829:15836): Hilo pasa PCB a Ejecución
+
+[DEBUG] 12:49:48:340 KERNEL/(15829:15836): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 12:59:04:618 KERNEL/(16129:16129): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 12:59:04:859 KERNEL/(16129:16129): Se creo el hilo lo mas bien
+
+[DEBUG] 12:59:05:79 KERNEL/(16129:16134): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 12:59:05:294 KERNEL/(16129:16134): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 12:59:05:395 KERNEL/(16129:16132): Se conecto con UMV!
+
+[DEBUG] 12:59:05:608 KERNEL/(16129:16137): HILO recibirProgramas
+
+[DEBUG] 12:59:05:622 KERNEL/(16129:16132): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 12:59:05:668 KERNEL/(16129:16132): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 12:59:05:787 KERNEL/(16129:16132): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 12:59:24:816 KERNEL/(16129:16137): Handshake del socket 10, tamanio:10
+
+[DEBUG] 12:59:24:823 KERNEL/(16129:16137): Recibi handshake del progrmaa
+
+[DEBUG] 12:59:24:845 KERNEL/(16129:16137): Mensaje del socket 10, tamanio:146
+
+[DEBUG] 12:59:24:898 KERNEL/(16129:16137): Cantidad de Etiquetas:1
+
+[DEBUG] 12:59:24:912 KERNEL/(16129:16137): Cantidad de Funciones:0
+
+[DEBUG] 12:59:24:916 KERNEL/(16129:16137): Cantidad de Instrucciones:5
+
+[DEBUG] 12:59:24:946 KERNEL/(16129:16137): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 12:59:25:969 KERNEL/(16129:16137): Base del nuevo segmento: 550721
+
+[DEBUG] 12:59:26:0 KERNEL/(16129:16137): Base del nuevo segmento: 858413
+
+[DEBUG] 12:59:28:10 KERNEL/(16129:16137): Base del nuevo segmento: 56438
+
+[DEBUG] 12:59:29:23 KERNEL/(16129:16137): Base del nuevo segmento: 2404
+
+[DEBUG] 12:59:29:34 KERNEL/(16129:16137): solicito escritura en segmento 550721, tamanio: 146
+ 
+[DEBUG] 12:59:30:78 KERNEL/(16129:16137): Escritura en el segmento: 146
+
+[DEBUG] 12:59:30:89 KERNEL/(16129:16137): solicito escritura en segmento 56438, tamanio: 13
+ 
+[DEBUG] 12:59:31:113 KERNEL/(16129:16137): Escritura en el segmento: 13
+
+[DEBUG] 12:59:31:117 KERNEL/(16129:16137): solicito escritura en segmento 2404, tamanio: 40
+ 
+[DEBUG] 12:59:32:126 KERNEL/(16129:16137): Escritura en el segmento: 40
+
+[DEBUG] 12:59:32:129 KERNEL/(16129:16137): Pasa a NEW: Programa 1
+
+[DEBUG] 12:59:32:138 KERNEL/(16129:16138): paso el sem de multiprogramacion y de new
+
+[DEBUG] 12:59:32:171 KERNEL/(16129:16138): Pasa a READY: Programa 1
+
+[DEBUG] 12:59:32:183 KERNEL/(16129:16136): Hilo pasa PCB a Ejecución
+
+[DEBUG] 12:59:32:219 KERNEL/(16129:16136): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 13:04:15:764 KERNEL/(16246:16246): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 13:04:15:992 KERNEL/(16246:16246): Se creo el hilo lo mas bien
+
+[DEBUG] 13:04:16:391 KERNEL/(16246:16252): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 13:04:16:547 KERNEL/(16246:16252): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 13:04:16:699 KERNEL/(16246:16250): Se conecto con UMV!
+
+[DEBUG] 13:04:16:773 KERNEL/(16246:16255): HILO recibirProgramas
+
+[DEBUG] 13:04:16:787 KERNEL/(16246:16250): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 13:04:16:932 KERNEL/(16246:16250): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 13:04:17:27 KERNEL/(16246:16250): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 13:04:47:837 KERNEL/(16246:16255): Handshake del socket 10, tamanio:10
+
+[DEBUG] 13:04:47:843 KERNEL/(16246:16255): Recibi handshake del progrmaa
+
+[DEBUG] 13:04:47:856 KERNEL/(16246:16255): Mensaje del socket 10, tamanio:146
+
+[DEBUG] 13:04:47:923 KERNEL/(16246:16255): Cantidad de Etiquetas:1
+
+[DEBUG] 13:04:47:929 KERNEL/(16246:16255): Cantidad de Funciones:0
+
+[DEBUG] 13:04:47:934 KERNEL/(16246:16255): Cantidad de Instrucciones:5
+
+[DEBUG] 13:04:47:956 KERNEL/(16246:16255): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 13:04:48:989 KERNEL/(16246:16255): Base del nuevo segmento: 369906
+
+[DEBUG] 13:04:49:999 KERNEL/(16246:16255): Base del nuevo segmento: 898982
+
+[DEBUG] 13:04:51:8 KERNEL/(16246:16255): Base del nuevo segmento: 762273
+
+[DEBUG] 13:04:52:21 KERNEL/(16246:16255): Base del nuevo segmento: 209739
+
+[DEBUG] 13:04:52:28 KERNEL/(16246:16255): solicito escritura en segmento 369906, tamanio: 146
+ 
+[DEBUG] 13:04:53:39 KERNEL/(16246:16255): Escritura en el segmento: 146
+
+[DEBUG] 13:04:53:45 KERNEL/(16246:16255): solicito escritura en segmento 762273, tamanio: 13
+ 
+[DEBUG] 13:04:54:60 KERNEL/(16246:16255): Escritura en el segmento: 13
+
+[DEBUG] 13:04:54:62 KERNEL/(16246:16255): solicito escritura en segmento 209739, tamanio: 40
+ 
+[DEBUG] 13:04:55:72 KERNEL/(16246:16255): Escritura en el segmento: 40
+
+[DEBUG] 13:04:55:86 KERNEL/(16246:16255): Pasa a NEW: Programa 1
+
+[DEBUG] 13:04:55:97 KERNEL/(16246:16256): paso el sem de multiprogramacion y de new
+
+[DEBUG] 13:04:55:128 KERNEL/(16246:16256): Pasa a READY: Programa 1
+
+[DEBUG] 13:04:55:157 KERNEL/(16246:16254): Hilo pasa PCB a Ejecución
+
+[DEBUG] 13:04:55:201 KERNEL/(16246:16254): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 13:08:39:384 KERNEL/(16354:16354): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 13:08:39:506 KERNEL/(16354:16354): Se creo el hilo lo mas bien
+
+[DEBUG] 13:08:39:689 KERNEL/(16354:16360): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 13:08:39:828 KERNEL/(16354:16360): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 13:08:39:918 KERNEL/(16354:16359): Se conecto con UMV!
+
+[DEBUG] 13:08:39:934 KERNEL/(16354:16359): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 13:08:39:946 KERNEL/(16354:16364): HILO recibirProgramas
+
+[DEBUG] 13:08:40:32 KERNEL/(16354:16359): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 13:08:40:109 KERNEL/(16354:16359): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 13:09:23:252 KERNEL/(16354:16364): Handshake del socket 10, tamanio:10
+
+[DEBUG] 13:09:23:275 KERNEL/(16354:16364): Recibi handshake del progrmaa
+
+[DEBUG] 13:09:23:296 KERNEL/(16354:16364): Mensaje del socket 10, tamanio:146
+
+[DEBUG] 13:09:23:374 KERNEL/(16354:16364): Cantidad de Etiquetas:1
+
+[DEBUG] 13:09:23:383 KERNEL/(16354:16364): Cantidad de Funciones:0
+
+[DEBUG] 13:09:23:395 KERNEL/(16354:16364): Cantidad de Instrucciones:5
+
+[DEBUG] 13:09:23:416 KERNEL/(16354:16364): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 13:09:24:453 KERNEL/(16354:16364): Base del nuevo segmento: 564816
+
+[DEBUG] 13:09:25:469 KERNEL/(16354:16364): Base del nuevo segmento: 909757
+
+[DEBUG] 13:09:26:481 KERNEL/(16354:16364): Base del nuevo segmento: 572356
+
+[DEBUG] 13:09:27:497 KERNEL/(16354:16364): Base del nuevo segmento: 718248
+
+[DEBUG] 13:09:27:501 KERNEL/(16354:16364): solicito escritura en segmento 564816, tamanio: 146
+ 
+[DEBUG] 13:09:28:516 KERNEL/(16354:16364): Escritura en el segmento: 146
+
+[DEBUG] 13:09:28:527 KERNEL/(16354:16364): solicito escritura en segmento 572356, tamanio: 13
+ 
+[DEBUG] 13:09:29:545 KERNEL/(16354:16364): Escritura en el segmento: 13
+
+[DEBUG] 13:09:29:547 KERNEL/(16354:16364): solicito escritura en segmento 718248, tamanio: 40
+ 
+[DEBUG] 13:09:30:555 KERNEL/(16354:16364): Escritura en el segmento: 40
+
+[DEBUG] 13:09:30:562 KERNEL/(16354:16364): Pasa a NEW: Programa 1
+
+[DEBUG] 13:09:30:569 KERNEL/(16354:16365): paso el sem de multiprogramacion y de new
+
+[DEBUG] 13:09:30:588 KERNEL/(16354:16365): Pasa a READY: Programa 1
+
+[DEBUG] 13:09:30:599 KERNEL/(16354:16363): Hilo pasa PCB a Ejecución
+
+[DEBUG] 13:09:30:652 KERNEL/(16354:16363): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 13:21:52:419 KERNEL/(16715:16715): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 13:21:52:572 KERNEL/(16715:16715): Se creo el hilo lo mas bien
+
+[DEBUG] 13:21:52:848 KERNEL/(16715:16719): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 13:21:52:929 KERNEL/(16715:16718): Se conecto con UMV!
+
+[DEBUG] 13:21:53:92 KERNEL/(16715:16719): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 13:21:53:131 KERNEL/(16715:16723): HILO recibirProgramas
+
+[DEBUG] 13:21:53:150 KERNEL/(16715:16718): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 13:21:53:188 KERNEL/(16715:16718): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 13:21:53:284 KERNEL/(16715:16718): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 13:21:59:881 KERNEL/(16715:16723): Handshake del socket 9, tamanio:10
+
+[DEBUG] 13:21:59:894 KERNEL/(16715:16723): Recibi handshake del progrmaa
+
+[DEBUG] 13:21:59:909 KERNEL/(16715:16723): Mensaje del socket 9, tamanio:146
+
+[DEBUG] 13:21:59:982 KERNEL/(16715:16723): Cantidad de Etiquetas:1
+
+[DEBUG] 13:21:59:991 KERNEL/(16715:16723): Cantidad de Funciones:0
+
+[DEBUG] 13:21:59:996 KERNEL/(16715:16723): Cantidad de Instrucciones:5
+
+[DEBUG] 13:22:00:15 KERNEL/(16715:16723): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 13:22:01:50 KERNEL/(16715:16723): Base del nuevo segmento: 993976
+
+[DEBUG] 13:22:02:71 KERNEL/(16715:16723): Base del nuevo segmento: 367562
+
+[DEBUG] 13:22:03:81 KERNEL/(16715:16723): Base del nuevo segmento: 27628
+
+[DEBUG] 13:22:04:91 KERNEL/(16715:16723): Base del nuevo segmento: 425221
+
+[DEBUG] 13:22:04:97 KERNEL/(16715:16723): solicito escritura en segmento 993976, tamanio: 146
+ 
+[DEBUG] 13:22:05:112 KERNEL/(16715:16723): Escritura en el segmento: 146
+
+[DEBUG] 13:22:05:124 KERNEL/(16715:16723): solicito escritura en segmento 27628, tamanio: 13
+ 
+[DEBUG] 13:22:06:131 KERNEL/(16715:16723): Escritura en el segmento: 13
+
+[DEBUG] 13:22:06:137 KERNEL/(16715:16723): solicito escritura en segmento 425221, tamanio: 40
+ 
+[DEBUG] 13:22:07:148 KERNEL/(16715:16723): Escritura en el segmento: 40
+
+[DEBUG] 13:22:07:157 KERNEL/(16715:16723): Pasa a NEW: Programa 1
+
+[DEBUG] 13:22:07:165 KERNEL/(16715:16724): paso el sem de multiprogramacion y de new
+
+[DEBUG] 13:22:07:181 KERNEL/(16715:16724): Pasa a READY: Programa 1
+
+[DEBUG] 13:22:07:195 KERNEL/(16715:16722): Hilo pasa PCB a Ejecución
+
+[DEBUG] 13:22:07:236 KERNEL/(16715:16722): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 13:29:16:406 KERNEL/(16885:16885): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 13:29:16:544 KERNEL/(16885:16885): Se creo el hilo lo mas bien
+
+[DEBUG] 13:29:16:744 KERNEL/(16885:16889): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 13:29:16:909 KERNEL/(16885:16889): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 13:29:16:963 KERNEL/(16885:16888): Se conecto con UMV!
+
+[DEBUG] 13:29:17:7 KERNEL/(16885:16893): HILO recibirProgramas
+
+[DEBUG] 13:29:17:13 KERNEL/(16885:16888): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 13:29:17:116 KERNEL/(16885:16888): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 13:29:17:207 KERNEL/(16885:16888): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 13:29:33:950 KERNEL/(16885:16893): Handshake del socket 9, tamanio:10
+
+[DEBUG] 13:29:33:960 KERNEL/(16885:16893): Recibi handshake del progrmaa
+
+[DEBUG] 13:29:33:976 KERNEL/(16885:16893): Mensaje del socket 9, tamanio:146
+
+[DEBUG] 13:29:34:36 KERNEL/(16885:16893): Cantidad de Etiquetas:1
+
+[DEBUG] 13:29:34:43 KERNEL/(16885:16893): Cantidad de Funciones:0
+
+[DEBUG] 13:29:34:55 KERNEL/(16885:16893): Cantidad de Instrucciones:5
+
+[DEBUG] 13:29:34:63 KERNEL/(16885:16893): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 13:29:35:95 KERNEL/(16885:16893): Base del nuevo segmento: 45355
+
+[DEBUG] 13:29:36:110 KERNEL/(16885:16893): Base del nuevo segmento: 893419
+
+[DEBUG] 13:29:37:123 KERNEL/(16885:16893): Base del nuevo segmento: 988932
+
+[DEBUG] 13:29:38:130 KERNEL/(16885:16893): Base del nuevo segmento: 151724
+
+[DEBUG] 13:29:38:134 KERNEL/(16885:16893): solicito escritura en segmento 45355, tamanio: 146
+ 
+[DEBUG] 13:29:39:150 KERNEL/(16885:16893): Escritura en el segmento: 146
+
+[DEBUG] 13:29:39:156 KERNEL/(16885:16893): solicito escritura en segmento 988932, tamanio: 13
+ 
+[DEBUG] 13:29:40:167 KERNEL/(16885:16893): Escritura en el segmento: 13
+
+[DEBUG] 13:29:40:174 KERNEL/(16885:16893): solicito escritura en segmento 151724, tamanio: 40
+ 
+[DEBUG] 13:29:41:183 KERNEL/(16885:16893): Escritura en el segmento: 40
+
+[DEBUG] 13:29:41:187 KERNEL/(16885:16893): Pasa a NEW: Programa 1
+
+[DEBUG] 13:29:41:194 KERNEL/(16885:16894): paso el sem de multiprogramacion y de new
+
+[DEBUG] 13:29:41:217 KERNEL/(16885:16894): Pasa a READY: Programa 1
+
+[DEBUG] 13:29:41:235 KERNEL/(16885:16892): Hilo pasa PCB a Ejecución
+
+[DEBUG] 13:29:41:280 KERNEL/(16885:16892): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 13:33:44:98 KERNEL/(16990:16990): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 13:33:45:367 KERNEL/(16990:16990): Se creo el hilo lo mas bien
+
+[DEBUG] 13:33:45:766 KERNEL/(16990:16995): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 13:33:45:810 KERNEL/(16990:16993): Se conecto con UMV!
+
+[DEBUG] 13:33:46:71 KERNEL/(16990:16995): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 13:33:46:134 KERNEL/(16990:16993): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 13:33:46:144 KERNEL/(16990:16998): HILO recibirProgramas
+
+[DEBUG] 13:33:46:195 KERNEL/(16990:16993): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 13:33:46:293 KERNEL/(16990:16993): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 13:34:18:918 KERNEL/(16990:16998): Handshake del socket 8, tamanio:10
+
+[DEBUG] 13:34:18:936 KERNEL/(16990:16998): Recibi handshake del progrmaa
+
+[DEBUG] 13:34:18:963 KERNEL/(16990:16998): Mensaje del socket 8, tamanio:146
+
+[DEBUG] 13:34:19:13 KERNEL/(16990:16998): Cantidad de Etiquetas:1
+
+[DEBUG] 13:34:19:19 KERNEL/(16990:16998): Cantidad de Funciones:0
+
+[DEBUG] 13:34:19:25 KERNEL/(16990:16998): Cantidad de Instrucciones:5
+
+[DEBUG] 13:34:19:55 KERNEL/(16990:16998): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 13:34:20:104 KERNEL/(16990:16998): Base del nuevo segmento: 157066
+
+[DEBUG] 13:34:21:122 KERNEL/(16990:16998): Base del nuevo segmento: 869101
+
+[DEBUG] 13:34:22:133 KERNEL/(16990:16998): Base del nuevo segmento: 359536
+
+[DEBUG] 13:34:23:146 KERNEL/(16990:16998): Base del nuevo segmento: 50212
+
+[DEBUG] 13:34:23:150 KERNEL/(16990:16998): solicito escritura en segmento 157066, tamanio: 146
+ 
+[DEBUG] 13:34:24:165 KERNEL/(16990:16998): Escritura en el segmento: 146
+
+[DEBUG] 13:34:24:168 KERNEL/(16990:16998): solicito escritura en segmento 359536, tamanio: 13
+ 
+[DEBUG] 13:34:25:180 KERNEL/(16990:16998): Escritura en el segmento: 13
+
+[DEBUG] 13:34:25:185 KERNEL/(16990:16998): solicito escritura en segmento 50212, tamanio: 40
+ 
+[DEBUG] 13:34:26:195 KERNEL/(16990:16998): Escritura en el segmento: 40
+
+[DEBUG] 13:34:26:199 KERNEL/(16990:16998): Pasa a NEW: Programa 1
+
+[DEBUG] 13:34:26:209 KERNEL/(16990:16999): paso el sem de multiprogramacion y de new
+
+[DEBUG] 13:34:26:229 KERNEL/(16990:16999): Pasa a READY: Programa 1
+
+[DEBUG] 13:34:36:101 KERNEL/(16990:16997): Hilo pasa PCB a Ejecución
+
+[DEBUG] 13:34:36:154 KERNEL/(16990:16997): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 13:37:33:879 KERNEL/(17067:17067): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 13:37:34:79 KERNEL/(17067:17067): Se creo el hilo lo mas bien
+
+[DEBUG] 13:37:34:430 KERNEL/(17067:17072): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 13:37:34:609 KERNEL/(17067:17070): Se conecto con UMV!
+
+[DEBUG] 13:37:34:623 KERNEL/(17067:17072): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 13:37:34:775 KERNEL/(17067:17070): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 13:37:34:796 KERNEL/(17067:17075): HILO recibirProgramas
+
+[DEBUG] 13:37:34:831 KERNEL/(17067:17070): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 13:37:34:951 KERNEL/(17067:17070): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 13:37:42:986 KERNEL/(17067:17075): Handshake del socket 9, tamanio:10
+
+[DEBUG] 13:37:43:15 KERNEL/(17067:17075): Recibi handshake del progrmaa
+
+[DEBUG] 13:37:43:32 KERNEL/(17067:17075): Mensaje del socket 9, tamanio:146
+
+[DEBUG] 13:37:43:104 KERNEL/(17067:17075): Cantidad de Etiquetas:1
+
+[DEBUG] 13:37:43:110 KERNEL/(17067:17075): Cantidad de Funciones:0
+
+[DEBUG] 13:37:43:119 KERNEL/(17067:17075): Cantidad de Instrucciones:5
+
+[DEBUG] 13:37:43:139 KERNEL/(17067:17075): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 13:37:44:156 KERNEL/(17067:17075): Base del nuevo segmento: 212286
+
+[DEBUG] 13:37:45:185 KERNEL/(17067:17075): Base del nuevo segmento: 25530
+
+[DEBUG] 13:37:46:196 KERNEL/(17067:17075): Base del nuevo segmento: 74148
+
+[DEBUG] 13:37:47:211 KERNEL/(17067:17075): Base del nuevo segmento: 138755
+
+[DEBUG] 13:37:47:219 KERNEL/(17067:17075): solicito escritura en segmento 212286, tamanio: 146
+ 
+[DEBUG] 13:37:48:237 KERNEL/(17067:17075): Escritura en el segmento: 146
+
+[DEBUG] 13:37:48:249 KERNEL/(17067:17075): solicito escritura en segmento 74148, tamanio: 13
+ 
+[DEBUG] 13:37:49:264 KERNEL/(17067:17075): Escritura en el segmento: 13
+
+[DEBUG] 13:37:49:272 KERNEL/(17067:17075): solicito escritura en segmento 138755, tamanio: 40
+ 
+[DEBUG] 13:37:50:280 KERNEL/(17067:17075): Escritura en el segmento: 40
+
+[DEBUG] 13:37:50:287 KERNEL/(17067:17075): Pasa a NEW: Programa 1
+
+[DEBUG] 13:37:50:298 KERNEL/(17067:17076): paso el sem de multiprogramacion y de new
+
+[DEBUG] 13:37:50:321 KERNEL/(17067:17076): Pasa a READY: Programa 1
+
+[DEBUG] 13:37:50:346 KERNEL/(17067:17074): Hilo pasa PCB a Ejecución
+
+[DEBUG] 13:37:50:374 KERNEL/(17067:17074): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 13:40:33:488 KERNEL/(17154:17154): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 13:40:33:724 KERNEL/(17154:17154): Se creo el hilo lo mas bien
+
+[DEBUG] 13:40:34:69 KERNEL/(17154:17158): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 13:40:34:259 KERNEL/(17154:17158): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 13:40:34:366 KERNEL/(17154:17157): Se conecto con UMV!
+
+[DEBUG] 13:40:34:409 KERNEL/(17154:17157): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 13:40:34:424 KERNEL/(17154:17162): HILO recibirProgramas
+
+[DEBUG] 13:40:34:544 KERNEL/(17154:17157): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 13:40:34:606 KERNEL/(17154:17157): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 13:41:04:298 KERNEL/(17154:17162): Handshake del socket 9, tamanio:10
+
+[DEBUG] 13:41:04:319 KERNEL/(17154:17162): Recibi handshake del progrmaa
+
+[DEBUG] 13:41:04:340 KERNEL/(17154:17162): Mensaje del socket 9, tamanio:146
+
+[DEBUG] 13:41:04:420 KERNEL/(17154:17162): Cantidad de Etiquetas:1
+
+[DEBUG] 13:41:04:427 KERNEL/(17154:17162): Cantidad de Funciones:0
+
+[DEBUG] 13:41:04:431 KERNEL/(17154:17162): Cantidad de Instrucciones:5
+
+[DEBUG] 13:41:04:455 KERNEL/(17154:17162): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 13:41:05:484 KERNEL/(17154:17162): Base del nuevo segmento: 479951
+
+[DEBUG] 13:41:06:498 KERNEL/(17154:17162): Base del nuevo segmento: 139680
+
+[DEBUG] 13:41:07:511 KERNEL/(17154:17162): Base del nuevo segmento: 611787
+
+[DEBUG] 13:41:08:519 KERNEL/(17154:17162): Base del nuevo segmento: 307800
+
+[DEBUG] 13:41:08:523 KERNEL/(17154:17162): solicito escritura en segmento 479951, tamanio: 146
+ 
+[DEBUG] 13:41:09:538 KERNEL/(17154:17162): Escritura en el segmento: 146
+
+[DEBUG] 13:41:09:550 KERNEL/(17154:17162): solicito escritura en segmento 611787, tamanio: 13
+ 
+[DEBUG] 13:41:10:555 KERNEL/(17154:17162): Escritura en el segmento: 13
+
+[DEBUG] 13:41:10:558 KERNEL/(17154:17162): solicito escritura en segmento 307800, tamanio: 40
+ 
+[DEBUG] 13:41:11:570 KERNEL/(17154:17162): Escritura en el segmento: 40
+
+[DEBUG] 13:41:11:577 KERNEL/(17154:17162): Pasa a NEW: Programa 1
+
+[DEBUG] 13:41:11:583 KERNEL/(17154:17163): paso el sem de multiprogramacion y de new
+
+[DEBUG] 13:41:11:604 KERNEL/(17154:17163): Pasa a READY: Programa 1
+
+[DEBUG] 13:41:11:623 KERNEL/(17154:17161): Hilo pasa PCB a Ejecución
+
+[DEBUG] 13:41:11:643 KERNEL/(17154:17161): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 13:42:55:405 KERNEL/(17226:17226): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 13:42:56:894 KERNEL/(17226:17226): Se creo el hilo lo mas bien
+
+[DEBUG] 13:42:57:380 KERNEL/(17226:17232): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 13:42:57:500 KERNEL/(17226:17230): Se conecto con UMV!
+
+[DEBUG] 13:42:57:789 KERNEL/(17226:17232): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 13:42:57:815 KERNEL/(17226:17235): HILO recibirProgramas
+
+[DEBUG] 13:42:57:834 KERNEL/(17226:17230): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 13:42:57:933 KERNEL/(17226:17230): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 13:42:58:103 KERNEL/(17226:17230): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 13:43:00:650 KERNEL/(17226:17235): Handshake del socket 9, tamanio:10
+
+[DEBUG] 13:43:00:666 KERNEL/(17226:17235): Recibi handshake del progrmaa
+
+[DEBUG] 13:43:00:679 KERNEL/(17226:17235): Mensaje del socket 9, tamanio:146
+
+[DEBUG] 13:43:00:752 KERNEL/(17226:17235): Cantidad de Etiquetas:1
+
+[DEBUG] 13:43:00:760 KERNEL/(17226:17235): Cantidad de Funciones:0
+
+[DEBUG] 13:43:00:762 KERNEL/(17226:17235): Cantidad de Instrucciones:5
+
+[DEBUG] 13:43:00:785 KERNEL/(17226:17235): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 13:43:01:826 KERNEL/(17226:17235): Base del nuevo segmento: 352453
+
+[DEBUG] 13:43:02:848 KERNEL/(17226:17235): Base del nuevo segmento: 390768
+
+[DEBUG] 13:43:03:859 KERNEL/(17226:17235): Base del nuevo segmento: 338943
+
+[DEBUG] 13:43:04:870 KERNEL/(17226:17235): Base del nuevo segmento: 300213
+
+[DEBUG] 13:43:04:878 KERNEL/(17226:17235): solicito escritura en segmento 352453, tamanio: 146
+ 
+[DEBUG] 13:43:05:891 KERNEL/(17226:17235): Escritura en el segmento: 146
+
+[DEBUG] 13:43:05:895 KERNEL/(17226:17235): solicito escritura en segmento 338943, tamanio: 13
+ 
+[DEBUG] 13:43:06:907 KERNEL/(17226:17235): Escritura en el segmento: 13
+
+[DEBUG] 13:43:06:913 KERNEL/(17226:17235): solicito escritura en segmento 300213, tamanio: 40
+ 
+[DEBUG] 13:43:07:920 KERNEL/(17226:17235): Escritura en el segmento: 40
+
+[DEBUG] 13:43:07:928 KERNEL/(17226:17235): Pasa a NEW: Programa 1
+
+[DEBUG] 13:43:07:932 KERNEL/(17226:17236): paso el sem de multiprogramacion y de new
+
+[DEBUG] 13:43:07:952 KERNEL/(17226:17236): Pasa a READY: Programa 1
+
+[DEBUG] 13:43:07:967 KERNEL/(17226:17234): Hilo pasa PCB a Ejecución
+
+[DEBUG] 13:43:07:0 KERNEL/(17226:17234): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 13:47:43:344 KERNEL/(17326:17326): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 13:47:43:482 KERNEL/(17326:17326): Se creo el hilo lo mas bien
+
+[DEBUG] 13:47:43:666 KERNEL/(17326:17330): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 13:47:43:867 KERNEL/(17326:17330): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 13:47:43:892 KERNEL/(17326:17329): Se conecto con UMV!
+
+[DEBUG] 13:47:44:8 KERNEL/(17326:17329): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 13:47:44:19 KERNEL/(17326:17334): HILO recibirProgramas
+
+[DEBUG] 13:47:44:31 KERNEL/(17326:17329): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 13:47:44:148 KERNEL/(17326:17329): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 13:47:49:31 KERNEL/(17326:17334): Handshake del socket 9, tamanio:10
+
+[DEBUG] 13:47:49:38 KERNEL/(17326:17334): Recibi handshake del progrmaa
+
+[DEBUG] 13:47:49:52 KERNEL/(17326:17334): Mensaje del socket 9, tamanio:146
+
+[DEBUG] 13:47:49:104 KERNEL/(17326:17334): Cantidad de Etiquetas:1
+
+[DEBUG] 13:47:49:111 KERNEL/(17326:17334): Cantidad de Funciones:0
+
+[DEBUG] 13:47:49:115 KERNEL/(17326:17334): Cantidad de Instrucciones:5
+
+[DEBUG] 13:47:49:135 KERNEL/(17326:17334): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 13:47:50:166 KERNEL/(17326:17334): Base del nuevo segmento: 523081
+
+[DEBUG] 13:47:51:190 KERNEL/(17326:17334): Base del nuevo segmento: 636851
+
+[DEBUG] 13:47:52:199 KERNEL/(17326:17334): Base del nuevo segmento: 586094
+
+[DEBUG] 13:47:53:212 KERNEL/(17326:17334): Base del nuevo segmento: 948456
+
+[DEBUG] 13:47:53:221 KERNEL/(17326:17334): solicito escritura en segmento 523081, tamanio: 146
+ 
+[DEBUG] 13:47:54:239 KERNEL/(17326:17334): Escritura en el segmento: 146
+
+[DEBUG] 13:47:54:243 KERNEL/(17326:17334): solicito escritura en segmento 586094, tamanio: 13
+ 
+[DEBUG] 13:47:55:258 KERNEL/(17326:17334): Escritura en el segmento: 13
+
+[DEBUG] 13:47:55:263 KERNEL/(17326:17334): solicito escritura en segmento 948456, tamanio: 40
+ 
+[DEBUG] 13:47:56:270 KERNEL/(17326:17334): Escritura en el segmento: 40
+
+[DEBUG] 13:47:56:281 KERNEL/(17326:17334): Pasa a NEW: Programa 1
+
+[DEBUG] 13:47:56:296 KERNEL/(17326:17335): paso el sem de multiprogramacion y de new
+
+[DEBUG] 13:47:56:330 KERNEL/(17326:17335): Pasa a READY: Programa 1
+
+[DEBUG] 13:47:56:347 KERNEL/(17326:17333): Hilo pasa PCB a Ejecución
+
+[DEBUG] 13:47:56:387 KERNEL/(17326:17333): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 13:50:09:423 KERNEL/(17395:17395): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 13:50:09:573 KERNEL/(17395:17395): Se creo el hilo lo mas bien
+
+[DEBUG] 13:50:09:781 KERNEL/(17395:17399): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 13:50:09:962 KERNEL/(17395:17398): Se conecto con UMV!
+
+[DEBUG] 13:50:09:972 KERNEL/(17395:17399): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 13:50:10:83 KERNEL/(17395:17398): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 13:50:10:89 KERNEL/(17395:17403): HILO recibirProgramas
+
+[DEBUG] 13:50:10:112 KERNEL/(17395:17398): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 13:50:10:221 KERNEL/(17395:17398): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 13:50:14:558 KERNEL/(17395:17403): Handshake del socket 9, tamanio:10
+
+[DEBUG] 13:50:14:569 KERNEL/(17395:17403): Recibi handshake del progrmaa
+
+[DEBUG] 13:50:14:581 KERNEL/(17395:17403): Mensaje del socket 9, tamanio:146
+
+[DEBUG] 13:50:14:649 KERNEL/(17395:17403): Cantidad de Etiquetas:1
+
+[DEBUG] 13:50:14:668 KERNEL/(17395:17403): Cantidad de Funciones:0
+
+[DEBUG] 13:50:14:674 KERNEL/(17395:17403): Cantidad de Instrucciones:5
+
+[DEBUG] 13:50:14:696 KERNEL/(17395:17403): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 13:50:15:722 KERNEL/(17395:17403): Base del nuevo segmento: 948695
+
+[DEBUG] 13:50:16:743 KERNEL/(17395:17403): Base del nuevo segmento: 652225
+
+[DEBUG] 13:50:17:754 KERNEL/(17395:17403): Base del nuevo segmento: 378063
+
+[DEBUG] 13:50:18:762 KERNEL/(17395:17403): Base del nuevo segmento: 555636
+
+[DEBUG] 13:50:18:766 KERNEL/(17395:17403): solicito escritura en segmento 948695, tamanio: 146
+ 
+[DEBUG] 13:50:19:801 KERNEL/(17395:17403): Escritura en el segmento: 146
+
+[DEBUG] 13:50:19:808 KERNEL/(17395:17403): solicito escritura en segmento 378063, tamanio: 13
+ 
+[DEBUG] 13:50:20:820 KERNEL/(17395:17403): Escritura en el segmento: 13
+
+[DEBUG] 13:50:20:822 KERNEL/(17395:17403): solicito escritura en segmento 555636, tamanio: 40
+ 
+[DEBUG] 13:50:21:831 KERNEL/(17395:17403): Escritura en el segmento: 40
+
+[DEBUG] 13:50:21:837 KERNEL/(17395:17403): Pasa a NEW: Programa 1
+
+[DEBUG] 13:50:21:844 KERNEL/(17395:17404): paso el sem de multiprogramacion y de new
+
+[DEBUG] 13:50:21:865 KERNEL/(17395:17404): Pasa a READY: Programa 1
+
+[DEBUG] 13:50:21:876 KERNEL/(17395:17402): Hilo pasa PCB a Ejecución
+
+[DEBUG] 13:50:21:901 KERNEL/(17395:17402): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 13:52:31:888 KERNEL/(17464:17464): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 13:52:32:40 KERNEL/(17464:17464): Se creo el hilo lo mas bien
+
+[DEBUG] 13:52:32:444 KERNEL/(17464:17468): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 13:52:32:562 KERNEL/(17464:17467): Se conecto con UMV!
+
+[DEBUG] 13:52:32:830 KERNEL/(17464:17468): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 13:52:32:870 KERNEL/(17464:17467): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 13:52:32:887 KERNEL/(17464:17472): HILO recibirProgramas
+
+[DEBUG] 13:52:33:19 KERNEL/(17464:17467): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 13:52:33:62 KERNEL/(17464:17467): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 13:52:38:594 KERNEL/(17464:17472): Handshake del socket 9, tamanio:10
+
+[DEBUG] 13:52:38:603 KERNEL/(17464:17472): Recibi handshake del progrmaa
+
+[DEBUG] 13:52:38:620 KERNEL/(17464:17472): Mensaje del socket 9, tamanio:146
+
+[DEBUG] 13:52:38:680 KERNEL/(17464:17472): Cantidad de Etiquetas:1
+
+[DEBUG] 13:52:38:690 KERNEL/(17464:17472): Cantidad de Funciones:0
+
+[DEBUG] 13:52:38:691 KERNEL/(17464:17472): Cantidad de Instrucciones:5
+
+[DEBUG] 13:52:38:705 KERNEL/(17464:17472): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 13:52:39:738 KERNEL/(17464:17472): Base del nuevo segmento: 496257
+
+[DEBUG] 13:52:40:764 KERNEL/(17464:17472): Base del nuevo segmento: 612194
+
+[DEBUG] 13:52:41:774 KERNEL/(17464:17472): Base del nuevo segmento: 580985
+
+[DEBUG] 13:52:42:787 KERNEL/(17464:17472): Base del nuevo segmento: 904485
+
+[DEBUG] 13:52:42:794 KERNEL/(17464:17472): solicito escritura en segmento 496257, tamanio: 146
+ 
+[DEBUG] 13:52:43:808 KERNEL/(17464:17472): Escritura en el segmento: 146
+
+[DEBUG] 13:52:43:822 KERNEL/(17464:17472): solicito escritura en segmento 580985, tamanio: 13
+ 
+[DEBUG] 13:52:44:836 KERNEL/(17464:17472): Escritura en el segmento: 13
+
+[DEBUG] 13:52:44:839 KERNEL/(17464:17472): solicito escritura en segmento 904485, tamanio: 40
+ 
+[DEBUG] 13:52:45:849 KERNEL/(17464:17472): Escritura en el segmento: 40
+
+[DEBUG] 13:52:45:855 KERNEL/(17464:17472): Pasa a NEW: Programa 1
+
+[DEBUG] 13:52:45:865 KERNEL/(17464:17473): paso el sem de multiprogramacion y de new
+
+[DEBUG] 13:52:45:906 KERNEL/(17464:17473): Pasa a READY: Programa 1
+
+[DEBUG] 13:52:45:920 KERNEL/(17464:17471): Hilo pasa PCB a Ejecución
+
+[DEBUG] 13:52:45:960 KERNEL/(17464:17471): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 13:54:58:618 KERNEL/(17537:17537): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 13:54:58:796 KERNEL/(17537:17537): Se creo el hilo lo mas bien
+
+[DEBUG] 13:54:59:166 KERNEL/(17537:17541): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 13:54:59:326 KERNEL/(17537:17540): Se conecto con UMV!
+
+[DEBUG] 13:54:59:338 KERNEL/(17537:17541): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 13:54:59:493 KERNEL/(17537:17545): HILO recibirProgramas
+
+[DEBUG] 13:54:59:495 KERNEL/(17537:17540): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 13:54:59:540 KERNEL/(17537:17540): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 13:54:59:644 KERNEL/(17537:17540): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 13:55:06:566 KERNEL/(17537:17545): Handshake del socket 9, tamanio:10
+
+[DEBUG] 13:55:06:587 KERNEL/(17537:17545): Recibi handshake del progrmaa
+
+[DEBUG] 13:55:06:603 KERNEL/(17537:17545): Mensaje del socket 9, tamanio:146
+
+[DEBUG] 13:55:06:690 KERNEL/(17537:17545): Cantidad de Etiquetas:1
+
+[DEBUG] 13:55:06:704 KERNEL/(17537:17545): Cantidad de Funciones:0
+
+[DEBUG] 13:55:06:712 KERNEL/(17537:17545): Cantidad de Instrucciones:5
+
+[DEBUG] 13:55:06:738 KERNEL/(17537:17545): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 13:55:07:784 KERNEL/(17537:17545): Base del nuevo segmento: 30873
+
+[DEBUG] 13:55:08:807 KERNEL/(17537:17545): Base del nuevo segmento: 108595
+
+[DEBUG] 13:55:09:817 KERNEL/(17537:17545): Base del nuevo segmento: 798792
+
+[DEBUG] 13:55:10:840 KERNEL/(17537:17545): Base del nuevo segmento: 341857
+
+[DEBUG] 13:55:10:847 KERNEL/(17537:17545): solicito escritura en segmento 30873, tamanio: 146
+ 
+[DEBUG] 13:55:11:870 KERNEL/(17537:17545): Escritura en el segmento: 146
+
+[DEBUG] 13:55:11:874 KERNEL/(17537:17545): solicito escritura en segmento 798792, tamanio: 13
+ 
+[DEBUG] 13:55:12:886 KERNEL/(17537:17545): Escritura en el segmento: 13
+
+[DEBUG] 13:55:12:892 KERNEL/(17537:17545): solicito escritura en segmento 341857, tamanio: 40
+ 
+[DEBUG] 13:55:13:902 KERNEL/(17537:17545): Escritura en el segmento: 40
+
+[DEBUG] 13:55:13:917 KERNEL/(17537:17545): Pasa a NEW: Programa 1
+
+[DEBUG] 13:55:13:922 KERNEL/(17537:17546): paso el sem de multiprogramacion y de new
+
+[DEBUG] 13:55:13:957 KERNEL/(17537:17546): Pasa a READY: Programa 1
+
+[DEBUG] 13:55:30:244 KERNEL/(17537:17544): Hilo pasa PCB a Ejecución
+
+[DEBUG] 13:55:30:261 KERNEL/(17537:17544): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 13:57:09:717 KERNEL/(17569:17569): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 13:57:10:26 KERNEL/(17569:17569): Se creo el hilo lo mas bien
+
+[DEBUG] 13:57:10:362 KERNEL/(17569:17578): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 13:57:10:574 KERNEL/(17569:17576): Se conecto con UMV!
+
+[DEBUG] 13:57:10:575 KERNEL/(17569:17578): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 13:57:10:758 KERNEL/(17569:17576): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 13:57:10:764 KERNEL/(17569:17581): HILO recibirProgramas
+
+[DEBUG] 13:57:10:958 KERNEL/(17569:17576): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 13:57:11:16 KERNEL/(17569:17576): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 13:57:21:110 KERNEL/(17569:17581): Handshake del socket 9, tamanio:10
+
+[DEBUG] 13:57:21:115 KERNEL/(17569:17581): Recibi handshake del progrmaa
+
+[DEBUG] 13:57:21:133 KERNEL/(17569:17581): Mensaje del socket 9, tamanio:143
+
+[DEBUG] 13:57:21:220 KERNEL/(17569:17581): Cantidad de Etiquetas:1
+
+[DEBUG] 13:57:21:239 KERNEL/(17569:17581): Cantidad de Funciones:0
+
+[DEBUG] 13:57:21:251 KERNEL/(17569:17581): Cantidad de Instrucciones:5
+
+[DEBUG] 13:57:21:274 KERNEL/(17569:17581): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 13:57:22:311 KERNEL/(17569:17581): Base del nuevo segmento: 987521
+
+[DEBUG] 13:57:23:337 KERNEL/(17569:17581): Base del nuevo segmento: 881467
+
+[DEBUG] 13:57:24:355 KERNEL/(17569:17581): Base del nuevo segmento: 218657
+
+[DEBUG] 13:57:25:366 KERNEL/(17569:17581): Base del nuevo segmento: 978053
+
+[DEBUG] 13:57:25:372 KERNEL/(17569:17581): solicito escritura en segmento 987521, tamanio: 143
+ 
+[DEBUG] 13:57:26:388 KERNEL/(17569:17581): Escritura en el segmento: 143
+
+[DEBUG] 13:57:26:404 KERNEL/(17569:17581): solicito escritura en segmento 218657, tamanio: 13
+ 
+[DEBUG] 13:57:27:424 KERNEL/(17569:17581): Escritura en el segmento: 13
+
+[DEBUG] 13:57:27:430 KERNEL/(17569:17581): solicito escritura en segmento 978053, tamanio: 40
+ 
+[DEBUG] 13:57:28:444 KERNEL/(17569:17581): Escritura en el segmento: 40
+
+[DEBUG] 13:57:28:455 KERNEL/(17569:17581): Pasa a NEW: Programa 1
+
+[DEBUG] 13:57:28:459 KERNEL/(17569:17582): paso el sem de multiprogramacion y de new
+
+[DEBUG] 13:57:28:476 KERNEL/(17569:17582): Pasa a READY: Programa 1
+
+[DEBUG] 13:57:28:510 KERNEL/(17569:17580): Hilo pasa PCB a Ejecución
+
+[DEBUG] 13:57:28:523 KERNEL/(17569:17580): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 13:59:18:615 KERNEL/(17662:17662): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 13:59:18:737 KERNEL/(17662:17662): Se creo el hilo lo mas bien
+
+[DEBUG] 13:59:18:955 KERNEL/(17662:17666): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 13:59:19:148 KERNEL/(17662:17666): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 13:59:19:242 KERNEL/(17662:17665): Se conecto con UMV!
+
+[DEBUG] 13:59:19:281 KERNEL/(17662:17665): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 13:59:19:301 KERNEL/(17662:17670): HILO recibirProgramas
+
+[DEBUG] 13:59:19:390 KERNEL/(17662:17665): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 13:59:19:535 KERNEL/(17662:17665): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 13:59:24:300 KERNEL/(17662:17670): Handshake del socket 9, tamanio:10
+
+[DEBUG] 13:59:24:309 KERNEL/(17662:17670): Recibi handshake del progrmaa
+
+[DEBUG] 13:59:24:323 KERNEL/(17662:17670): Mensaje del socket 9, tamanio:143
+
+[DEBUG] 13:59:24:377 KERNEL/(17662:17670): Cantidad de Etiquetas:1
+
+[DEBUG] 13:59:24:395 KERNEL/(17662:17670): Cantidad de Funciones:0
+
+[DEBUG] 13:59:24:398 KERNEL/(17662:17670): Cantidad de Instrucciones:5
+
+[DEBUG] 13:59:24:412 KERNEL/(17662:17670): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 13:59:25:448 KERNEL/(17662:17670): Base del nuevo segmento: 135461
+
+[DEBUG] 13:59:26:470 KERNEL/(17662:17670): Base del nuevo segmento: 698887
+
+[DEBUG] 13:59:27:476 KERNEL/(17662:17670): Base del nuevo segmento: 191719
+
+[DEBUG] 13:59:28:487 KERNEL/(17662:17670): Base del nuevo segmento: 215257
+
+[DEBUG] 13:59:28:492 KERNEL/(17662:17670): solicito escritura en segmento 135461, tamanio: 143
+ 
+[DEBUG] 13:59:29:516 KERNEL/(17662:17670): Escritura en el segmento: 143
+
+[DEBUG] 13:59:29:522 KERNEL/(17662:17670): solicito escritura en segmento 191719, tamanio: 13
+ 
+[DEBUG] 13:59:30:531 KERNEL/(17662:17670): Escritura en el segmento: 13
+
+[DEBUG] 13:59:30:534 KERNEL/(17662:17670): solicito escritura en segmento 215257, tamanio: 40
+ 
+[DEBUG] 13:59:31:543 KERNEL/(17662:17670): Escritura en el segmento: 40
+
+[DEBUG] 13:59:31:552 KERNEL/(17662:17670): Pasa a NEW: Programa 1
+
+[DEBUG] 13:59:31:562 KERNEL/(17662:17671): paso el sem de multiprogramacion y de new
+
+[DEBUG] 13:59:31:568 KERNEL/(17662:17671): Pasa a READY: Programa 1
+
+[DEBUG] 13:59:31:587 KERNEL/(17662:17669): Hilo pasa PCB a Ejecución
+
+[DEBUG] 13:59:31:623 KERNEL/(17662:17669): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 14:04:25:436 KERNEL/(17800:17800): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 14:04:25:750 KERNEL/(17800:17800): Se creo el hilo lo mas bien
+
+[DEBUG] 14:04:26:216 KERNEL/(17800:17805): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 14:04:26:484 KERNEL/(17800:17803): Se conecto con UMV!
+
+[DEBUG] 14:04:26:494 KERNEL/(17800:17805): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 14:04:26:746 KERNEL/(17800:17808): HILO recibirProgramas
+
+[DEBUG] 14:04:26:763 KERNEL/(17800:17803): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 14:04:26:815 KERNEL/(17800:17803): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 14:04:26:915 KERNEL/(17800:17803): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 14:04:35:244 KERNEL/(17800:17808): Handshake del socket 9, tamanio:10
+
+[DEBUG] 14:04:35:263 KERNEL/(17800:17808): Recibi handshake del progrmaa
+
+[DEBUG] 14:04:35:278 KERNEL/(17800:17808): Mensaje del socket 9, tamanio:143
+
+[DEBUG] 14:04:35:379 KERNEL/(17800:17808): Cantidad de Etiquetas:1
+
+[DEBUG] 14:04:35:391 KERNEL/(17800:17808): Cantidad de Funciones:0
+
+[DEBUG] 14:04:35:403 KERNEL/(17800:17808): Cantidad de Instrucciones:5
+
+[DEBUG] 14:04:35:420 KERNEL/(17800:17808): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 14:04:36:447 KERNEL/(17800:17808): Base del nuevo segmento: 555963
+
+[DEBUG] 14:04:37:467 KERNEL/(17800:17808): Base del nuevo segmento: 816932
+
+[DEBUG] 14:04:38:478 KERNEL/(17800:17808): Base del nuevo segmento: 289279
+
+[DEBUG] 14:04:39:491 KERNEL/(17800:17808): Base del nuevo segmento: 627697
+
+[DEBUG] 14:04:39:499 KERNEL/(17800:17808): solicito escritura en segmento 555963, tamanio: 143
+ 
+[DEBUG] 14:04:40:520 KERNEL/(17800:17808): Escritura en el segmento: 143
+
+[DEBUG] 14:04:40:528 KERNEL/(17800:17808): solicito escritura en segmento 289279, tamanio: 13
+ 
+[DEBUG] 14:04:41:539 KERNEL/(17800:17808): Escritura en el segmento: 13
+
+[DEBUG] 14:04:41:544 KERNEL/(17800:17808): solicito escritura en segmento 627697, tamanio: 40
+ 
+[DEBUG] 14:04:42:556 KERNEL/(17800:17808): Escritura en el segmento: 40
+
+[DEBUG] 14:04:42:564 KERNEL/(17800:17808): Pasa a NEW: Programa 1
+
+[DEBUG] 14:04:42:571 KERNEL/(17800:17809): paso el sem de multiprogramacion y de new
+
+[DEBUG] 14:04:42:597 KERNEL/(17800:17809): Pasa a READY: Programa 1
+
+[DEBUG] 14:04:42:628 KERNEL/(17800:17807): Hilo pasa PCB a Ejecución
+
+[DEBUG] 14:04:42:663 KERNEL/(17800:17807): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 14:04:45:819 KERNEL/(17800:17810): Hilo Exit, se libero el semaforo
+
+[DEBUG] 14:04:45:855 KERNEL/(17800:17810): Elimina programa de los dictionary
+
+[DEBUG] 14:04:45:922 KERNEL/(17800:17808): detecto la desconexion, actualiza estado del programa
+
+[DEBUG] 14:07:33:988 KERNEL/(17945:17945): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 14:07:34:150 KERNEL/(17945:17945): Se creo el hilo lo mas bien
+
+[DEBUG] 14:07:34:739 KERNEL/(17945:17949): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 14:07:34:739 KERNEL/(17945:17949): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 14:07:46:896 KERNEL/(17953:17953): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 14:07:47:64 KERNEL/(17953:17953): Se creo el hilo lo mas bien
+
+[DEBUG] 14:07:47:343 KERNEL/(17953:17957): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 14:07:47:573 KERNEL/(17953:17957): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 14:07:47:621 KERNEL/(17953:17956): Se conecto con UMV!
+
+[DEBUG] 14:07:47:817 KERNEL/(17953:17961): HILO recibirProgramas
+
+[DEBUG] 14:07:47:829 KERNEL/(17953:17956): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 14:07:47:891 KERNEL/(17953:17956): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 14:07:48:89 KERNEL/(17953:17956): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 14:08:09:546 KERNEL/(17953:17961): Handshake del socket 9, tamanio:10
+
+[DEBUG] 14:08:09:549 KERNEL/(17953:17961): Recibi handshake del progrmaa
+
+[DEBUG] 14:08:09:567 KERNEL/(17953:17961): Mensaje del socket 9, tamanio:143
+
+[DEBUG] 14:08:09:623 KERNEL/(17953:17961): Cantidad de Etiquetas:1
+
+[DEBUG] 14:08:09:634 KERNEL/(17953:17961): Cantidad de Funciones:0
+
+[DEBUG] 14:08:09:637 KERNEL/(17953:17961): Cantidad de Instrucciones:5
+
+[DEBUG] 14:08:09:648 KERNEL/(17953:17961): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 14:08:10:674 KERNEL/(17953:17961): Base del nuevo segmento: 630476
+
+[DEBUG] 14:08:11:704 KERNEL/(17953:17961): Base del nuevo segmento: 446830
+
+[DEBUG] 14:08:12:717 KERNEL/(17953:17961): Base del nuevo segmento: 779188
+
+[DEBUG] 14:08:13:735 KERNEL/(17953:17961): Base del nuevo segmento: 718097
+
+[DEBUG] 14:08:13:739 KERNEL/(17953:17961): solicito escritura en segmento 630476, tamanio: 143
+ 
+[DEBUG] 14:08:14:763 KERNEL/(17953:17961): Escritura en el segmento: 143
+
+[DEBUG] 14:08:14:771 KERNEL/(17953:17961): solicito escritura en segmento 779188, tamanio: 13
+ 
+[DEBUG] 14:08:15:778 KERNEL/(17953:17961): Escritura en el segmento: 13
+
+[DEBUG] 14:08:15:781 KERNEL/(17953:17961): solicito escritura en segmento 718097, tamanio: 40
+ 
+[DEBUG] 14:08:16:792 KERNEL/(17953:17961): Escritura en el segmento: 40
+
+[DEBUG] 14:08:16:817 KERNEL/(17953:17961): Pasa a NEW: Programa 1
+
+[DEBUG] 14:08:16:822 KERNEL/(17953:17962): paso el sem de multiprogramacion y de new
+
+[DEBUG] 14:08:16:850 KERNEL/(17953:17962): Pasa a READY: Programa 1
+
+[DEBUG] 14:08:16:883 KERNEL/(17953:17960): Hilo pasa PCB a Ejecución
+
+[DEBUG] 14:08:16:923 KERNEL/(17953:17960): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 14:08:19:30 KERNEL/(17953:17959): El semaforo c tenia el valor 0 
+[DEBUG] 14:08:19:39 KERNEL/(17953:17959):  y ahora pasa a tener el valor -1 
+[DEBUG] 14:12:51:254 KERNEL/(18060:18060): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 14:12:52:476 KERNEL/(18060:18060): Se creo el hilo lo mas bien
+
+[DEBUG] 14:12:52:793 KERNEL/(18060:18064): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 14:12:52:940 KERNEL/(18060:18063): Se conecto con UMV!
+
+[DEBUG] 14:12:52:949 KERNEL/(18060:18064): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 14:12:53:193 KERNEL/(18060:18068): HILO recibirProgramas
+
+[DEBUG] 14:12:53:196 KERNEL/(18060:18063): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 14:12:53:247 KERNEL/(18060:18063): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 14:12:53:346 KERNEL/(18060:18063): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 14:12:59:1 KERNEL/(18060:18068): Handshake del socket 9, tamanio:10
+
+[DEBUG] 14:13:00:18 KERNEL/(18060:18068): Recibi handshake del progrmaa
+
+[DEBUG] 14:13:00:42 KERNEL/(18060:18068): Mensaje del socket 9, tamanio:143
+
+[DEBUG] 14:13:00:115 KERNEL/(18060:18068): Cantidad de Etiquetas:1
+
+[DEBUG] 14:13:00:124 KERNEL/(18060:18068): Cantidad de Funciones:0
+
+[DEBUG] 14:13:00:135 KERNEL/(18060:18068): Cantidad de Instrucciones:5
+
+[DEBUG] 14:13:00:156 KERNEL/(18060:18068): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 14:13:01:192 KERNEL/(18060:18068): Base del nuevo segmento: 938607
+
+[DEBUG] 14:13:02:239 KERNEL/(18060:18068): Base del nuevo segmento: 728126
+
+[DEBUG] 14:13:03:250 KERNEL/(18060:18068): Base del nuevo segmento: 81511
+
+[DEBUG] 14:13:04:260 KERNEL/(18060:18068): Base del nuevo segmento: 229003
+
+[DEBUG] 14:13:04:268 KERNEL/(18060:18068): solicito escritura en segmento 938607, tamanio: 143
+ 
+[DEBUG] 14:13:05:284 KERNEL/(18060:18068): Escritura en el segmento: 143
+
+[DEBUG] 14:13:05:287 KERNEL/(18060:18068): solicito escritura en segmento 81511, tamanio: 13
+ 
+[DEBUG] 14:13:06:309 KERNEL/(18060:18068): Escritura en el segmento: 13
+
+[DEBUG] 14:13:06:313 KERNEL/(18060:18068): solicito escritura en segmento 229003, tamanio: 40
+ 
+[DEBUG] 14:13:07:324 KERNEL/(18060:18068): Escritura en el segmento: 40
+
+[DEBUG] 14:13:07:329 KERNEL/(18060:18068): Pasa a NEW: Programa 1
+
+[DEBUG] 14:13:07:336 KERNEL/(18060:18069): paso el sem de multiprogramacion y de new
+
+[DEBUG] 14:13:07:371 KERNEL/(18060:18069): Pasa a READY: Programa 1
+
+[DEBUG] 14:13:07:382 KERNEL/(18060:18067): Hilo pasa PCB a Ejecución
+
+[DEBUG] 14:13:07:465 KERNEL/(18060:18067): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 14:13:09:559 KERNEL/(18060:18066): El semaforo c tenia el valor 0 
+[DEBUG] 14:13:09:579 KERNEL/(18060:18066):  y ahora pasa a tener el valor -1 
+[DEBUG] 14:15:39:247 KERNEL/(18141:18141): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 14:15:40:577 KERNEL/(18141:18141): Se creo el hilo lo mas bien
+
+[DEBUG] 14:15:40:974 KERNEL/(18141:18147): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 14:15:41:244 KERNEL/(18141:18145): Se conecto con UMV!
+
+[DEBUG] 14:15:41:261 KERNEL/(18141:18147): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 14:15:41:447 KERNEL/(18141:18145): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 14:15:41:459 KERNEL/(18141:18150): HILO recibirProgramas
+
+[DEBUG] 14:15:41:606 KERNEL/(18141:18145): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 14:15:41:632 KERNEL/(18141:18145): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 14:15:44:571 KERNEL/(18141:18150): Handshake del socket 8, tamanio:10
+
+[DEBUG] 14:15:44:579 KERNEL/(18141:18150): Recibi handshake del progrmaa
+
+[DEBUG] 14:15:44:590 KERNEL/(18141:18150): Mensaje del socket 8, tamanio:143
+
+[DEBUG] 14:15:44:651 KERNEL/(18141:18150): Cantidad de Etiquetas:1
+
+[DEBUG] 14:15:44:655 KERNEL/(18141:18150): Cantidad de Funciones:0
+
+[DEBUG] 14:15:44:659 KERNEL/(18141:18150): Cantidad de Instrucciones:5
+
+[DEBUG] 14:15:44:691 KERNEL/(18141:18150): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 14:15:45:720 KERNEL/(18141:18150): Base del nuevo segmento: 63564
+
+[DEBUG] 14:15:46:750 KERNEL/(18141:18150): Base del nuevo segmento: 421480
+
+[DEBUG] 14:15:47:759 KERNEL/(18141:18150): Base del nuevo segmento: 673595
+
+[DEBUG] 14:15:48:776 KERNEL/(18141:18150): Base del nuevo segmento: 136303
+
+[DEBUG] 14:15:48:780 KERNEL/(18141:18150): solicito escritura en segmento 63564, tamanio: 143
+ 
+[DEBUG] 14:15:49:803 KERNEL/(18141:18150): Escritura en el segmento: 143
+
+[DEBUG] 14:15:49:811 KERNEL/(18141:18150): solicito escritura en segmento 673595, tamanio: 13
+ 
+[DEBUG] 14:15:50:823 KERNEL/(18141:18150): Escritura en el segmento: 13
+
+[DEBUG] 14:15:50:831 KERNEL/(18141:18150): solicito escritura en segmento 136303, tamanio: 40
+ 
+[DEBUG] 14:15:51:841 KERNEL/(18141:18150): Escritura en el segmento: 40
+
+[DEBUG] 14:15:51:852 KERNEL/(18141:18150): Pasa a NEW: Programa 1
+
+[DEBUG] 14:15:51:856 KERNEL/(18141:18151): paso el sem de multiprogramacion y de new
+
+[DEBUG] 14:15:51:891 KERNEL/(18141:18151): Pasa a READY: Programa 1
+
+[DEBUG] 14:15:59:520 KERNEL/(18141:18149): Hilo pasa PCB a Ejecución
+
+[DEBUG] 14:15:59:548 KERNEL/(18141:18149): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 14:16:01:641 KERNEL/(18141:18148): El semaforo c tenia el valor 0 
+[DEBUG] 14:16:01:652 KERNEL/(18141:18148):  y ahora pasa a tener el valor -1 
+[DEBUG] 14:45:18:590 KERNEL/(18251:18251): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 14:45:18:781 KERNEL/(18251:18251): Se creo el hilo lo mas bien
+
+[DEBUG] 14:45:19:148 KERNEL/(18251:18255): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 14:45:19:286 KERNEL/(18251:18254): Se conecto con UMV!
+
+[DEBUG] 14:45:19:672 KERNEL/(18251:18259): HILO recibirProgramas
+
+[DEBUG] 14:45:19:687 KERNEL/(18251:18254): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 14:45:19:874 KERNEL/(18251:18255): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 14:45:19:956 KERNEL/(18251:18254): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 14:45:20:43 KERNEL/(18251:18254): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 14:45:26:596 KERNEL/(18251:18259): Handshake del socket 9, tamanio:10
+
+[DEBUG] 14:45:26:607 KERNEL/(18251:18259): Recibi handshake del progrmaa
+
+[DEBUG] 14:45:26:626 KERNEL/(18251:18259): Mensaje del socket 9, tamanio:143
+
+[DEBUG] 14:45:26:686 KERNEL/(18251:18259): Cantidad de Etiquetas:1
+
+[DEBUG] 14:45:26:694 KERNEL/(18251:18259): Cantidad de Funciones:0
+
+[DEBUG] 14:45:26:703 KERNEL/(18251:18259): Cantidad de Instrucciones:5
+
+[DEBUG] 14:45:26:712 KERNEL/(18251:18259): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 14:45:27:746 KERNEL/(18251:18259): Base del nuevo segmento: 107081
+
+[DEBUG] 14:45:28:763 KERNEL/(18251:18259): Base del nuevo segmento: 744091
+
+[DEBUG] 14:45:29:772 KERNEL/(18251:18259): Base del nuevo segmento: 176374
+
+[DEBUG] 14:45:30:787 KERNEL/(18251:18259): Base del nuevo segmento: 427892
+
+[DEBUG] 14:45:30:790 KERNEL/(18251:18259): solicito escritura en segmento 107081, tamanio: 143
+ 
+[DEBUG] 14:45:31:808 KERNEL/(18251:18259): Escritura en el segmento: 143
+
+[DEBUG] 14:45:31:818 KERNEL/(18251:18259): solicito escritura en segmento 176374, tamanio: 13
+ 
+[DEBUG] 14:45:32:827 KERNEL/(18251:18259): Escritura en el segmento: 13
+
+[DEBUG] 14:45:32:830 KERNEL/(18251:18259): solicito escritura en segmento 427892, tamanio: 40
+ 
+[DEBUG] 14:45:33:839 KERNEL/(18251:18259): Escritura en el segmento: 40
+
+[DEBUG] 14:45:33:861 KERNEL/(18251:18259): Pasa a NEW: Programa 1
+
+[DEBUG] 14:45:33:872 KERNEL/(18251:18260): paso el sem de multiprogramacion y de new
+
+[DEBUG] 14:45:33:899 KERNEL/(18251:18260): Pasa a READY: Programa 1
+
+[DEBUG] 14:45:33:915 KERNEL/(18251:18258): Hilo pasa PCB a Ejecución
+
+[DEBUG] 14:45:33:998 KERNEL/(18251:18258): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 14:45:36:83 KERNEL/(18251:18257): El semaforo c tenia el valor 0 
+[DEBUG] 14:45:36:92 KERNEL/(18251:18257):  y ahora pasa a tener el valor -1 
+[DEBUG] 15:17:16:128 KERNEL/(18844:18844): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 15:17:17:381 KERNEL/(18844:18844): Se creo el hilo lo mas bien
+
+[DEBUG] 15:17:17:664 KERNEL/(18844:18848): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 15:17:17:923 KERNEL/(18844:18848): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 15:17:17:988 KERNEL/(18844:18847): Se conecto con UMV!
+
+[DEBUG] 15:17:18:173 KERNEL/(18844:18852): HILO recibirProgramas
+
+[DEBUG] 15:17:18:183 KERNEL/(18844:18847): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 15:17:18:252 KERNEL/(18844:18847): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 15:17:18:386 KERNEL/(18844:18847): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 15:17:24:154 KERNEL/(18844:18852): Handshake del socket 9, tamanio:10
+
+[DEBUG] 15:17:24:169 KERNEL/(18844:18852): Recibi handshake del progrmaa
+
+[DEBUG] 15:17:24:183 KERNEL/(18844:18852): Mensaje del socket 9, tamanio:143
+
+[DEBUG] 15:17:24:237 KERNEL/(18844:18852): Cantidad de Etiquetas:1
+
+[DEBUG] 15:17:24:252 KERNEL/(18844:18852): Cantidad de Funciones:0
+
+[DEBUG] 15:17:24:255 KERNEL/(18844:18852): Cantidad de Instrucciones:5
+
+[DEBUG] 15:17:24:274 KERNEL/(18844:18852): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 15:17:25:302 KERNEL/(18844:18852): Base del nuevo segmento: 763839
+
+[DEBUG] 15:17:26:318 KERNEL/(18844:18852): Base del nuevo segmento: 320330
+
+[DEBUG] 15:17:27:329 KERNEL/(18844:18852): Base del nuevo segmento: 28306
+
+[DEBUG] 15:17:28:338 KERNEL/(18844:18852): Base del nuevo segmento: 531917
+
+[DEBUG] 15:17:28:346 KERNEL/(18844:18852): solicito escritura en segmento 763839, tamanio: 143
+ 
+[DEBUG] 15:17:29:367 KERNEL/(18844:18852): Escritura en el segmento: 143
+
+[DEBUG] 15:17:29:371 KERNEL/(18844:18852): solicito escritura en segmento 28306, tamanio: 13
+ 
+[DEBUG] 15:17:30:380 KERNEL/(18844:18852): Escritura en el segmento: 13
+
+[DEBUG] 15:17:30:383 KERNEL/(18844:18852): solicito escritura en segmento 531917, tamanio: 40
+ 
+[DEBUG] 15:17:31:390 KERNEL/(18844:18852): Escritura en el segmento: 40
+
+[DEBUG] 15:17:31:395 KERNEL/(18844:18852): Pasa a NEW: Programa 1
+
+[DEBUG] 15:17:31:406 KERNEL/(18844:18853): paso el sem de multiprogramacion y de new
+
+[DEBUG] 15:17:31:430 KERNEL/(18844:18853): Pasa a READY: Programa 1
+
+[DEBUG] 15:17:55:342 KERNEL/(18861:18861): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 15:17:55:708 KERNEL/(18861:18861): Se creo el hilo lo mas bien
+
+[DEBUG] 15:17:55:899 KERNEL/(18861:18865): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 15:17:56:87 KERNEL/(18861:18865): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 15:17:56:117 KERNEL/(18861:18864): Se conecto con UMV!
+
+[DEBUG] 15:17:56:235 KERNEL/(18861:18864): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 15:17:56:242 KERNEL/(18861:18869): HILO recibirProgramas
+
+[DEBUG] 15:17:56:264 KERNEL/(18861:18864): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 15:17:56:355 KERNEL/(18861:18864): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 15:17:58:857 KERNEL/(18861:18869): Handshake del socket 8, tamanio:10
+
+[DEBUG] 15:17:58:882 KERNEL/(18861:18869): Recibi handshake del progrmaa
+
+[DEBUG] 15:17:58:904 KERNEL/(18861:18869): Mensaje del socket 8, tamanio:143
+
+[DEBUG] 15:17:58:978 KERNEL/(18861:18869): Cantidad de Etiquetas:1
+
+[DEBUG] 15:17:58:988 KERNEL/(18861:18869): Cantidad de Funciones:0
+
+[DEBUG] 15:17:58:994 KERNEL/(18861:18869): Cantidad de Instrucciones:5
+
+[DEBUG] 15:17:59:22 KERNEL/(18861:18869): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 15:18:00:44 KERNEL/(18861:18869): Base del nuevo segmento: 8864
+
+[DEBUG] 15:18:01:79 KERNEL/(18861:18869): Base del nuevo segmento: 639163
+
+[DEBUG] 15:18:02:91 KERNEL/(18861:18869): Base del nuevo segmento: 439667
+
+[DEBUG] 15:18:03:103 KERNEL/(18861:18869): Base del nuevo segmento: 473544
+
+[DEBUG] 15:18:03:106 KERNEL/(18861:18869): solicito escritura en segmento 8864, tamanio: 143
+ 
+[DEBUG] 15:18:04:127 KERNEL/(18861:18869): Escritura en el segmento: 143
+
+[DEBUG] 15:18:04:139 KERNEL/(18861:18869): solicito escritura en segmento 439667, tamanio: 13
+ 
+[DEBUG] 15:18:05:154 KERNEL/(18861:18869): Escritura en el segmento: 13
+
+[DEBUG] 15:18:05:159 KERNEL/(18861:18869): solicito escritura en segmento 473544, tamanio: 40
+ 
+[DEBUG] 15:18:06:171 KERNEL/(18861:18869): Escritura en el segmento: 40
+
+[DEBUG] 15:18:06:176 KERNEL/(18861:18869): Pasa a NEW: Programa 1
+
+[DEBUG] 15:18:06:185 KERNEL/(18861:18870): paso el sem de multiprogramacion y de new
+
+[DEBUG] 15:18:06:215 KERNEL/(18861:18870): Pasa a READY: Programa 1
+
+[DEBUG] 15:18:25:840 KERNEL/(18861:18869): detecto la desconexion, actualiza estado del programa
+
+[DEBUG] 15:18:25:855 KERNEL/(18861:18869): programa:1
+
+[DEBUG] 15:22:40:401 KERNEL/(18919:18919): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 15:22:40:664 KERNEL/(18919:18919): Se creo el hilo lo mas bien
+
+[DEBUG] 15:22:41:154 KERNEL/(18919:18923): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 15:22:41:388 KERNEL/(18919:18922): Se conecto con UMV!
+
+[DEBUG] 15:22:41:399 KERNEL/(18919:18923): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 15:22:41:638 KERNEL/(18919:18927): HILO recibirProgramas
+
+[DEBUG] 15:22:41:640 KERNEL/(18919:18922): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 15:22:41:685 KERNEL/(18919:18922): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 15:22:41:834 KERNEL/(18919:18922): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 15:23:28:478 KERNEL/(18934:18934): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 15:23:28:784 KERNEL/(18934:18934): Se creo el hilo lo mas bien
+
+[DEBUG] 15:23:29:231 KERNEL/(18934:18939): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 15:23:29:448 KERNEL/(18934:18939): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 15:23:29:482 KERNEL/(18934:18937): Se conecto con UMV!
+
+[DEBUG] 15:23:29:627 KERNEL/(18934:18942): HILO recibirProgramas
+
+[DEBUG] 15:23:29:634 KERNEL/(18934:18937): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 15:23:29:858 KERNEL/(18934:18937): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 15:23:29:980 KERNEL/(18934:18937): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 15:27:28:104 KERNEL/(19374:19374): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 15:27:29:344 KERNEL/(19374:19374): Se creo el hilo lo mas bien
+
+[DEBUG] 15:27:29:730 KERNEL/(19374:19378): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 15:27:29:980 KERNEL/(19374:19378): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 15:28:02:899 KERNEL/(19397:19397): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 15:28:03:59 KERNEL/(19397:19397): Se creo el hilo lo mas bien
+
+[DEBUG] 15:28:03:296 KERNEL/(19397:19401): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 15:28:03:541 KERNEL/(19397:19401): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 15:28:05:202 KERNEL/(19397:19406): HILO recibirProgramas
+
+[DEBUG] 15:28:05:204 KERNEL/(19397:19400): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 15:28:05:339 KERNEL/(19397:19400): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 15:28:05:420 KERNEL/(19397:19400): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 15:28:43:871 KERNEL/(19422:19422): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 15:28:44:116 KERNEL/(19422:19422): Se creo el hilo lo mas bien
+
+[DEBUG] 15:28:44:439 KERNEL/(19422:19427): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 15:28:44:590 KERNEL/(19422:19427): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 15:43:33:303 KERNEL/(20108:20108): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 15:43:33:430 KERNEL/(20108:20108): Se creo el hilo lo mas bien
+
+[DEBUG] 15:43:33:580 KERNEL/(20108:20112): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 15:43:33:710 KERNEL/(20108:20112): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 15:43:33:803 KERNEL/(20108:20111): Se conecto con UMV!
+
+[DEBUG] 15:43:33:828 KERNEL/(20108:20111): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 15:43:33:838 KERNEL/(20108:20116): HILO recibirProgramas
+
+[DEBUG] 15:43:33:925 KERNEL/(20108:20111): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 15:43:33:991 KERNEL/(20108:20111): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 15:43:42:451 KERNEL/(20108:20116): Mensaje del socket 9, tamanio:11
+
+[DEBUG] 15:44:05:570 KERNEL/(20108:20116): detecto la desconexion, actualiza estado del programa
+
+[DEBUG] 15:45:51:855 KERNEL/(20108:20116): Handshake del socket 9, tamanio:10
+
+[DEBUG] 15:45:51:859 KERNEL/(20108:20116): Recibi handshake del progrmaa
+
+[DEBUG] 15:45:51:878 KERNEL/(20108:20116): Mensaje del socket 9, tamanio:143
+
+[DEBUG] 15:45:51:942 KERNEL/(20108:20116): Cantidad de Etiquetas:1
+
+[DEBUG] 15:45:51:954 KERNEL/(20108:20116): Cantidad de Funciones:0
+
+[DEBUG] 15:45:51:966 KERNEL/(20108:20116): Cantidad de Instrucciones:5
+
+[DEBUG] 15:45:51:973 KERNEL/(20108:20116): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 15:45:53:11 KERNEL/(20108:20116): Base del nuevo segmento: 55397
+
+[DEBUG] 15:45:54:21 KERNEL/(20108:20116): Base del nuevo segmento: 585350
+
+[DEBUG] 15:45:55:52 KERNEL/(20108:20116): Base del nuevo segmento: 877486
+
+[DEBUG] 15:45:56:62 KERNEL/(20108:20116): Base del nuevo segmento: 326191
+
+[DEBUG] 15:45:56:66 KERNEL/(20108:20116): solicito escritura en segmento 55397, tamanio: 143
+ 
+[DEBUG] 15:45:57:83 KERNEL/(20108:20116): Escritura en el segmento: 143
+
+[DEBUG] 15:45:57:88 KERNEL/(20108:20116): solicito escritura en segmento 877486, tamanio: 13
+ 
+[DEBUG] 15:45:58:100 KERNEL/(20108:20116): Escritura en el segmento: 13
+
+[DEBUG] 15:45:58:107 KERNEL/(20108:20116): solicito escritura en segmento 326191, tamanio: 40
+ 
+[DEBUG] 15:45:59:115 KERNEL/(20108:20116): Escritura en el segmento: 40
+
+[DEBUG] 15:45:59:124 KERNEL/(20108:20116): Pasa a NEW: Programa 1
+
+[DEBUG] 15:45:59:131 KERNEL/(20108:20117): paso el sem de multiprogramacion y de new
+
+[DEBUG] 15:45:59:150 KERNEL/(20108:20117): Pasa a READY: Programa 1
+
+[DEBUG] 15:45:59:172 KERNEL/(20108:20115): Hilo pasa PCB a Ejecución
+
+[DEBUG] 15:45:59:203 KERNEL/(20108:20115): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 15:46:01:291 KERNEL/(20108:20114): El semaforo c tenia el valor 0 
+[DEBUG] 15:46:01:293 KERNEL/(20108:20114):  y ahora pasa a tener el valor -1 
+[DEBUG] 15:47:42:726 KERNEL/(20227:20227): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 15:47:42:862 KERNEL/(20227:20227): Se creo el hilo lo mas bien
+
+[DEBUG] 15:47:43:26 KERNEL/(20227:20231): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 15:47:43:255 KERNEL/(20227:20231): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 15:47:43:291 KERNEL/(20227:20230): Se conecto con UMV!
+
+[DEBUG] 15:47:43:407 KERNEL/(20227:20230): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 15:47:43:421 KERNEL/(20227:20235): HILO recibirProgramas
+
+[DEBUG] 15:47:43:462 KERNEL/(20227:20230): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 15:47:43:548 KERNEL/(20227:20230): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 15:47:57:94 KERNEL/(20227:20235): Handshake del socket 9, tamanio:10
+
+[DEBUG] 15:47:57:103 KERNEL/(20227:20235): Recibi handshake del progrmaa
+
+[DEBUG] 15:47:57:125 KERNEL/(20227:20235): Mensaje del socket 9, tamanio:143
+
+[DEBUG] 15:47:57:185 KERNEL/(20227:20235): Cantidad de Etiquetas:1
+
+[DEBUG] 15:47:57:199 KERNEL/(20227:20235): Cantidad de Funciones:0
+
+[DEBUG] 15:47:57:209 KERNEL/(20227:20235): Cantidad de Instrucciones:5
+
+[DEBUG] 15:47:57:231 KERNEL/(20227:20235): Creo PCB: Programa 1, Peso 10
+
+[DEBUG] 15:47:58:260 KERNEL/(20227:20235): Base del nuevo segmento: 223379
+
+[DEBUG] 15:47:59:274 KERNEL/(20227:20235): Base del nuevo segmento: 713101
+
+[DEBUG] 15:48:00:286 KERNEL/(20227:20235): Base del nuevo segmento: 599301
+
+[DEBUG] 15:48:01:314 KERNEL/(20227:20235): Base del nuevo segmento: 557420
+
+[DEBUG] 15:48:01:322 KERNEL/(20227:20235): solicito escritura en segmento 223379, tamanio: 143
+ 
+[DEBUG] 15:48:02:331 KERNEL/(20227:20235): Escritura en el segmento: 143
+
+[DEBUG] 15:48:02:340 KERNEL/(20227:20235): solicito escritura en segmento 599301, tamanio: 13
+ 
+[DEBUG] 15:48:03:352 KERNEL/(20227:20235): Escritura en el segmento: 13
+
+[DEBUG] 15:48:03:360 KERNEL/(20227:20235): solicito escritura en segmento 557420, tamanio: 40
+ 
+[DEBUG] 15:48:04:368 KERNEL/(20227:20235): Escritura en el segmento: 40
+
+[DEBUG] 15:48:04:373 KERNEL/(20227:20235): Pasa a NEW: Programa 1
+
+[DEBUG] 15:48:04:382 KERNEL/(20227:20236): paso el sem de multiprogramacion y de new
+
+[DEBUG] 15:48:04:388 KERNEL/(20227:20236): Pasa a READY: Programa 1
+
+[DEBUG] 15:48:04:402 KERNEL/(20227:20234): Hilo pasa PCB a Ejecución
+
+[DEBUG] 15:48:04:427 KERNEL/(20227:20234): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 15:48:06:686 KERNEL/(20227:20233): El semaforo c tenia el valor 0 
+[DEBUG] 15:48:06:689 KERNEL/(20227:20233):  y ahora pasa a tener el valor -1 
+[DEBUG] 15:57:17:887 KERNEL/(20227:20235): Handshake del socket 10, tamanio:10
+
+[DEBUG] 15:57:17:895 KERNEL/(20227:20235): Recibi handshake del progrmaa
+
+[DEBUG] 15:57:17:903 KERNEL/(20227:20235): Mensaje del socket 10, tamanio:100
+
+[DEBUG] 15:57:17:910 KERNEL/(20227:20235): Cantidad de Etiquetas:0
+
+[DEBUG] 15:57:17:914 KERNEL/(20227:20235): Cantidad de Funciones:0
+
+[DEBUG] 15:57:17:917 KERNEL/(20227:20235): Cantidad de Instrucciones:5
+
+[DEBUG] 15:57:17:922 KERNEL/(20227:20235): Creo PCB: Programa 2, Peso 5
+
+[DEBUG] 15:57:18:936 KERNEL/(20227:20235): Base del nuevo segmento: 115122
+
+[DEBUG] 15:57:19:960 KERNEL/(20227:20235): Base del nuevo segmento: 309721
+
+[DEBUG] 15:57:20:970 KERNEL/(20227:20235): Base del nuevo segmento: 432704
+
+[DEBUG] 15:57:20:978 KERNEL/(20227:20235): solicito escritura en segmento 115122, tamanio: 100
+ 
+[DEBUG] 15:57:21:997 KERNEL/(20227:20235): Escritura en el segmento: 100
+
+[DEBUG] 15:57:21:3 KERNEL/(20227:20235): solicito escritura en segmento 432704, tamanio: 40
+ 
+[DEBUG] 15:57:23:9 KERNEL/(20227:20235): Escritura en el segmento: 40
+
+[DEBUG] 15:57:23:13 KERNEL/(20227:20235): Pasa a NEW: Programa 2
+
+[DEBUG] 15:57:23:31 KERNEL/(20227:20236): paso el sem de multiprogramacion y de new
+
+[DEBUG] 15:57:23:35 KERNEL/(20227:20236): Pasa a READY: Programa 2
+
+[DEBUG] 15:57:23:51 KERNEL/(20227:20234): Hilo pasa PCB a Ejecución
+
+[DEBUG] 15:57:23:59 KERNEL/(20227:20234): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 15:57:33:367 KERNEL/(20227:20234): Hilo pasa PCB a Ejecución
+
+[DEBUG] 15:57:33:375 KERNEL/(20227:20234): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 15:57:41:556 KERNEL/(20227:20237): Hilo Exit, se libero el semaforo
+
+[DEBUG] 15:57:41:606 KERNEL/(20227:20237): Elimina programa de los dictionary
+
+[DEBUG] 15:57:41:683 KERNEL/(20227:20235): detecto la desconexion, actualiza estado del programa
+
+[DEBUG] 16:02:38:900 KERNEL/(20227:20235): Handshake del socket 10, tamanio:10
+
+[DEBUG] 16:02:38:910 KERNEL/(20227:20235): Recibi handshake del progrmaa
+
+[DEBUG] 16:02:38:918 KERNEL/(20227:20235): Mensaje del socket 10, tamanio:156
+
+[DEBUG] 16:02:38:920 KERNEL/(20227:20235): Cantidad de Etiquetas:1
+
+[DEBUG] 16:02:38:922 KERNEL/(20227:20235): Cantidad de Funciones:0
+
+[DEBUG] 16:02:38:934 KERNEL/(20227:20235): Cantidad de Instrucciones:5
+
+[DEBUG] 16:02:38:944 KERNEL/(20227:20235): Creo PCB: Programa 3, Peso 10
+
+[DEBUG] 16:02:38:957 KERNEL/(20227:20235): Base del nuevo segmento: 1
+
+[DEBUG] 16:02:39:961 KERNEL/(20227:20235): Base del nuevo segmento: 129230
+
+[DEBUG] 16:02:40:967 KERNEL/(20227:20235): Base del nuevo segmento: 217364
+
+[DEBUG] 16:02:41:969 KERNEL/(20227:20235): Base del nuevo segmento: 896645
+
+[DEBUG] 16:02:41:970 KERNEL/(20227:20235): solicito escritura en segmento 1, tamanio: 156
+ 
+[DEBUG] 16:02:42:972 KERNEL/(20227:20235): Escritura en el segmento: 590666
+
+[DEBUG] 16:02:42:976 KERNEL/(20227:20235): solicito escritura en segmento 217364, tamanio: 13
+ 
+[DEBUG] 16:02:44:9 KERNEL/(20227:20235): Error al escribir en el segmento (UMV)
+
+[DEBUG] 16:02:44:21 KERNEL/(20227:20235): PROGRAMA RECHAZADO: Programa 3
+
+[DEBUG] 16:02:44:34 KERNEL/(20227:20235): Elimina programa de los dictionary
+
+[DEBUG] 16:02:44:72 KERNEL/(20227:20235): detecto la desconexion, actualiza estado del programa
+
+[DEBUG] 16:08:41:215 KERNEL/(20594:20594): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 16:08:41:342 KERNEL/(20594:20594): Se creo el hilo lo mas bien
+
+[DEBUG] 16:08:41:543 KERNEL/(20594:20598): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 16:08:41:700 KERNEL/(20594:20597): Se conecto con UMV!
+
+[DEBUG] 16:08:41:710 KERNEL/(20594:20598): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 16:08:41:840 KERNEL/(20594:20602): HILO recibirProgramas
+
+[DEBUG] 16:08:41:847 KERNEL/(20594:20597): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 16:08:41:891 KERNEL/(20594:20597): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 16:08:41:988 KERNEL/(20594:20597): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 16:08:55:94 KERNEL/(20594:20602): Handshake del socket 9, tamanio:10
+
+[DEBUG] 16:08:55:109 KERNEL/(20594:20602): Recibi handshake del progrmaa
+
+[DEBUG] 16:08:55:127 KERNEL/(20594:20602): Mensaje del socket 9, tamanio:100
+
+[DEBUG] 16:08:55:188 KERNEL/(20594:20602): Cantidad de Etiquetas:0
+
+[DEBUG] 16:08:55:199 KERNEL/(20594:20602): Cantidad de Funciones:0
+
+[DEBUG] 16:08:55:215 KERNEL/(20594:20602): Cantidad de Instrucciones:5
+
+[DEBUG] 16:08:55:231 KERNEL/(20594:20602): Creo PCB: Programa 1, Peso 5
+
+[DEBUG] 16:08:56:256 KERNEL/(20594:20602): Base del nuevo segmento: 166444
+
+[DEBUG] 16:08:57:275 KERNEL/(20594:20602): Base del nuevo segmento: 686064
+
+[DEBUG] 16:08:58:294 KERNEL/(20594:20602): Base del nuevo segmento: 189625
+
+[DEBUG] 16:08:58:296 KERNEL/(20594:20602): solicito escritura en segmento 166444, tamanio: 100
+ 
+[DEBUG] 16:08:59:323 KERNEL/(20594:20602): Escritura en el segmento: 100
+
+[DEBUG] 16:08:59:332 KERNEL/(20594:20602): solicito escritura en segmento 189625, tamanio: 40
+ 
+[DEBUG] 16:09:00:346 KERNEL/(20594:20602): Escritura en el segmento: 40
+
+[DEBUG] 16:09:00:350 KERNEL/(20594:20602): Pasa a NEW: Programa 1
+
+[DEBUG] 16:09:00:356 KERNEL/(20594:20603): paso el sem de multiprogramacion y de new
+
+[DEBUG] 16:09:00:365 KERNEL/(20594:20603): Pasa a READY: Programa 1
+
+[DEBUG] 16:09:00:384 KERNEL/(20594:20601): Hilo pasa PCB a Ejecución
+
+[DEBUG] 16:09:00:412 KERNEL/(20594:20601): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 16:09:10:893 KERNEL/(20594:20601): Hilo pasa PCB a Ejecución
+
+[DEBUG] 16:09:10:909 KERNEL/(20594:20601): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 16:09:19:88 KERNEL/(20594:20604): Hilo Exit, se libero el semaforo
+
+[DEBUG] 16:09:19:140 KERNEL/(20594:20604): Elimina programa de los dictionary
+
+[DEBUG] 16:09:19:234 KERNEL/(20594:20602): detecto la desconexion, actualiza estado del programa
+
+[DEBUG] 16:09:36:141 KERNEL/(20594:20602): Handshake del socket 9, tamanio:10
+
+[DEBUG] 16:09:36:148 KERNEL/(20594:20602): Recibi handshake del progrmaa
+
+[DEBUG] 16:09:36:155 KERNEL/(20594:20602): Mensaje del socket 9, tamanio:143
+
+[DEBUG] 16:09:36:174 KERNEL/(20594:20602): Cantidad de Etiquetas:1
+
+[DEBUG] 16:09:36:182 KERNEL/(20594:20602): Cantidad de Funciones:0
+
+[DEBUG] 16:09:36:187 KERNEL/(20594:20602): Cantidad de Instrucciones:5
+
+[DEBUG] 16:09:36:200 KERNEL/(20594:20602): Creo PCB: Programa 2, Peso 10
+
+[DEBUG] 16:09:36:212 KERNEL/(20594:20602): Base del nuevo segmento: 1
+
+[DEBUG] 16:09:37:211 KERNEL/(20594:20602): Base del nuevo segmento: 609970
+
+[DEBUG] 16:09:38:218 KERNEL/(20594:20602): Base del nuevo segmento: 475083
+
+[DEBUG] 16:09:39:226 KERNEL/(20594:20602): Base del nuevo segmento: 683662
+
+[DEBUG] 16:09:39:230 KERNEL/(20594:20602): solicito escritura en segmento 1, tamanio: 143
+ 
+[DEBUG] 16:09:40:238 KERNEL/(20594:20602): Error al escribir en el segmento (UMV)
+
+[DEBUG] 16:09:40:250 KERNEL/(20594:20602): PROGRAMA RECHAZADO: Programa 2
+
+[DEBUG] 16:09:40:250 KERNEL/(20594:20602): Elimina programa de los dictionary
+
+[DEBUG] 16:09:40:277 KERNEL/(20594:20602): detecto la desconexion, actualiza estado del programa
+
+[DEBUG] 16:27:25:898 KERNEL/(20795:20795): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 16:27:26:72 KERNEL/(20795:20795): Se creo el hilo lo mas bien
+
+[DEBUG] 16:27:26:416 KERNEL/(20795:20800): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 16:27:26:502 KERNEL/(20795:20798): Se conecto con UMV!
+
+[DEBUG] 16:27:26:687 KERNEL/(20795:20800): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 16:27:26:743 KERNEL/(20795:20803): HILO recibirProgramas
+
+[DEBUG] 16:27:26:756 KERNEL/(20795:20798): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 16:27:26:803 KERNEL/(20795:20798): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 16:27:26:902 KERNEL/(20795:20798): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 16:27:55:629 KERNEL/(20795:20803): Handshake del socket 9, tamanio:10
+
+[DEBUG] 16:27:55:637 KERNEL/(20795:20803): Recibi handshake del progrmaa
+
+[DEBUG] 16:27:55:662 KERNEL/(20795:20803): Mensaje del socket 9, tamanio:100
+
+[DEBUG] 16:27:55:710 KERNEL/(20795:20803): Cantidad de Etiquetas:0
+
+[DEBUG] 16:27:55:724 KERNEL/(20795:20803): Cantidad de Funciones:0
+
+[DEBUG] 16:27:55:735 KERNEL/(20795:20803): Cantidad de Instrucciones:5
+
+[DEBUG] 16:27:55:743 KERNEL/(20795:20803): Creo PCB: Programa 1, Peso 5
+
+[DEBUG] 16:27:56:780 KERNEL/(20795:20803): Base del nuevo segmento: 331617
+
+[DEBUG] 16:27:57:800 KERNEL/(20795:20803): Base del nuevo segmento: 275692
+
+[DEBUG] 16:27:58:821 KERNEL/(20795:20803): Base del nuevo segmento: 428587
+
+[DEBUG] 16:27:58:831 KERNEL/(20795:20803): solicito escritura en segmento 331617, tamanio: 100
+ 
+[DEBUG] 16:27:59:843 KERNEL/(20795:20803): Escritura en el segmento: 100
+
+[DEBUG] 16:27:59:849 KERNEL/(20795:20803): solicito escritura en segmento 428587, tamanio: 40
+ 
+[DEBUG] 16:28:00:861 KERNEL/(20795:20803): Escritura en el segmento: 40
+
+[DEBUG] 16:28:00:869 KERNEL/(20795:20803): Pasa a NEW: Programa 1
+
+[DEBUG] 16:28:00:877 KERNEL/(20795:20804): paso el sem de multiprogramacion y de new
+
+[DEBUG] 16:28:00:890 KERNEL/(20795:20804): Pasa a READY: Programa 1
+
+[DEBUG] 16:28:00:920 KERNEL/(20795:20802): Hilo pasa PCB a Ejecución
+
+[DEBUG] 16:28:00:940 KERNEL/(20795:20802): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 16:28:11:341 KERNEL/(20795:20802): Hilo pasa PCB a Ejecución
+
+[DEBUG] 16:28:11:363 KERNEL/(20795:20802): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 16:28:19:578 KERNEL/(20795:20805): Hilo Exit, se libero el semaforo
+
+[DEBUG] 16:28:19:620 KERNEL/(20795:20805): Elimina programa de los dictionary
+
+[DEBUG] 16:28:19:694 KERNEL/(20795:20803): detecto la desconexion, actualiza estado del programa
+
+[DEBUG] 16:28:47:484 KERNEL/(20795:20803): Handshake del socket 9, tamanio:10
+
+[DEBUG] 16:28:47:488 KERNEL/(20795:20803): Recibi handshake del progrmaa
+
+[DEBUG] 16:28:47:496 KERNEL/(20795:20803): Mensaje del socket 9, tamanio:143
+
+[DEBUG] 16:28:47:504 KERNEL/(20795:20803): Cantidad de Etiquetas:1
+
+[DEBUG] 16:28:47:521 KERNEL/(20795:20803): Cantidad de Funciones:0
+
+[DEBUG] 16:28:47:525 KERNEL/(20795:20803): Cantidad de Instrucciones:5
+
+[DEBUG] 16:28:47:536 KERNEL/(20795:20803): Creo PCB: Programa 2, Peso 10
+
+[DEBUG] 16:28:47:547 KERNEL/(20795:20803): Base del nuevo segmento: 1
+
+[DEBUG] 16:28:48:550 KERNEL/(20795:20803): Base del nuevo segmento: 66945
+
+[DEBUG] 16:28:49:552 KERNEL/(20795:20803): Base del nuevo segmento: 575506
+
+[DEBUG] 16:28:50:563 KERNEL/(20795:20803): Base del nuevo segmento: 247976
+
+[DEBUG] 16:28:50:567 KERNEL/(20795:20803): solicito escritura en segmento 1, tamanio: 143
+ 
+[DEBUG] 16:28:51:578 KERNEL/(20795:20803): Error al escribir en el segmento (UMV)
+
+[DEBUG] 16:28:51:587 KERNEL/(20795:20803): PROGRAMA RECHAZADO: Programa 2
+
+[DEBUG] 16:28:51:593 KERNEL/(20795:20803): Elimina programa de los dictionary
+
+[DEBUG] 16:28:51:644 KERNEL/(20795:20803): detecto la desconexion, actualiza estado del programa
+
+[DEBUG] 16:37:38:238 KERNEL/(20828:20828): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 16:37:38:388 KERNEL/(20828:20828): Se creo el hilo lo mas bien
+
+[DEBUG] 16:37:38:544 KERNEL/(20828:20832): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 16:37:38:761 KERNEL/(20828:20832): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 16:37:38:799 KERNEL/(20828:20831): Se conecto con UMV!
+
+[DEBUG] 16:37:38:902 KERNEL/(20828:20831): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 16:37:38:919 KERNEL/(20828:20836): HILO recibirProgramas
+
+[DEBUG] 16:37:38:932 KERNEL/(20828:20831): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 16:37:39:33 KERNEL/(20828:20831): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 16:37:46:771 KERNEL/(20828:20836): Handshake del socket 9, tamanio:10
+
+[DEBUG] 16:37:46:783 KERNEL/(20828:20836): Recibi handshake del progrmaa
+
+[DEBUG] 16:37:46:807 KERNEL/(20828:20836): Mensaje del socket 9, tamanio:106
+
+[DEBUG] 16:37:46:841 KERNEL/(20828:20836): Cantidad de Etiquetas:0
+
+[DEBUG] 16:37:46:858 KERNEL/(20828:20836): Cantidad de Funciones:0
+
+[DEBUG] 16:37:46:863 KERNEL/(20828:20836): Cantidad de Instrucciones:6
+
+[DEBUG] 16:37:46:887 KERNEL/(20828:20836): Creo PCB: Programa 1, Peso 6
+
+[DEBUG] 16:37:47:908 KERNEL/(20828:20836): Base del nuevo segmento: 354789
+
+[DEBUG] 16:37:48:931 KERNEL/(20828:20836): Base del nuevo segmento: 422344
+
+[DEBUG] 16:37:49:950 KERNEL/(20828:20836): Base del nuevo segmento: 597849
+
+[DEBUG] 16:37:49:952 KERNEL/(20828:20836): solicito escritura en segmento 354789, tamanio: 106
+ 
+[DEBUG] 16:37:50:974 KERNEL/(20828:20836): Escritura en el segmento: 106
+
+[DEBUG] 16:37:50:983 KERNEL/(20828:20836): solicito escritura en segmento 597849, tamanio: 48
+ 
+[DEBUG] 16:37:51:996 KERNEL/(20828:20836): Escritura en el segmento: 48
+
+[DEBUG] 16:37:52:3 KERNEL/(20828:20836): Pasa a NEW: Programa 1
+
+[DEBUG] 16:37:52:11 KERNEL/(20828:20837): paso el sem de multiprogramacion y de new
+
+[DEBUG] 16:37:52:30 KERNEL/(20828:20837): Pasa a READY: Programa 1
+
+[DEBUG] 16:37:52:44 KERNEL/(20828:20835): Hilo pasa PCB a Ejecución
+
+[DEBUG] 16:37:52:67 KERNEL/(20828:20835): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 16:38:02:502 KERNEL/(20828:20835): Hilo pasa PCB a Ejecución
+
+[DEBUG] 16:38:02:526 KERNEL/(20828:20835): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 16:38:12:790 KERNEL/(20828:20838): Hilo Exit, se libero el semaforo
+
+[DEBUG] 16:38:12:829 KERNEL/(20828:20838): Elimina programa de los dictionary
+
+[DEBUG] 16:38:12:907 KERNEL/(20828:20836): detecto la desconexion, actualiza estado del programa
+
+[DEBUG] 16:38:35:49 KERNEL/(20828:20836): Handshake del socket 9, tamanio:10
+
+[DEBUG] 16:38:35:54 KERNEL/(20828:20836): Recibi handshake del progrmaa
+
+[DEBUG] 16:38:35:68 KERNEL/(20828:20836): Mensaje del socket 9, tamanio:106
+
+[DEBUG] 16:38:35:75 KERNEL/(20828:20836): Cantidad de Etiquetas:0
+
+[DEBUG] 16:38:35:80 KERNEL/(20828:20836): Cantidad de Funciones:0
+
+[DEBUG] 16:38:35:91 KERNEL/(20828:20836): Cantidad de Instrucciones:6
+
+[DEBUG] 16:38:35:103 KERNEL/(20828:20836): Creo PCB: Programa 2, Peso 6
+
+[DEBUG] 16:38:35:116 KERNEL/(20828:20836): Base del nuevo segmento: 1
+
+[DEBUG] 16:38:36:120 KERNEL/(20828:20836): Base del nuevo segmento: 731509
+
+[DEBUG] 16:38:37:126 KERNEL/(20828:20836): Base del nuevo segmento: 924016
+
+[DEBUG] 16:38:37:126 KERNEL/(20828:20836): solicito escritura en segmento 1, tamanio: 106
+ 
+[DEBUG] 16:38:38:131 KERNEL/(20828:20836): Escritura en el segmento: 826322
+
+[DEBUG] 16:38:38:134 KERNEL/(20828:20836): solicito escritura en segmento 924016, tamanio: 48
+ 
+[DEBUG] 16:38:39:152 KERNEL/(20828:20836): Escritura en el segmento: 48
+
+[DEBUG] 16:38:39:159 KERNEL/(20828:20836): Pasa a NEW: Programa 2
+
+[DEBUG] 16:38:39:165 KERNEL/(20828:20837): paso el sem de multiprogramacion y de new
+
+[DEBUG] 16:38:39:174 KERNEL/(20828:20837): Pasa a READY: Programa 2
+
+[DEBUG] 16:38:39:176 KERNEL/(20828:20835): Hilo pasa PCB a Ejecución
+
+[DEBUG] 16:38:39:188 KERNEL/(20828:20835): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 16:38:41:272 KERNEL/(20828:20838): Hilo Exit, se libero el semaforo
+
+[DEBUG] 16:38:41:302 KERNEL/(20828:20838): Elimina programa de los dictionary
+
+[DEBUG] 16:38:41:340 KERNEL/(20828:20836): detecto la desconexion, actualiza estado del programa
+
+[DEBUG] 16:45:46:472 KERNEL/(20854:20854): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:0
+MULTIPROGRAMACION:3
+
+[DEBUG] 16:45:46:593 KERNEL/(20854:20854): Se creo el hilo lo mas bien
+
+[DEBUG] 16:45:46:735 KERNEL/(20854:20858): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 16:45:46:935 KERNEL/(20854:20857): Se conecto con UMV!
+
+[DEBUG] 16:45:46:938 KERNEL/(20854:20858): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 16:45:47:47 KERNEL/(20854:20857): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 16:45:47:52 KERNEL/(20854:20862): HILO recibirProgramas
+
+[DEBUG] 16:45:47:79 KERNEL/(20854:20857): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 16:45:47:174 KERNEL/(20854:20857): Se creo el hilo q saca de exit lo mas bien
+
+[DEBUG] 16:45:54:280 KERNEL/(20854:20862): Handshake del socket 9, tamanio:10
+
+[DEBUG] 16:45:54:294 KERNEL/(20854:20862): Recibi handshake del progrmaa
+
+[DEBUG] 16:45:54:312 KERNEL/(20854:20862): Mensaje del socket 9, tamanio:106
+
+[DEBUG] 16:45:54:351 KERNEL/(20854:20862): Cantidad de Etiquetas:0
+
+[DEBUG] 16:45:54:361 KERNEL/(20854:20862): Cantidad de Funciones:0
+
+[DEBUG] 16:45:54:375 KERNEL/(20854:20862): Cantidad de Instrucciones:6
+
+[DEBUG] 16:45:54:388 KERNEL/(20854:20862): Creo PCB: Programa 1, Peso 6
+
+[DEBUG] 16:45:55:433 KERNEL/(20854:20862): Base del nuevo segmento: 103832
+
+[DEBUG] 16:45:56:462 KERNEL/(20854:20862): Base del nuevo segmento: 256213
+
+[DEBUG] 16:45:57:482 KERNEL/(20854:20862): Base del nuevo segmento: 397758
+
+[DEBUG] 16:45:57:488 KERNEL/(20854:20862): solicito escritura en segmento 103832, tamanio: 106
+ 
+[DEBUG] 16:45:58:501 KERNEL/(20854:20862): Escritura en el segmento: 106
+
+[DEBUG] 16:45:58:508 KERNEL/(20854:20862): solicito escritura en segmento 397758, tamanio: 48
+ 
+[DEBUG] 16:45:59:515 KERNEL/(20854:20862): Escritura en el segmento: 48
+
+[DEBUG] 16:45:59:526 KERNEL/(20854:20862): Pasa a NEW: Programa 1
+
+[DEBUG] 16:45:59:528 KERNEL/(20854:20863): paso el sem de multiprogramacion y de new
+
+[DEBUG] 16:45:59:549 KERNEL/(20854:20863): Pasa a READY: Programa 1
+
+[DEBUG] 16:45:59:567 KERNEL/(20854:20861): Hilo pasa PCB a Ejecución
+
+[DEBUG] 16:45:59:594 KERNEL/(20854:20861): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 16:46:10:72 KERNEL/(20854:20861): Hilo pasa PCB a Ejecución
+
+[DEBUG] 16:46:10:88 KERNEL/(20854:20861): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 16:46:15:846 KERNEL/(20854:20862): Handshake del socket 11, tamanio:10
+
+[DEBUG] 16:46:15:858 KERNEL/(20854:20862): Recibi handshake del progrmaa
+
+[DEBUG] 16:46:15:867 KERNEL/(20854:20862): Mensaje del socket 11, tamanio:143
+
+[DEBUG] 16:46:15:888 KERNEL/(20854:20862): Cantidad de Etiquetas:1
+
+[DEBUG] 16:46:15:898 KERNEL/(20854:20862): Cantidad de Funciones:0
+
+[DEBUG] 16:46:15:903 KERNEL/(20854:20862): Cantidad de Instrucciones:5
+
+[DEBUG] 16:46:15:913 KERNEL/(20854:20862): Creo PCB: Programa 2, Peso 10
+
+[DEBUG] 16:46:16:928 KERNEL/(20854:20862): Base del nuevo segmento: 408405
+
+[DEBUG] 16:46:17:943 KERNEL/(20854:20862): Base del nuevo segmento: 478602
+
+[DEBUG] 16:46:18:953 KERNEL/(20854:20862): Base del nuevo segmento: 389206
+
+[DEBUG] 16:46:19:973 KERNEL/(20854:20862): Base del nuevo segmento: 349935
+
+[DEBUG] 16:46:19:975 KERNEL/(20854:20862): solicito escritura en segmento 408405, tamanio: 143
+ 
+[DEBUG] 16:46:20:360 KERNEL/(20854:20864): Hilo Exit, se libero el semaforo
+
+[DEBUG] 16:46:20:404 KERNEL/(20854:20864): Elimina programa de los dictionary
+
+[DEBUG] 16:46:20:978 KERNEL/(20854:20862): Escritura en el segmento: 143
+
+[DEBUG] 16:46:20:978 KERNEL/(20854:20862): solicito escritura en segmento 389206, tamanio: 13
+ 
+[DEBUG] 16:46:21:983 KERNEL/(20854:20862): Escritura en el segmento: 1
+
+[DEBUG] 16:46:21:984 KERNEL/(20854:20862): solicito escritura en segmento 349935, tamanio: 40
+ 
+[DEBUG] 16:46:22:992 KERNEL/(20854:20862): Escritura en el segmento: 13
+
+[DEBUG] 16:46:22:999 KERNEL/(20854:20862): Pasa a NEW: Programa 2
+
+[DEBUG] 16:46:22:3 KERNEL/(20854:20863): paso el sem de multiprogramacion y de new
+
+[DEBUG] 16:46:23:9 KERNEL/(20854:20863): Pasa a READY: Programa 2
+
+[DEBUG] 16:46:23:35 KERNEL/(20854:20861): Hilo pasa PCB a Ejecución
+
+[DEBUG] 16:46:23:42 KERNEL/(20854:20861): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 16:46:23:74 KERNEL/(20854:20862): detecto la desconexion, actualiza estado del programa
+
+[DEBUG] 16:46:25:343 KERNEL/(20854:20860): El semaforo c tenia el valor 0 
+[DEBUG] 16:46:25:349 KERNEL/(20854:20860):  y ahora pasa a tener el valor -1 
+[DEBUG] 16:46:46:179 KERNEL/(20854:20862): detecto la desconexion, actualiza estado del programa
+
+[DEBUG] 16:46:46:185 KERNEL/(20854:20862): programa:2
+
+[DEBUG] 16:46:56:770 KERNEL/(20854:20862): Handshake del socket 9, tamanio:10
+
+[DEBUG] 16:46:56:781 KERNEL/(20854:20862): Recibi handshake del progrmaa
+
+[DEBUG] 16:46:56:853 KERNEL/(20854:20862): Mensaje del socket 9, tamanio:106
+
+[DEBUG] 16:46:56:859 KERNEL/(20854:20862): Cantidad de Etiquetas:0
+
+[DEBUG] 16:46:56:870 KERNEL/(20854:20862): Cantidad de Funciones:0
+
+[DEBUG] 16:46:56:875 KERNEL/(20854:20862): Cantidad de Instrucciones:6
+
+[DEBUG] 16:46:56:889 KERNEL/(20854:20862): Creo PCB: Programa 3, Peso 6
+
+[DEBUG] 16:46:56:898 KERNEL/(20854:20862): Base del nuevo segmento: 40
+
+[DEBUG] 16:46:57:903 KERNEL/(20854:20862): Base del nuevo segmento: 533917
+
+[DEBUG] 16:46:58:907 KERNEL/(20854:20862): Base del nuevo segmento: 961641
+
+[DEBUG] 16:46:58:910 KERNEL/(20854:20862): solicito escritura en segmento 40, tamanio: 106
+ 
+[DEBUG] 16:46:59:918 KERNEL/(20854:20862): Escritura en el segmento: 22745
+
+[DEBUG] 16:46:59:920 KERNEL/(20854:20862): solicito escritura en segmento 961641, tamanio: 48
+ 
+[DEBUG] 16:47:00:930 KERNEL/(20854:20862): Error al escribir en el segmento (UMV)
+
+[DEBUG] 16:47:00:948 KERNEL/(20854:20862): PROGRAMA RECHAZADO: Programa 3
+
+[DEBUG] 16:47:00:961 KERNEL/(20854:20862): Elimina programa de los dictionary
+
+[DEBUG] 16:47:01:29 KERNEL/(20854:20862): detecto la desconexion, actualiza estado del programa
+
+[DEBUG] 16:47:23:117 KERNEL/(20854:20862): Handshake del socket 9, tamanio:10
+
+[DEBUG] 16:47:23:129 KERNEL/(20854:20862): Recibi handshake del progrmaa
+
+[DEBUG] 16:47:23:138 KERNEL/(20854:20862): Mensaje del socket 9, tamanio:106
+
+[DEBUG] 16:47:23:143 KERNEL/(20854:20862): Cantidad de Etiquetas:0
+
+[DEBUG] 16:47:23:151 KERNEL/(20854:20862): Cantidad de Funciones:0
+
+[DEBUG] 16:47:23:155 KERNEL/(20854:20862): Cantidad de Instrucciones:6
+
+[DEBUG] 16:47:23:159 KERNEL/(20854:20862): Creo PCB: Programa 4, Peso 6
+
+[DEBUG] 16:47:23:170 KERNEL/(20854:20862): Base del nuevo segmento: 48
+
+[DEBUG] 16:47:24:171 KERNEL/(20854:20862): Base del nuevo segmento: 410194
+
+[DEBUG] 16:47:25:180 KERNEL/(20854:20862): Base del nuevo segmento: 851783
+
+[DEBUG] 16:47:25:180 KERNEL/(20854:20862): solicito escritura en segmento 48, tamanio: 106
+ 
+[DEBUG] 16:47:26:189 KERNEL/(20854:20862): Escritura en el segmento: 137022
+
+[DEBUG] 16:47:26:195 KERNEL/(20854:20862): solicito escritura en segmento 851783, tamanio: 48
+ 
+[DEBUG] 16:47:27:203 KERNEL/(20854:20862): Escritura en el segmento: 48
+
+[DEBUG] 16:47:27:204 KERNEL/(20854:20862): Pasa a NEW: Programa 4
+
+[DEBUG] 16:47:27:211 KERNEL/(20854:20863): paso el sem de multiprogramacion y de new
+
+[DEBUG] 16:47:27:222 KERNEL/(20854:20863): Pasa a READY: Programa 4
+
+[DEBUG] 16:47:27:233 KERNEL/(20854:20861): Hilo pasa PCB a Ejecución
+
+[DEBUG] 16:47:27:244 KERNEL/(20854:20861): Hilo pasa PCB a Ejecución, Existe el programa VA a ejecucion
+
+[DEBUG] 16:47:29:336 KERNEL/(20854:20864): Hilo Exit, se libero el semaforo
+
+[DEBUG] 16:47:29:367 KERNEL/(20854:20864): Elimina programa de los dictionary
+
+[DEBUG] 16:47:29:403 KERNEL/(20854:20862): detecto la desconexion, actualiza estado del programa
+

@@ -9,9 +9,6 @@ RM := rm -rf
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include src/subdir.mk
--include rutinas/subdir.mk
--include commons/collections/subdir.mk
--include commons/subdir.mk
 -include subdir.mk
 -include objects.mk
 
@@ -28,11 +25,16 @@ endif
 # All Target
 all: kernel
 
+dependents:
+	-cd /home/utnso/workspace/commons/Debug && $(MAKE) all
+	-cd /home/utnso/workspace/parser/Debug && $(MAKE) all
+	-cd /home/utnso/workspace/Rutinas/Debug && $(MAKE) all
+
 # Tool invocations
-kernel: $(OBJS) $(USER_OBJS)
+kernel: $(OBJS) $(USER_OBJS) /home/utnso/workspace/commons/Debug/libcommons.so /home/utnso/workspace/parser/Debug/libparser.so /home/utnso/workspace/Rutinas/Debug/libRutinas.so
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	gcc  -o "kernel" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc -L"/home/utnso/workspace/Rutinas/Debug" -L"/home/utnso/workspace/parser/Debug" -L"/home/utnso/workspace/commons/Debug" -o "kernel" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -43,5 +45,8 @@ clean:
 
 .PHONY: all clean dependents
 .SECONDARY:
+/home/utnso/workspace/commons/Debug/libcommons.so:
+/home/utnso/workspace/parser/Debug/libparser.so:
+/home/utnso/workspace/Rutinas/Debug/libRutinas.so:
 
 -include ../makefile.targets

@@ -80,7 +80,7 @@ void imprimirMensajeDeCPU(char * payload, uint32_t longitud){
 
 void opHandshakeKernelCPU(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	//printf("Mensaje de CPU: %d\n", fd);
-	imprimirMensajeDeCPU(payload, longitudMensaje);
+	//imprimirMensajeDeCPU(payload, longitudMensaje);
 	enviarQuantum(fd);
 }
 
@@ -112,8 +112,7 @@ void opRespuestaCPU(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	if (!longitudMensaje)
 		printf("Error al enviar PCB a CPU: %d\n", fd); //Si tamaño de payload == 0 => ERROR
 		// que hacemos en este caso?
-	else
-		printf("Respuesta de CPU id %d\n", fd);
+
 
 }
 
@@ -173,7 +172,7 @@ void opRetornoCPUQuantum(uint32_t fd, char * payload, uint32_t longitudMensaje){
 		modificarPCB(cpu->pcb, datosPCB);
 	else
 		printf("La cpu no tenia PCB WTF!!\n");
-	printf("datosPCB actualizado id %d, indice %d, pc %d, sizecontext %d, cursor %d\n",cpu->pcb->id, cpu->pcb->indiceEtiquetas, cpu->pcb->programcounter, cpu->pcb->sizeContext, cpu->pcb->cursorStack);
+	//printf("datosPCB actualizado id %d, indice %d, pc %d, sizecontext %d, cursor %d\n",cpu->pcb->id, cpu->pcb->indiceEtiquetas, cpu->pcb->programcounter, cpu->pcb->sizeContext, cpu->pcb->cursorStack);
 	cola_push(cola_ready, cpu->pcb);
 	printf("Programa %d pasa a Ready\n",cpu->pcb->id);
 	poner_cpu_no_disponible(cpu);
@@ -236,7 +235,7 @@ void opRetornoCPUPorES(uint32_t fd, char * payload, uint32_t longitudMensaje){
 
 	modificarPCB(cpu->pcb, datosPCB);
 
-	printf("Dispositivo: %s**\n",datosES->id);
+	//printf("Dispositivo: %s**\n",datosES->id);
 	package *paquete;
 	if (dictionary_has_key(kernel->entradasalida,datosES->id)){
 		t_entradasalida * ES = dictionary_get(kernel->entradasalida, datosES->id);
@@ -285,7 +284,7 @@ void opRetornoCPUFin(uint32_t fd, char * payload, uint32_t longitudMensaje){
 }
 
 void opRetornoCPUExcepcion(uint32_t fd, char * payload, uint32_t longitudMensaje){
-	printf("Retorno de CPU por Excepcion logica\n");
+	//printf("Retorno de CPU por Excepcion logica\n");
 	pthread_mutex_lock(&kernel->mutex_cpus);
 	t_CPU *cpu = dictionary_get(kernel->cpus, string_from_format("%d",fd));
 	pthread_mutex_unlock(&kernel->mutex_cpus);
@@ -307,7 +306,7 @@ void opRetornoCPUExcepcion(uint32_t fd, char * payload, uint32_t longitudMensaje
 }
 
 void opExcepcionCPUHardware(uint32_t fd){
-	printf("Retorno de CPU %d por Excepcion Hardware\n",fd);
+	//printf("Retorno de CPU %d por Excepcion Hardware\n",fd);
 	if (dictionary_has_key(kernel->cpus,string_from_format("%d",fd))){
 		pthread_mutex_lock(&kernel->mutex_cpus);
 		t_CPU * cpu = dictionary_remove(kernel->cpus, string_from_format("%d",fd));
@@ -352,7 +351,7 @@ void opImprimirValor(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	pthread_mutex_unlock(&kernel->mutex_programas);
 	int valor;
 	memcpy(&valor,payload,sizeof(int32_t));
-	printf("valor %d\n",valor);
+	//printf("valor %d\n",valor);
 
 	package *respuesta = crear_paquete(respuestaCPU,"Listo",6);
 	enviar_paquete(respuesta,fd);
@@ -411,8 +410,6 @@ void opSolicitarValorVariableCompartida(uint32_t fd, char * payload, uint32_t lo
 		package *paquete = crear_paquete(solicitarValorVariableCompartida, valor_variable_compartida, sizeof(int32_t));
 		if (enviar_paquete(paquete,fd)==-1){
 			printf("Error en envio de Valor a imprimir: %d", fd);
-		} else {
-			printf("Envio de Valor a imprimir: %d", fd);
 		}
 		pthread_mutex_unlock(variable_compartida->mutex);
 		destruir_paquete(paquete);
@@ -432,8 +429,6 @@ void opAsignarValorVariableCompartida(uint32_t fd, char * payload, uint32_t long
 		package *paquete = crear_paquete(asignarValorVariableCompartida, valor_variable_compartida, sizeof(uint32_t)); //agregar a enum de tipos de mensaje
 		if (enviar_paquete(paquete,fd)==-1){
 			printf("Error en envio de Valor a imprimir: %d", fd);
-		} else {
-			printf("Envio de Valor a imprimir: %d", fd);
 		}
 		pthread_mutex_unlock(variable_compartida->mutex);
 		destruir_paquete(paquete);
@@ -474,7 +469,7 @@ void recibirCPU(void){
 	FD_ZERO(&read_fds); // Vacia el descriptor temporal
 	struct sockaddr_in direccion_cliente; // Dirección del cliente
 
-	printf("HILO recibirCPUs\n");
+	//printf("HILO recibirCPUs\n");
 
 	int socket_escucha = abrir_socket();
 	vincular_socket(socket_escucha,kernel->puertocpu);
@@ -511,7 +506,7 @@ void recibirCPU(void){
 	                // gestionar datos de un cliente
 					paquete = recibir_paquete(i);
 					nbytes = paquete->payloadLength;
-					printf("Hilo que recibe CPU! tipo de paquete %d, mensaje %s\n",paquete->type,paquete->payload);
+					//printf("Hilo que recibe CPU! tipo de paquete %d, mensaje %s\n",paquete->type,paquete->payload);
 
 					if (nbytes == 0) {
 						// conexión cerrada por el cliente
@@ -555,7 +550,7 @@ void pasarListosAEjecucion(void){
 
 		log_debug(logger,string_from_format("Hilo pasa PCB a Ejecución\n"));
 		t_PCB *pcb = cola_pop(cola_ready);
-		printf("Pasa de Ready a Ejecucion Programa: %d\n",pcb->id);
+		printf("Programa: %d pasa de Ready a Ejecucion \n",pcb->id);
 		pthread_mutex_lock(&kernel->mutex_programas);
 		t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",pcb->id));
 		pthread_mutex_unlock(&kernel->mutex_programas);

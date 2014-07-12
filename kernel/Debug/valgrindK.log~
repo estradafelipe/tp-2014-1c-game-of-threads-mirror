@@ -1,0 +1,66 @@
+==4046== Memcheck, a memory error detector
+==4046== Copyright (C) 2002-2011, and GNU GPL'd, by Julian Seward et al.
+==4046== Using Valgrind-3.7.0 and LibVEX; rerun with -h for copyright info
+==4046== Command: ./kernel ../archivo.conf
+==4046== Parent PID: 2658
+==4046== 
+==4046== Use of uninitialised value of size 4
+==4046==    at 0x40B64AB: _itoa_word (_itoa.c:195)
+==4046==    by 0x40BA5EA: vfprintf (vfprintf.c:1629)
+==4046==    by 0x40DE26A: vsnprintf (vsnprintf.c:120)
+==4046==    by 0xBEA83EDF: ???
+==4046== 
+==4046== Conditional jump or move depends on uninitialised value(s)
+==4046==    at 0x40B64B3: _itoa_word (_itoa.c:195)
+==4046==    by 0x40BA5EA: vfprintf (vfprintf.c:1629)
+==4046==    by 0x40DE26A: vsnprintf (vsnprintf.c:120)
+==4046==    by 0xBEA83EDF: ???
+==4046== 
+==4046== Conditional jump or move depends on uninitialised value(s)
+==4046==    at 0x40BB4BA: vfprintf (vfprintf.c:1629)
+==4046==    by 0x40DE26A: vsnprintf (vsnprintf.c:120)
+==4046==    by 0xBEA83EDF: ???
+==4046== 
+==4046== Conditional jump or move depends on uninitialised value(s)
+==4046==    at 0x40B9D30: vfprintf (vfprintf.c:1629)
+==4046==    by 0x40DE26A: vsnprintf (vsnprintf.c:120)
+==4046==    by 0xBEA83EDF: ???
+==4046== 
+==4046== Use of uninitialised value of size 4
+==4046==    at 0x40B64AB: _itoa_word (_itoa.c:195)
+==4046==    by 0x40BA5EA: vfprintf (vfprintf.c:1629)
+==4046==    by 0x40DE26A: vsnprintf (vsnprintf.c:120)
+==4046==    by 0x4222C8F: ???
+==4046== 
+==4046== Conditional jump or move depends on uninitialised value(s)
+==4046==    at 0x40B64B3: _itoa_word (_itoa.c:195)
+==4046==    by 0x40BA5EA: vfprintf (vfprintf.c:1629)
+==4046==    by 0x40DE26A: vsnprintf (vsnprintf.c:120)
+==4046==    by 0x4222C8F: ???
+==4046== 
+==4046== Conditional jump or move depends on uninitialised value(s)
+==4046==    at 0x40BB4BA: vfprintf (vfprintf.c:1629)
+==4046==    by 0x40DE26A: vsnprintf (vsnprintf.c:120)
+==4046==    by 0x4222C8F: ???
+==4046== 
+==4046== Conditional jump or move depends on uninitialised value(s)
+==4046==    at 0x40B9D30: vfprintf (vfprintf.c:1629)
+==4046==    by 0x40DE26A: vsnprintf (vsnprintf.c:120)
+==4046==    by 0x4222C8F: ???
+==4046== 
+==4046== 
+==4046== HEAP SUMMARY:
+==4046==     in use at exit: 6,230 bytes in 248 blocks
+==4046==   total heap usage: 1,096 allocs, 848 frees, 26,455 bytes allocated
+==4046== 
+==4046== LEAK SUMMARY:
+==4046==    definitely lost: 2,421 bytes in 103 blocks
+==4046==    indirectly lost: 653 bytes in 38 blocks
+==4046==      possibly lost: 952 bytes in 7 blocks
+==4046==    still reachable: 2,204 bytes in 100 blocks
+==4046==         suppressed: 0 bytes in 0 blocks
+==4046== Rerun with --leak-check=full to see details of leaked memory
+==4046== 
+==4046== For counts of detected and suppressed errors, rerun with: -v
+==4046== Use --track-origins=yes to see where uninitialised values come from
+==4046== ERROR SUMMARY: 8 errors from 8 contexts (suppressed: 0 from 0)
