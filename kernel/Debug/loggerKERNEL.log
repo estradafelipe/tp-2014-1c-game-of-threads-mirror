@@ -22344,3 +22344,31 @@ MULTIPROGRAMACION:3
 
 [DEBUG] 15:19:19:368 KERNEL/(13578:13586): detecto la desconexion, actualiza estado del programa
 
+[DEBUG] 15:25:02:146 KERNEL/(13759:13759): 
+CONFIGURACION:
+PUERTO_PROG:5000
+PUERTO_CPU:6000
+QUANTUM:3
+RETARDO:1
+MULTIPROGRAMACION:3
+
+[DEBUG] 15:25:02:149 KERNEL/(13759:13759): Se creo el hilo de IO LPT1
+
+[DEBUG] 15:25:02:157 KERNEL/(13759:13759): Se creo el hilo de IO HDD1
+
+[DEBUG] 15:25:02:157 KERNEL/(13759:13759): Se creo el hilo lo mas bien
+
+[DEBUG] 15:25:02:200 KERNEL/(13759:13763): Hilo que recibe CPUs creado correctamente
+
+[DEBUG] 15:25:02:219 KERNEL/(13759:13762): Se conecto con UMV!
+
+[DEBUG] 15:25:02:232 KERNEL/(13759:13763): Hilo que pone en ejecucion PCBs creado correctamente
+
+[DEBUG] 15:25:02:245 KERNEL/(13759:13762): Se creo el hilo q recibe programas lo mas bien
+
+[DEBUG] 15:25:02:246 KERNEL/(13759:13762): Se creo el hilo q controla multiprogramacion lo mas bien
+
+[DEBUG] 15:25:02:249 KERNEL/(13759:13767): HILO recibirProgramas
+
+[DEBUG] 15:25:02:251 KERNEL/(13759:13762): Se creo el hilo q saca de exit lo mas bien
+

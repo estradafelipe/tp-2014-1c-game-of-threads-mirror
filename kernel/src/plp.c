@@ -447,6 +447,7 @@ void gestionarDatos(int fd, package *paquete){
 
 
 void pasarAExit(t_PCB *pcb){
+	printf("Programa %d pasa a Exit\n",pcb->id);
 	cola_push(cola_exit,pcb);
 	//sem_post(sem_estado_listo);
 	log_debug(logger,string_from_format("Paso a EXIT: Programa %d\n",pcb->id));

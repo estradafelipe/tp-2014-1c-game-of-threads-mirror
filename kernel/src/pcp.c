@@ -277,6 +277,7 @@ void opRetornoCPUFin(uint32_t fd, char * payload, uint32_t longitudMensaje){
 	programa->mensajeFIN="El programa Finalizo correctamente";
 	programa->exit_code=FIN_PROGRAM_SUCCESS;
 	pthread_mutex_unlock(&kernel->mutex_programas);
+	printf("Programa %d pasa a Exit\n",cpu->pcb->id);
 	cola_push(cola_exit, cpu->pcb);
 	poner_cpu_no_disponible(cpu);
 	sem_post(sem_exit);
@@ -295,6 +296,7 @@ void opRetornoCPUExcepcion(uint32_t fd, char * payload, uint32_t longitudMensaje
 		programa->mensajeFIN = malloc(longitudMensaje);
 		memcpy(programa->mensajeFIN,payload,longitudMensaje);
 		pthread_mutex_unlock(&kernel->mutex_programas);
+		printf("Programa %d pasa a Exit\n",cpu->pcb->id);
 		cola_push(cola_exit,cpu->pcb);
 		poner_cpu_no_disponible(cpu);
 		//printf("pase a exit el pcb");
@@ -320,6 +322,7 @@ void opExcepcionCPUHardware(uint32_t fd){
 				pthread_mutex_unlock(&kernel->mutex_programas);
 				programa->mensajeFIN="Error CPU";
 				//printf("EX HARD actualice el programa\n");
+				printf("Programa %d pasa a Exit\n",cpu->pcb->id);
 				cola_push(cola_exit, cpu->pcb);
 				//printf("EX HARD pase pcb a exit\n");
 				sem_post(sem_exit);
@@ -525,6 +528,7 @@ void recibirCPU(void){
 								t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",cpu->pcb->id));
 								pthread_mutex_unlock(&kernel->mutex_programas);
 								if (!programa->estado){ //Verifico  si el programa esta activo
+									printf("Programa %d pasa a Exit\n",cpu->pcb->id);
 									cola_push(cola_exit, cpu->pcb);
 									sem_post(sem_exit);
 									sem_post(sem_multiprogramacion);
@@ -556,6 +560,7 @@ void pasarListosAEjecucion(void){
 		pthread_mutex_unlock(&kernel->mutex_programas);
 		if (!programa->estado){
 			log_debug(logger,string_from_format("Hilo pasa PCB a Ejecución, No existe el programa no va a ejecucion\n"));
+			printf("Programa %d pasa a Exit\n",programa->id);
 			cola_push(cola_exit, pcb);
 			sem_post(sem_exit);
 			sem_post(sem_multiprogramacion);
