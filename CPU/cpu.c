@@ -164,8 +164,8 @@ int main(int argc, char **argv){
 			}
 
 			if (desconectarse == true){
-				notificar_kernel(cpuDesconectada);
-				log_debug(logger,"LLEGO SEÑAL SIGUSR1,NOTIFICO AL KERNEL Y TERMINO EJECUCION");
+				//notificar_kernel(retornoCPUExcepcion);
+				log_debug(logger,"LLEGO SEÑAL SIGUSR1,ME DESCONECTO");
 				exit(1);
 			}
 
@@ -200,13 +200,17 @@ void rutina(int n){
 
 
 void cargar_diccionarioVariables(int32_t cant_var){
-	package* paq = malloc(sizeof(package));
+	package* paq;
 	int32_t offset;
+	printf("Cantidad de variables a buscar: %d\n",cant_var);
 	char* var = malloc(sizeof(char)+1);
 	while(cant_var > 0){
 		offset = pcb->cursorStack + (cant_var - 1) * 5;
+		printf("offset: %d\n",offset);
 		paq = Leer(pcb->segmentoStack,offset,1);
-		memcpy(var,paq->payload,sizeof(char));
+		//memcpy(var,paq->payload,sizeof(char));
+		memcpy(var,paq->payload,paq->payloadLength);
+		log_debug(logger,"Variable: %s, posicion: %d tam:%d\n",var,offset,paq->payloadLength);
 		var[1]='\0';
 		dictionary_put(diccionarioVariables, var,(void*)offset);
 		log_debug(logger,"Variable: %s, posicion: %d",var,offset);
@@ -225,12 +229,14 @@ void notificar_kernel(t_paquete pa){
 				int resu=enviar_paquete(paquete,socketKernel);
 				printf("Notifique al kernel que estoy disponible %d\n",resu);
 				break;
+				/*
 			case cpuDesconectada:
-				paquete =  crear_paquete(cpuDesconectada,"Me Desconecto",strlen("Me Desconecto")+1);
+				paquete =  crear_paquete(retornoCPUExcepcion,"Me Desconecto",strlen("Me Desconecto")+1);
 				enviar_paquete(paquete,socketKernel);
 				printf("Notifique al kernel que me desconecto\n");
 				exit(1);
 				break;
+				*/
 			case respuestaCPU:
 				paquete = crear_paquete(respuestaCPU,"OK",strlen("OK")+1);
 				enviar_paquete(paquete,socketKernel);
@@ -308,10 +314,8 @@ package *Leer(t_pun base,t_pun offset,t_pun tamanio){
 	sol->offset = offset;
 	sol->tamanio = tamanio;
 	payload = serializarSolicitudLectura(sol);
-	log_debug(logger, "Serializacion correcta");
 	solicitud = crear_paquete(lectura,payload,sizeof(t_pun)*3);
 	enviar_paquete(solicitud,socketUMV);
-	log_debug(logger, "Envio paquete correcto");
 	destruir_paquete(solicitud);
 	solicitud = recibir_paquete(socketUMV);
 	if(solicitud->type==violacionSegmento){

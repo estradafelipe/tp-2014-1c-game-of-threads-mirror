@@ -173,7 +173,7 @@ void opRetornoCPUQuantum(uint32_t fd, char * payload, uint32_t longitudMensaje){
 		modificarPCB(cpu->pcb, datosPCB);
 	else
 		printf("La cpu no tenia PCB WTF!!\n");
-	//printf("datosPCB actualizado id %d, indice %d, pc %d, sizecontext %d, cursor %d\n",cpu->pcb->id, cpu->pcb->indiceEtiquetas, cpu->pcb->programcounter, cpu->pcb->sizeContext, cpu->pcb->cursorStack);
+	printf("datosPCB actualizado id %d, indice %d, pc %d, sizecontext %d, cursor %d\n",cpu->pcb->id, cpu->pcb->indiceEtiquetas, cpu->pcb->programcounter, cpu->pcb->sizeContext, cpu->pcb->cursorStack);
 	cola_push(cola_ready, cpu->pcb);
 	printf("Programa %d pasa a Ready\n",cpu->pcb->id);
 	poner_cpu_no_disponible(cpu);
@@ -236,7 +236,7 @@ void opRetornoCPUPorES(uint32_t fd, char * payload, uint32_t longitudMensaje){
 
 	modificarPCB(cpu->pcb, datosPCB);
 
-	//printf("Dispositivo: %s\n",datosES->id);
+	printf("Dispositivo: %s**\n",datosES->id);
 	package *paquete;
 	if (dictionary_has_key(kernel->entradasalida,datosES->id)){
 		t_entradasalida * ES = dictionary_get(kernel->entradasalida, datosES->id);

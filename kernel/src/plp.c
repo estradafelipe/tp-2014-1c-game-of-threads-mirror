@@ -142,7 +142,10 @@ bool solicitarSegmentosUMV(char *codigo, uint16_t codigoSize, t_medatada_program
 	// Segmento de Stack
 	dirSegmento = solicitudSegmento(pcb->id,kernel->sizeStack);
 	if(dirSegmento == -1){
-	} else pcb->segmentoStack = dirSegmento;
+	} else {
+		pcb->segmentoStack = dirSegmento;
+		printf("segmento stack:%d",pcb->segmentoStack);
+	}
 
 	if (programa->etiquetas_size>0){
 		//printf("solicito INDICE DE ETIQUETAS tamanio %d\n",programa->etiquetas_size);

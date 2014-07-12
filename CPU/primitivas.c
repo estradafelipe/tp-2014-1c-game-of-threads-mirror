@@ -275,7 +275,7 @@ void GameOfThread_retornar(t_valor_variable retorno){
 	//Escribo en dirRetorno el valor de retorno t_valor_variable
 	char* buffer = malloc(sizeof(t_valor_variable));
 	memcpy(buffer,&retorno,sizeof(t_valor_variable));
-	Escribir(base,dirRetorno,tamanio,buffer);
+	Escribir(base,dirRetorno+1,tamanio,buffer);
 
 	if (finprograma==false){
 		//Obtengo la proxima instruccion (Program Counter)
@@ -295,6 +295,7 @@ void GameOfThread_retornar(t_valor_variable retorno){
 				dictionary_clean(diccionarioVariables);
 				int32_t cant_var = (offset_tmp - 12)/5;
 				log_debug(logger, "Cargando diccionario de variables");
+				pcb->sizeContext = cant_var;
 				cargar_diccionarioVariables(cant_var);
 				destruir_paquete(paquete);
 			}
@@ -339,8 +340,8 @@ void GameOfThread_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
 		t_iESdeCPU *es = malloc(sizeof(t_iESdeCPU));
 		package *paquete;
 
-		char *nombre = malloc(strlen(dispositivo));
-		memcpy(nombre,dispositivo,strlen(dispositivo));
+		char *nombre = malloc(strlen(dispositivo)+1);
+		memcpy(nombre,dispositivo,strlen(dispositivo)+1);
 		string_trim(&nombre);
 
 		quantumPrograma = quantumKernel;
@@ -349,13 +350,13 @@ void GameOfThread_entradaSalida(t_nombre_dispositivo dispositivo, int tiempo){
 		es->id = nombre;
 		//memcpy(es->id,dispositivo,strlen(dispositivo));
 		es->tiempo = tiempo;
-		es->tamanioID = strlen(dispositivo);
+		es->tamanioID = strlen(dispositivo)+1;
 
-		int tamanioDatosES = strlen(dispositivo) + sizeof(int32_t)*2;
+		int tamanioDatosES = strlen(dispositivo)+1 + sizeof(int32_t)*2;
 		char* IOSerializada = serializar_mensaje_ES(es);
 
 		char* PCBSerializado = serializar_datos_pcb_para_cpu(pcb);
-		int size = (sizeof(int32_t)*2) + (sizeof(t_pun)*5) + strlen(dispositivo);
+		int size = (sizeof(int32_t)*2) + (sizeof(t_pun)*5) + strlen(dispositivo)+1;
 
 		char* payload = malloc(size);
 		memcpy(payload,IOSerializada,tamanioDatosES);
