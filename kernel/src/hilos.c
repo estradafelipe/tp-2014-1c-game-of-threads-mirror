@@ -59,7 +59,7 @@ void crea_tablasSitema(){
 			SEM->valor = atoi(kernel->semaforosvalor[i]);
 			SEM->cola = cola_create();
 			SEM->mutex = mutex;
-			printf("Se crea semaforo %s, valor %d strlen %d\n",SEM->id, SEM->valor,strlen(SEM->id));
+			//printf("Se crea semaforo %s, valor %d strlen %d\n",SEM->id, SEM->valor,strlen(SEM->id));
 			dictionary_put(kernel->semaforos,SEM->id,SEM);
 
 			i++;
@@ -96,14 +96,14 @@ void crea_tablasSitema(){
 				sem_init(IO->semaforo_IO,0,0); //inicializo semaforo del hilo en 0
 				dictionary_put(kernel->entradasalida,IO->id,IO);
 				i++;
-				printf("Se crea IO %s, retardo %d strlen %d\n",IO->id, IO->retardo,strlen(IO->id));
+				//printf("Se crea IO %s, retardo %d strlen %d\n",IO->id, IO->retardo,strlen(IO->id));
 			}else break;
 		}
 	}
 }
 
 void wait_semaforo(char *semaforo,uint32_t fd){
-	printf("wait al semaforo %s\n", semaforo);
+	//printf("wait al semaforo %s\n", semaforo);
 
 	if (dictionary_has_key(kernel->semaforos,semaforo)){
 		t_semaforo *SEM = dictionary_get(kernel->semaforos,semaforo);
@@ -115,9 +115,9 @@ void wait_semaforo(char *semaforo,uint32_t fd){
 		if (SEM->valor<0){
 
 			bloqueo_por_semaforo(fd);
-			printf("Envio mensaje a la cpu");
+			//printf("Envio mensaje a la cpu");
 			cola_push(SEM->cola, cpu->pcb);
-			printf("puse el pcb en la cola de bloqueados del SEM");
+			printf("Programa %d, pasa a cola de Bloqueados\n",cpu->pcb->id);
 		}else semaforo_libre(cpu);
 
 		pthread_mutex_unlock(SEM->mutex);
@@ -126,19 +126,29 @@ void wait_semaforo(char *semaforo,uint32_t fd){
 }
 
 void signal_semaforo(char *semaforo){
-	printf("Signal al semaforo %s strlen %d\n",semaforo,strlen(semaforo));
+	//printf("Signal al semaforo %s strlen %d\n",semaforo,strlen(semaforo));
 	if (dictionary_has_key(kernel->semaforos,semaforo)){
-	t_semaforo *SEM = dictionary_get(kernel->semaforos,semaforo);
-	pthread_mutex_lock(SEM->mutex);
-	SEM->valor ++;
-	log_debug(logger, string_from_format("signal al semaforo %s, valor final: %d",semaforo,SEM->valor));
-	if (SEM->valor<=0){
-		t_PCB *PCB = cola_pop(SEM->cola);
-		cola_push(cola_ready, PCB);	// sacar a un programa de la cola
-		sem_post(sem_estado_listo);
-	}
-	pthread_mutex_unlock(SEM->mutex);
-	}else printf("no existe el semaforo!");
+		t_semaforo *SEM = dictionary_get(kernel->semaforos,semaforo);
+		pthread_mutex_lock(SEM->mutex);
+		SEM->valor ++;
+		log_debug(logger, string_from_format("signal al semaforo %s, valor final: %d",semaforo,SEM->valor));
+		if (SEM->valor<=0){
+			t_PCB *PCB = cola_pop(SEM->cola);
+			pthread_mutex_lock(&kernel->mutex_programas);
+			t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",PCB->id));
+			pthread_mutex_unlock(&kernel->mutex_programas);
+			if (!programa->estado){ 				//Verifico  si el programa esta activo
+				pasarACola(cola_exit, PCB);
+				sem_post(sem_exit);
+				sem_post(sem_multiprogramacion);
+			} else {
+				printf("Programa %d pasa de Bloqueado a Ready\n",PCB->id);
+				cola_push(cola_ready, PCB);
+				sem_post(sem_estado_listo);
+			}
+		}
+		pthread_mutex_unlock(SEM->mutex);
+		}else printf("no existe el semaforo!");
 }
 
 
@@ -146,18 +156,20 @@ void hiloIO(t_entradasalida *IO){
 	// hilo de entrada salida
 	while(1){
 		sem_wait(IO->semaforo_IO); // cuando deba ejecutar este hilo, darle signal
-		printf("Va a ejecutar el dispositivo: %s",IO->id);
+		//printf("Va a ejecutar el dispositivo: %s",IO->id);
 		t_progIO *elemento = cola_pop(IO->cola);
 		// controlar que este activo el programa para no desperdiciar recurso
 		int retardo = IO->retardo * elemento->unidadesTiempo;
 		usleep(retardo);
+		pthread_mutex_lock(&kernel->mutex_programas);
 		t_programa * programa = dictionary_get(kernel->programas, string_from_format("%d",elemento->PCB->id));
+		pthread_mutex_unlock(&kernel->mutex_programas);
 		if (!programa->estado){ 				//Verifico  si el programa esta activo
 			pasarACola(cola_exit, elemento->PCB);
 			sem_post(sem_exit);
 			sem_post(sem_multiprogramacion);
 		} else {
-			printf("Termino de ejecutar, para a Ready\n");
+			printf("Programa %d pasa de Bloqueado por Dispositivo a Ready\n",elemento->PCB->id);
 			cola_push(cola_ready,elemento->PCB);
 			sem_post(sem_estado_listo);
 		}
@@ -181,5 +193,3 @@ void crea_hilosIO(char* key, t_entradasalida *IO){
 void imprimepantalla(char * key, t_entradasalida *IO){
 	log_debug(logger,string_from_format("%s: %d\n",key,IO->retardo));
 }
-
-
