@@ -25,14 +25,11 @@ endif
 # All Target
 all: programa
 
-dependents:
-	-cd /home/utnso/workspace/Rutinas/Debug && $(MAKE) all
-
 # Tool invocations
-programa: $(OBJS) $(USER_OBJS) /home/utnso/workspace/Rutinas/Debug/libRutinas.so
+programa: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	gcc -L"/home/utnso/workspace/Rutinas/Debug" -L"/home/utnso/workspace/commons/Debug" -o "programa" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc  -o "programa" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -43,6 +40,5 @@ clean:
 
 .PHONY: all clean dependents
 .SECONDARY:
-/home/utnso/workspace/Rutinas/Debug/libRutinas.so:
 
 -include ../makefile.targets
